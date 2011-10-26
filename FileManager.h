@@ -3,7 +3,7 @@
 #define FileManager_h
 
 
-#include "MUTOO_MACRO.h"
+#include "ALI_MACRO.h"
 #include <iostream>
 #include <set>
 #include <vector>
@@ -34,7 +34,7 @@ class FileManager: public TObject
 
     //! constructor
     FileManager( const char* selection=0 ):
-        _verbosity( MUTOO_MACRO::NONE )
+        _verbosity( ALI_MACRO::NONE )
     { add_files( selection ); }
 
     //! clear selection
@@ -135,11 +135,11 @@ class FileManager: public TObject
     { return _files; }
 
     //! verbosity
-    MUTOO_MACRO::Verbosity get_verbosity( void ) const
+    ALI_MACRO::Verbosity get_verbosity( void ) const
     { return _verbosity; }
 
     //! verbosity
-    void set_verbosity( MUTOO_MACRO::Verbosity value )
+    void set_verbosity( ALI_MACRO::Verbosity value )
     { _verbosity = value; }
 
     //!@name utility functions
@@ -160,7 +160,7 @@ class FileManager: public TObject
     FileSet _files;
 
     //! verbosity
-    MUTOO_MACRO::Verbosity _verbosity;
+    ALI_MACRO::Verbosity _verbosity;
 
     //! root dictionary
     ClassDef( FileManager, 0 );

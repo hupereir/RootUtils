@@ -8,7 +8,7 @@
 \date $Date: 2010/09/15 02:27:25 $
 */
 
-#include "MUTOO_MACRO.h"
+#include "ALI_MACRO.h"
 #include "Debug.h"
 #include "Utils.h"
 
@@ -109,7 +109,7 @@ double Utils::get_rms( list<double>values )
     double out(0);
     double mean( get_mean( values ) );
     for( list<double>::iterator iter = values.begin(); iter != values.end(); iter++ )
-        out+=MUTOO_MACRO::SQUARE(*iter - mean );
+        out+=ALI_MACRO::SQUARE(*iter - mean );
     return sqrt(out/values.size());
 }
 
@@ -125,7 +125,7 @@ void Utils::dump_histogram( TH1* h )
     for( int i=0; i<h->GetNbinsX(); i++ )
     {
         sum += h->GetBinContent(i);
-        sum_error += MUTOO_MACRO::SQUARE( h->GetBinError(i) );
+        sum_error += ALI_MACRO::SQUARE( h->GetBinError(i) );
         printf( "%5i %10f %10f %10f %10f %10f\n",
             i,
             h->GetBinCenter(i),
@@ -167,7 +167,7 @@ void Utils::draw_normalized( TTree* tree, const char* name, const char* var, con
 TTree *Utils::get_chisquare_tree( int ndf, int nevents )
 {
 
-    MUTOO_MACRO::safe_delete<TTree>( "chisquare" );
+    ALI_MACRO::safe_delete<TTree>( "chisquare" );
     TTree *tree = new TTree( "chisquare", "chisquare" );
     static double chi_square(0);
 
@@ -194,11 +194,11 @@ double Utils::get_chisquare( int ndf )
     for( int i=0; i<ndf+1; i++ )
     {
         double value(random.Gaus());
-        chi_square += MUTOO_MACRO::SQUARE( value );
+        chi_square += ALI_MACRO::SQUARE( value );
         average+=value;
     }
 
-    chi_square -= MUTOO_MACRO::SQUARE( average )/(ndf+1);
+    chi_square -= ALI_MACRO::SQUARE( average )/(ndf+1);
     return chi_square;
 
 }
@@ -550,7 +550,7 @@ TH1* Utils::new_th1(
     double max
     )
 {
-    MUTOO_MACRO::safe_delete<TH1>( name );
+    ALI_MACRO::safe_delete<TH1>( name );
     return new th1( name, title, bin, min, max );
 }
 
@@ -562,7 +562,7 @@ TH1* Utils::new_th1(
     double *x
     )
 {
-    MUTOO_MACRO::safe_delete<TH1>( name );
+    ALI_MACRO::safe_delete<TH1>( name );
     return new TH1F( name, title, bin, x );
 }
 
@@ -577,7 +577,7 @@ TH2* Utils::new_th2(
     double miny,
     double maxy )
 {
-    MUTOO_MACRO::safe_delete<TH1>( name );
+    ALI_MACRO::safe_delete<TH1>( name );
     return new TH2F( name, title, binx, minx, maxx, biny, miny, maxy );
 }
 
@@ -599,7 +599,7 @@ TH1* Utils::new_clone(
     }
 
     // check if histogram with requested name exists
-    MUTOO_MACRO::safe_delete<th1>( name );
+    ALI_MACRO::safe_delete<th1>( name );
     TH1* h = (TH1*) parent->Clone( name );
     if( reset ) h->Reset();
     h->SetName(name);
@@ -622,7 +622,7 @@ TH2* Utils::new_clone_2d(
     }
 
     // check if histogram with requested name exists
-    MUTOO_MACRO::safe_delete<TH2>( name );
+    ALI_MACRO::safe_delete<TH2>( name );
     TH2* h = (TH2*) parent->Clone();
     if( reset ) h->Reset();
     h->SetName(name);
@@ -637,7 +637,7 @@ TF1* Utils::new_tf1( const char* name,
     const int& n_par )
 {
 
-    MUTOO_MACRO::safe_delete<TF1>( name );
+    ALI_MACRO::safe_delete<TF1>( name );
     return new TF1( name, function, min, max, n_par );
 
 }
@@ -674,8 +674,8 @@ int Utils::h_diff(TH1* h1, TH1* h2, TH1* h3)
         double b2= h2->GetBinContent(i); sum2 += b2;
         h3->SetBinContent(i,b1-b2);
 
-        double e1= MUTOO_MACRO::SQUARE(h1->GetBinError(i));
-        double e2= MUTOO_MACRO::SQUARE(h2->GetBinError(i));
+        double e1= ALI_MACRO::SQUARE(h1->GetBinError(i));
+        double e2= ALI_MACRO::SQUARE(h2->GetBinError(i));
 
         h3->SetBinError( i, sqrt( e1+e2 ) );
 
@@ -767,8 +767,8 @@ double Utils::h_div(TH1* h1, TH1* h2, TH1* h3, unsigned int i1, unsigned int i2,
             } else {
 
                 e3 = (b2 != 0) ? b3*sqrt(
-                    MUTOO_MACRO::SQUARE( 1.0/sqrt(b1) )
-                    + MUTOO_MACRO::SQUARE( 1.0/sqrt(b2) )
+                    ALI_MACRO::SQUARE( 1.0/sqrt(b1) )
+                    + ALI_MACRO::SQUARE( 1.0/sqrt(b2) )
                     ):0;
 
                 if( b1 == 0 && b2 ) e3 = 0.00001;
@@ -819,9 +819,9 @@ TGraphErrors* Utils::tg_div(TGraphErrors* tg1, TGraphErrors* tg2 )
         double err1( tg1->GetErrorY( i ) );
         double err2( tg2->GetErrorY( i ) );
         double err( sqrt(
-            MUTOO_MACRO::SQUARE((1-eff)*err1)+
-            MUTOO_MACRO::SQUARE(eff)*(
-            MUTOO_MACRO::SQUARE(err2)-MUTOO_MACRO::SQUARE(err1)))/y2 );
+            ALI_MACRO::SQUARE((1-eff)*err1)+
+            ALI_MACRO::SQUARE(eff)*(
+            ALI_MACRO::SQUARE(err2)-ALI_MACRO::SQUARE(err1)))/y2 );
 
         tg_out->SetPoint( point, x1, eff );
         tg_out->SetPointError( point, 0, err );
@@ -881,8 +881,8 @@ double Utils::h_div_2d(TH2* h1, TH2* h2, TH2* h3, int error_mode )
                 if( b1 == b2 && b1 ) e3 =	0.00001;
             } else {
                 e3 = b3*sqrt(
-                    MUTOO_MACRO::SQUARE( 1.0/sqrt(b1) )
-                    + MUTOO_MACRO::SQUARE( 1.0/sqrt(b2) )
+                    ALI_MACRO::SQUARE( 1.0/sqrt(b1) )
+                    + ALI_MACRO::SQUARE( 1.0/sqrt(b2) )
                     );
             }
             h3->SetBinContent(bin,b3);

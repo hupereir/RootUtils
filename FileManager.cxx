@@ -406,7 +406,7 @@ TChain* FileManager::get_chain( const char* key ) const
         }
 
         // dump file
-        if( _verbosity >= MUTOO_MACRO::SOME )
+        if( _verbosity >= ALI_MACRO::SOME )
             cout << "FileManager::get_chain - loading \"" << *iter << "\".\n";
 
         // add TFile to chain
@@ -448,7 +448,7 @@ TH1* FileManager::tree_to_histo(
     {
 
         // dump file
-        if( _verbosity >= MUTOO_MACRO::NONE )
+        if( _verbosity >= ALI_MACRO::NONE )
             cout << "FileManager::tree_to_histo - loading \"" << *iter << "\" (" << ++count << "/" << total << ").\n";
 
         // open TFile
@@ -513,7 +513,7 @@ void FileManager::tree_to_histo( const string& tree_name, ProjectionList& projec
         }
 
         // dump file
-        if( _verbosity >= MUTOO_MACRO::NONE )
+        if( _verbosity >= ALI_MACRO::NONE )
             cout << "FileManager::tree_to_histo - loading \"" << *iter << "\" (" << ++count << "/" << total << ").\n";
 
         // project tree to histogram
@@ -539,7 +539,7 @@ TH1* FileManager::get_th1( const char* key ) const
     if( empty() ) return 0;
 
     // check if histogram with requested name exists
-    MUTOO_MACRO::safe_delete<TH1>( key );
+    ALI_MACRO::safe_delete<TH1>( key );
     TH1* out( 0 );
 
     for( FileSet::iterator iter = _files.begin(); iter!= _files.end(); iter++ )
@@ -561,7 +561,7 @@ TH1* FileManager::get_th1( const char* key ) const
         TH1* h = (TH1*) object;
 
         // dump file
-        if( _verbosity >= MUTOO_MACRO::SOME )
+        if( _verbosity >= ALI_MACRO::SOME )
             cout << "FileManager::get_th1 - loading \"" << *iter << "\".\n";
 
         if( !out ) {
@@ -583,7 +583,7 @@ TH2* FileManager::get_th2( const char* key ) const
     if( empty() ) return 0;
 
     // check if histogram with requested name exists
-    MUTOO_MACRO::safe_delete<TH2>( key );
+    ALI_MACRO::safe_delete<TH2>( key );
     TH2* out( 0 );
 
     for( FileSet::iterator iter = _files.begin(); iter!= _files.end(); iter++ )
@@ -605,7 +605,7 @@ TH2* FileManager::get_th2( const char* key ) const
         TH2* h = (TH2*) object;
 
         // dump file
-        if( _verbosity >= MUTOO_MACRO::SOME )
+        if( _verbosity >= ALI_MACRO::SOME )
             cout << "FileManager::get_th2 - loading \"" << *iter << "\".\n";
 
         // this probably does not work. may need a clone.
@@ -739,7 +739,7 @@ void FileManager::merge_recursive( const char* output, const char* selection ) c
     _merge_recursive( &in, &out, selection );
     out.Write();
 
-    if( _verbosity >= MUTOO_MACRO::SOME ) cout << "FileManager::merge_recursive - done" << endl;
+    if( _verbosity >= ALI_MACRO::SOME ) cout << "FileManager::merge_recursive - done" << endl;
 
 }
 
@@ -770,7 +770,7 @@ void FileManager::_merge_recursive(
     TDirectory *output, const std::string& selection ) const
 {
 
-    if( _verbosity >= MUTOO_MACRO::MAX )
+    if( _verbosity >= ALI_MACRO::MAX )
     {
         cout << endl;
         cout << "FileManager::_merge_recursive - input:" << endl;
