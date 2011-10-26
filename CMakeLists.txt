@@ -3,34 +3,39 @@ project(AliUtil CXX)
 
 ######################
 # environment variables
-set(ALICE_ROOT $ENV{ALICE_ROOT})
-set(ALICE $ENV{ALICE})
+SET(ALICE_ROOT $ENV{ALICE_ROOT})
+SET(ALICE $ENV{ALICE})
 
 ######################
 # module path
-set(CMAKE_MODULE_PATH "${ALICE_ROOT}/cmake")
-
-######################
-# alice specific macro
-include(ALICE_CMake)
+SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 ######
 # ROOT
-find_package(ROOT REQUIRED)
+FIND_PACKAGE(ROOT REQUIRED)
 
 ######################
 # include directories
-include_directories(SYSTEM ${ROOTINCDIR})
+INCLUDE_DIRECTORIES(SYSTEM ${PROJECT_SOURCE_DIR} ${ROOT_INCLUDE_DIR})
 
 ############
 # postscript
-set( libpostscript_SOURCES Postscript.cxx )
 
-add_library( postscript SHARED ${libpostscript_SOURCES} )
+SET( libpostscript_SOURCES
+  Postscript.cxx
+)
+
+ADD_ROOT_DICTIONARIES( libpostscript_SOURCES
+  PostscriptLinkDef.h
+)
+
+ADD_LIBRARY( postscript SHARED ${libpostscript_SOURCES} )
+TARGET_LINK_LIBRARIES( postscript ${ROOT_LIBRARIES})
 
 ############
 # base
-set( libbase_SOURCES
+
+SET( libbase_SOURCES
   Color.cxx
   Debug.cxx
   Draw.cxx
@@ -38,6 +43,22 @@ set( libbase_SOURCES
   FitUtils.cxx
   Table.cxx
   TH2Fit.cxx
-  Utils.cxx )
+  Utils.cxx
+ )
 
-add_library( base SHARED ${libbase_SOURCES} )
+
+ADD_ROOT_DICTIONARIES( libbase_SOURCES
+  ALI_MACROLinkDef.h
+  ColorLinkDef.h
+  DebugLinkDef.h
+  DrawLinkDef.h
+  FileManagerLinkDef.h
+  FitUtilsLinkDef.h
+  PostscriptLinkDef.h
+  TableLinkDef.h
+  TH2FitLinkDef.h
+  UtilsLinkDef.h
+)
+
+ADD_LIBRARY( base SHARED ${libbase_SOURCES} )
+TARGET_LINK_LIBRARIES( base ${ROOT_LIBRARIES})
