@@ -2,11 +2,6 @@ cmake_minimum_required(VERSION 2.8.4 FATAL_ERROR)
 project(AliUtil CXX)
 
 ######################
-# environment variables
-SET(ALICE_ROOT $ENV{ALICE_ROOT})
-SET(ALICE $ENV{ALICE})
-
-######################
 # module path
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
