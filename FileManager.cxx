@@ -736,7 +736,7 @@ void FileManager::MergeRecursive( const char* output, const char* selection ) co
         return;
     }
 
-    _MergeRecursive( &in, &out, selection );
+    MergeRecursive( &in, &out, selection );
     out.Write();
 
     if( fVerbosity >= ALI_MACRO::SOME ) cout << "FileManager::MergeRecursive - done" << endl;
@@ -765,7 +765,7 @@ int FileManager::FileSize( const char* file )
 }
 
 //_________________________________________________
-void FileManager::_MergeRecursive(
+void FileManager::MergeRecursive(
     TDirectory *input,
     TDirectory *output, const std::string& selection ) const
 {
@@ -773,7 +773,7 @@ void FileManager::_MergeRecursive(
     if( fVerbosity >= ALI_MACRO::MAX )
     {
         cout << endl;
-        cout << "FileManager::_MergeRecursive - input:" << endl;
+        cout << "FileManager::MergeRecursive - input:" << endl;
         input->ls();
     }
 
@@ -792,7 +792,7 @@ void FileManager::_MergeRecursive(
         {
 
             //case of TH1 or TProfile
-            cout << "FileManager::_MergeRecursive - histogram " << obj->GetName() << endl;
+            cout << "FileManager::MergeRecursive - histogram " << obj->GetName() << endl;
             TH1* sum = static_cast<TH1*>(obj);
 
             // loop over files except the first
@@ -817,18 +817,18 @@ void FileManager::_MergeRecursive(
                     sum->Add( h );
                     delete h;
                 } else {
-                    cout << "FileManager::_MergeRecursive - cannot find histogram " << key->GetName() << " in file " << *iter << endl;
+                    cout << "FileManager::MergeRecursive - cannot find histogram " << key->GetName() << " in file " << *iter << endl;
                 }
             }
 
         } else if( obj->IsA()->InheritsFrom("TDirectory") ) {
-            cout << "FileManager::_MergeRecursive - directory " << obj->GetName() << endl;
+            cout << "FileManager::MergeRecursive - directory " << obj->GetName() << endl;
             output->cd();
             TDirectory *dest = output->mkdir(obj->GetName(),obj->GetTitle());
             dest->cd();
             TObject *obj_save = obj;
             TKey    *key_save = key;
-            _MergeRecursive( (TDirectory*)obj, dest, selection );
+            MergeRecursive( (TDirectory*)obj, dest, selection );
             obj = obj_save;
             key = key_save;
 

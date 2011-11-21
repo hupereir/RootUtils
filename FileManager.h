@@ -153,8 +153,9 @@ class FileManager: public TObject
     protected:
 
     //! recursive merging of TDirectories
-    void _MergeRecursive(TDirectory *root,TDirectory* node, const std::string& selection) const;
+    void MergeRecursive(TDirectory *root,TDirectory* node, const std::string& selection) const;
 
+    private:
 
     //! list of input files
     FileSet fFiles;
