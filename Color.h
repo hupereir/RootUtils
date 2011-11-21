@@ -6,27 +6,27 @@
 #include <TObject.h>
 
 //! color creation
-class Color:public TObject 
+class Color:public TObject
 {
-	
-	public:
-  	
+
+  public:
+
   //! constructor (doing nothing, needed for root)
   Color( int index ):
-			TObject(),
-			_index( index ) 
+    TObject(),
+    fIndex( index )
   {}
-	
-	//! merge two colors (from index) return index of merged color
-	int merge( int second, double ratio );
-		
-	private:
-			
-	//! color index
-	int _index;
-	
-	ClassDef(Color,0)
-	
+
+  //! merge two colors (from index) return index of merged color
+  int Merge( int second, double ratio );
+
+  private:
+
+  //! color index
+  int fIndex;
+
+  ClassDef(Color,0)
+
 };
 
 

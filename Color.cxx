@@ -8,16 +8,16 @@ using namespace std;
 
 //_____________________________________
 ClassImp( Color )
-		
+
 //_____________________________________
-int Color::merge( int second_index, double ratio )
+int Color::Merge( int secondfIndex, double ratio )
 {
 	if( ratio < 0 ) ratio = 0;
 	if( ratio > 1 ) ratio = 1;
-	
-	TColor first( _index, 0, 0, 0 );
-	TColor second( second_index, 0, 0, 0 );
-	
+
+	TColor first( fIndex, 0, 0, 0 );
+	TColor second( secondfIndex, 0, 0, 0 );
+
 	double red = ratio*first.GetRed() + (1.0-ratio)*second.GetRed();
 	double green = ratio*first.GetGreen() + (1.0-ratio)*second.GetGreen();
 	double blue = ratio*first.GetBlue() + (1.0-ratio)*second.GetBlue();

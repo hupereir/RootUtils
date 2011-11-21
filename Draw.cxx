@@ -20,18 +20,18 @@ ClassImp( Draw );
 
 //__________________________________________________
 // static members
-bool Draw::_draw_err_limit = true;
-int Draw::_line_width = 2;
-int Draw::_box_fill_style = 2;
-double Draw::_syst_shade = 0.4;
-double Draw::_delta_x_log = 0.03;
-double Draw::_delta_x_lin = 0.012;
+bool Draw::fDrawErrLimit = true;
+int Draw::fLineWidth = 2;
+int Draw::fBoxFillStyle = 2;
+double Draw::fSystShade = 0.4;
+double Draw::fDeltaXLog = 0.03;
+double Draw::fDeltaXLin = 0.012;
 
 //______________________________________________________
-void Draw::divide_canvas( TCanvas* cv, int n )
+void Draw::DivideCanvas( TCanvas* cv, int n, bool respect_ratio )
 {
 
-    double ratio( double(cv->GetWindowWidth())/ double(cv->GetWindowHeight()) );
+    double ratio( respect_ratio ? double(cv->GetWindowWidth())/ double(cv->GetWindowHeight()): 1 );
     int columns = std::max( 1, int(sqrt( n*ratio )) );
     int rows = std::max( 1, int(n/columns) );
     while( rows * columns < n )
@@ -45,7 +45,7 @@ void Draw::divide_canvas( TCanvas* cv, int n )
 }
 
 //______________________________________________________
-TLatex* Draw::put_text( const double& x_ndc, const double& y_ndc, const int& color, const char* value)
+TLatex* Draw::PutText( const double& x_ndc, const double& y_ndc, const int& color, const char* value)
 {
     TLatex* text = new TLatex();
     text->SetNDC( true );
@@ -55,13 +55,13 @@ TLatex* Draw::put_text( const double& x_ndc, const double& y_ndc, const int& col
 }
 
 //______________________________________________________
-TPaveStats* Draw::resize_stats( double scale, int dimension )
+TPaveStats* Draw::ResizeStats( double scale, int dimension )
 {
 
     gPad->Update();
     TPaveStats *st = (TPaveStats*)gPad->GetPrimitive("stats");
     if( !st ) {
-        std::cout << "Draw::resize_stats - cannot access PaveStats.\n";
+        std::cout << "Draw::ResizeStats - cannot access PaveStats.\n";
         return 0;
     }
 
@@ -95,7 +95,7 @@ TPaveStats* Draw::resize_stats( double scale, int dimension )
 }
 
 //______________________________________________________
-TPaveStats* Draw::update_stats(
+TPaveStats* Draw::UpdateStats(
     int direction,
     int color,
     const char* new_name,
@@ -106,7 +106,7 @@ TPaveStats* Draw::update_stats(
     gPad->Update();
     TPaveStats *st = (TPaveStats*)gPad->GetPrimitive("stats");
     if( !st ) {
-        std::cout << "Draw::update_stats - cannot access PaveStats.\n";
+        std::cout << "Draw::UpdateStats - cannot access PaveStats.\n";
         return 0;
     }
 
@@ -167,7 +167,7 @@ TPaveStats* Draw::update_stats(
 }
 
 //______________________________________________________
-void Draw::update_pave_size(
+void Draw::UpdatePaveSize(
     TPaveText* pave,
     int direction
     )
@@ -230,7 +230,7 @@ void Draw::update_pave_size(
 }
 
 //______________________________________________________
-void Draw::resize_axis( TH1* h, double size, int flag, bool update )
+void Draw::ResizeAxis( TH1* h, double size, int flag, bool update )
 {
 
     if( !h ) return;
@@ -256,14 +256,14 @@ void Draw::resize_axis( TH1* h, double size, int flag, bool update )
 
 
 //__________________________________________________________
-TMarker* Draw::draw_point(
+TMarker* Draw::DrawPoint(
     double x, double y,
     double x_err, double y_err,
     int symbol, int color,
     int flag )
 {
-    bool draw_err_limit_x =_draw_err_limit;
-    bool draw_err_limit_y =_draw_err_limit;
+    bool draw_err_limit_x =fDrawErrLimit;
+    bool draw_err_limit_y =fDrawErrLimit;
 
     printf("x= %10g +/- %10g y= %10g +/- %10g\n",	x, x_err, y, y_err );
 
@@ -279,7 +279,7 @@ TMarker* Draw::draw_point(
 
     TLine *line = new TLine();
     line->SetLineColor( color );
-    line->SetLineWidth( _line_width );
+    line->SetLineWidth( fLineWidth );
 
     // error along x
     if( x_err ) {
@@ -370,7 +370,7 @@ TMarker* Draw::draw_point(
 }
 
 //__________________________________________________________
-void Draw::draw_point( TGraphErrors *graph, int flag )
+void Draw::DrawPoint( TGraphErrors *graph, int flag )
 {
 
     int symbol( graph->GetMarkerStyle() );
@@ -381,19 +381,19 @@ void Draw::draw_point( TGraphErrors *graph, int flag )
         graph->GetPoint( i, x, y  );
         double x_err = graph->GetErrorX(i);
         double y_err = graph->GetErrorY(i);
-        draw_point( x, y, x_err, y_err, symbol, color, flag );
+        DrawPoint( x, y, x_err, y_err, symbol, color, flag );
     }
 }
 
 //__________________________________________________________
-void Draw::draw_syst_bracket(
+void Draw::DrawSystBracket(
     double x, double y,
     double y_err,
     int color, int flag )
 {
     // check error
     if( y_err <= 0 ) {
-        std::cout << "Draw::draw_syst_bracket - invalid y error" << std::endl;
+        std::cout << "Draw::DrawSystBracket - invalid y error" << std::endl;
         return;
     }
 
@@ -413,7 +413,7 @@ void Draw::draw_syst_bracket(
 
     TPolyLine* pline = new TPolyLine();
     pline->SetLineColor( color );
-    pline->SetLineWidth( _line_width );
+    pline->SetLineWidth( fLineWidth );
 
     static double px[4] = {0};
     static double py[4] = {0};
@@ -482,7 +482,7 @@ void Draw::draw_syst_bracket(
 }
 
 //__________________________________________________________
-void Draw::draw_syst_bracket( TGraphErrors *graph, int flag )
+void Draw::DrawSystBracket( TGraphErrors *graph, int flag )
 {
 
     int color( graph->GetMarkerColor() );
@@ -491,19 +491,19 @@ void Draw::draw_syst_bracket( TGraphErrors *graph, int flag )
         double x, y;
         graph->GetPoint( i, x, y  );
         double y_err = graph->GetErrorY(i);
-        draw_syst_bracket( x, y, y_err, color, flag );
+        DrawSystBracket( x, y, y_err, color, flag );
     }
 }
 
 //__________________________________________________________
-void Draw::draw_syst_box(
+void Draw::DrawSystBox(
     double x, double y,
     double y_err,
     int color, int flag )
 {
     // check error
     if( y_err <= 0 ) {
-        std::cout << "Draw::draw_syst_box - invalid y error" << std::endl;
+        std::cout << "Draw::DrawSystBox - invalid y error" << std::endl;
         return;
     }
 
@@ -521,7 +521,7 @@ void Draw::draw_syst_box(
     double y_max = std::min<double>( (flag&LOG_Y) ? exp( log(10.0)*uymax ):uymax , y+y_err );
 
     // bracket limits
-    double delta_x = (flag&LOG_X) ? _delta_x_log:_delta_x_lin * ( uxmax - uxmin );
+    double delta_x = (flag&LOG_X) ? fDeltaXLog:fDeltaXLin * ( uxmax - uxmin );
 
     // box limits
     double x0 = (flag&LOG_X) ?  log10((1-delta_x)*x):x-delta_x;
@@ -530,16 +530,16 @@ void Draw::draw_syst_box(
     double y1 = (flag&LOG_Y) ? log10(y_max):y_max;
 
     TBox *box = new TBox(x0, y0, x1, y1 );
-    color = Color(color).merge( 0, 0.4 );
+    color = Color(color).Merge( 0, 0.4 );
 
     box->SetFillColor( color );
     box->SetLineColor( color );
-    if( _box_fill_style ) box->SetFillStyle( _box_fill_style );
+    if( fBoxFillStyle ) box->SetFillStyle( fBoxFillStyle );
     box->Draw();
 }
 
 //__________________________________________________________
-void Draw::draw_syst_box( TGraphErrors *graph, int flag )
+void Draw::DrawSystBox( TGraphErrors *graph, int flag )
 {
 
     int color( graph->GetMarkerColor() );
@@ -548,12 +548,12 @@ void Draw::draw_syst_box( TGraphErrors *graph, int flag )
         double x, y;
         graph->GetPoint( i, x, y  );
         double y_err = graph->GetErrorY(i);
-        draw_syst_box( x, y, y_err, color, flag );
+        DrawSystBox( x, y, y_err, color, flag );
     }
 }
 
 //___________________________________________________________
-void Draw::draw_syst_global(  TGraph* tg, double err_rel, int flag )
+void Draw::DrawSystGlobal(  TGraph* tg, double err_rel, int flag )
 {
 
     const int n_points = tg->GetN();
@@ -586,7 +586,7 @@ void Draw::draw_syst_global(  TGraph* tg, double err_rel, int flag )
 }
 
 //___________________________________________________________
-void Draw::draw_box(
+void Draw::DrawBox(
     double x, double y,
     double delta_x, double delta_y,
     int color, int flag )
@@ -600,7 +600,7 @@ void Draw::draw_box(
     double y1 = (flag&LOG_Y)? log10(y-delta_y):y-delta_y;
 
     TBox *box = new TBox( x0, y0, x1, y1 );
-    if( _box_fill_style ) box->SetFillStyle( _box_fill_style );
+    if( fBoxFillStyle ) box->SetFillStyle( fBoxFillStyle );
     box->SetFillColor( color );
     box->SetLineColor( color );
     box->Draw();

@@ -53,14 +53,14 @@ void FileManager::add_directory( const char* directory )
             continue;
         }
 
-        _files.insert( name_str );
+        fFiles.insert( name_str );
         delete[] name;
     }
     pclose( tmp );
 }
 
 //_________________________________________________
-void FileManager::add_files( const char* selection )
+void FileManager::AddFiles( const char* selection )
 {
     if( !(selection && strlen( selection ) ) ) return;
 
@@ -73,24 +73,24 @@ void FileManager::add_files( const char* selection )
         string name_str( name );
         if( !name_str.size() ) continue;
         if( access( name_str.c_str(), R_OK ) ){
-            cout << "FileManager::add_files - INFO: cannot access file \"" << name_str << "\".\n";
+            cout << "FileManager::AddFiles - INFO: cannot access file \"" << name_str << "\".\n";
             continue;
         }
 
-        _files.insert( name_str );
+        fFiles.insert( name_str );
         delete[] name;
     }
     pclose( tmp );
 }
 
 //_________________________________________________
-void FileManager::add_list( const char* selection )
+void FileManager::AddList( const char* selection )
 {
     if( !(selection && strlen( selection ) ) ) return;
 
     ifstream in( selection );
     if( !in ) {
-        cout << "FileManager::add_list - invalid file " << selection << endl;
+        cout << "FileManager::AddList - invalid file " << selection << endl;
         return;
     }
 
@@ -101,7 +101,7 @@ void FileManager::add_list( const char* selection )
         in.getline( line, 512, '\n' );
         if( !strlen(line) ) continue;
         if( strncmp( line, "//", 2 ) == 0 ) {
-            cout << "FileManager::add_list skipping " << line << endl;
+            cout << "FileManager::AddList skipping " << line << endl;
             continue;
         }
 
@@ -109,13 +109,13 @@ void FileManager::add_list( const char* selection )
         string file;
         line_stream >> file;
         if( line_stream.rdstate() & ios::failbit ) continue;
-        _files.insert( file );
+        fFiles.insert( file );
     }
     return;
 }
 
 //_________________________________________________
-void FileManager::remove_files( const char* selection )
+void FileManager::RemoveFiles( const char* selection )
 {
     if( !(selection && strlen( selection ) ) ) return;
 
@@ -129,9 +129,9 @@ void FileManager::remove_files( const char* selection )
         if( !name_str.size() ) continue;
         if( access( name_str.c_str(), R_OK ) ) continue;
 
-        if( _files.find( name_str ) != _files.end() ) {
-            cout << "FileManager::remove_files - removing " << name_str << endl;
-            _files.erase( name_str );
+        if( fFiles.find( name_str ) != fFiles.end() ) {
+            cout << "FileManager::RemoveFiles - removing " << name_str << endl;
+            fFiles.erase( name_str );
         }
 
         delete[] name;
@@ -141,13 +141,13 @@ void FileManager::remove_files( const char* selection )
 }
 
 //_________________________________________________
-void FileManager::remove_list( const char* selection )
+void FileManager::RemoveList( const char* selection )
 {
     if( !(selection && strlen( selection ) ) ) return;
 
     ifstream in( selection );
     if( !in ) {
-        cout << "FileManager::add_list - invalid file " << selection << endl;
+        cout << "FileManager::AddList - invalid file " << selection << endl;
         return;
     }
 
@@ -164,9 +164,9 @@ void FileManager::remove_list( const char* selection )
         line_stream >> file;
         if( line_stream.rdstate() & ios::failbit ) continue;
 
-        if( _files.find( file ) != _files.end() ) {
-            cout << "FileManager::remove_list - removing " << file << endl;
-            _files.erase( file );
+        if( fFiles.find( file ) != fFiles.end() ) {
+            cout << "FileManager::RemoveList - removing " << file << endl;
+            fFiles.erase( file );
         }
 
     }
@@ -174,29 +174,29 @@ void FileManager::remove_list( const char* selection )
 }
 
 //_________________________________________________
-bool FileManager::check_files( const char* output ) const
+bool FileManager::CheckFiles( const char* output ) const
 {
 
-    FileSet bad_files;
+    FileSet badfFiles;
 
-    unsigned int total( _files.size() );
+    unsigned int total( fFiles.size() );
     unsigned int current( 0 );
 
     // loop over files
-    for( FileSet::const_iterator iter = _files.begin(); iter!= _files.end(); iter++ )
+    for( FileSet::const_iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
     {
 
         current++;
         TFile f( iter->c_str() );
         if( !( f.IsOpen() && f.GetSeekKeys() > 0 ) )
         {
-            cout << "FileManager::check_files - "
+            cout << "FileManager::CheckFiles - "
                 << current << "/" << total
                 << " " << *iter << " looks corrupted" << endl;
-            bad_files.insert( *iter );
+            badfFiles.insert( *iter );
         } else {
 
-            cout << "FileManager::check_files - "
+            cout << "FileManager::CheckFiles - "
                 << current << "/" << total
                 << " " << *iter << " looks good" << endl;
 
@@ -207,25 +207,25 @@ bool FileManager::check_files( const char* output ) const
     if( output )
     {
         ofstream out( output );
-        for( FileSet::const_iterator iter = bad_files.begin(); iter!= bad_files.end(); iter++ )
+        for( FileSet::const_iterator iter = badfFiles.begin(); iter!= badfFiles.end(); iter++ )
             out << *iter << endl;
         out.close();
     }
 
-    return bad_files.empty();
+    return badfFiles.empty();
 
 }
 
 //_________________________________________________
-bool FileManager::check_tree( const char* key, const char* output) const
+bool FileManager::CheckTree( const char* key, const char* output) const
 {
 
     if( output )
     {
         ofstream out( output );
-        if( out ) cout << "FileManager::check_tree - output written to file " << output << endl;
+        if( out ) cout << "FileManager::CheckTree - output written to file " << output << endl;
         else {
-            cout << "FileManager::check_tree - unable to write file to " << output << endl;
+            cout << "FileManager::CheckTree - unable to write file to " << output << endl;
             return false;
         }
     }
@@ -235,13 +235,13 @@ bool FileManager::check_tree( const char* key, const char* output) const
 
     typedef map<string, double> FileMap;
 
-    FileMap good_files;
-    FileSet bad_files;
+    FileMap goodfFiles;
+    FileSet badfFiles;
 
-    unsigned int total( _files.size() );
+    unsigned int total( fFiles.size() );
     unsigned int current( 0 );
 
-    for( FileSet::const_iterator iter = _files.begin(); iter!= _files.end(); iter++ )
+    for( FileSet::const_iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
     {
 
         current++;
@@ -249,10 +249,10 @@ bool FileManager::check_tree( const char* key, const char* output) const
         TFile f( iter->c_str() );
         if( !( f.IsOpen() && f.GetSeekKeys() > 0 ) || f.IsZombie() )
         {
-            cout << "FileManager::check_tree - "
+            cout << "FileManager::CheckTree - "
                 << current << "/" << total
                 << " " << *iter << " looks corrupted" << endl;
-            bad_files.insert( *iter );
+            badfFiles.insert( *iter );
             continue;
         }
 
@@ -260,43 +260,43 @@ bool FileManager::check_tree( const char* key, const char* output) const
         TTree * tree = (TTree*) f.Get( key );
         if( !tree )
         {
-            cout << "FileManager::check_tree - "
+            cout << "FileManager::CheckTree - "
                 << current << "/" << total
                 << " " << *iter << ": " << key << " not found.\n";
-            bad_files.insert( *iter );
+            badfFiles.insert( *iter );
         } else {
             double entries( tree->GetEntries() );
-            good_files[*iter] = entries;
+            goodfFiles[*iter] = entries;
             total_entries += entries;
-            cout << "FileManager::check_tree - "
+            cout << "FileManager::CheckTree - "
                 << current << "/" << total
                 << " " << *iter << ": " << entries << " entries.\n";
         }
     }
 
-    cout << "FileManager::check_tree - " << _files.size() << " files, total: " << total_entries << " entries.\n";
+    cout << "FileManager::CheckTree - " << fFiles.size() << " files, total: " << total_entries << " entries.\n";
 
     if( output )
     {
         ofstream out( output );
 
-        for( FileMap::const_iterator iter = good_files.begin(); iter != good_files.end(); iter++ )
+        for( FileMap::const_iterator iter = goodfFiles.begin(); iter != goodfFiles.end(); iter++ )
             out << iter->first << ": " << iter->second << " entries" << endl;
 
-        for( FileSet::const_iterator iter = bad_files.begin(); iter!= bad_files.end(); iter++ )
+        for( FileSet::const_iterator iter = badfFiles.begin(); iter!= badfFiles.end(); iter++ )
             out << *iter << " is corrupted" << endl;
         out.close();
     }
 
-    return bad_files.empty();
+    return badfFiles.empty();
 
 }
 
 //_________________________________________________
-bool FileManager::check_all_trees( const char* key) const
+bool FileManager::CheckAllTrees( const char* key) const
 {
-    FileSet bad_files;
-    for( FileSet::const_iterator iter = _files.begin(); iter!= _files.end(); iter++ )
+    FileSet badfFiles;
+    for( FileSet::const_iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
     {
         TFile f( iter->c_str() );
         TKey * key=0;
@@ -309,16 +309,16 @@ bool FileManager::check_all_trees( const char* key) const
                 continue;
             }
 
-            cout << "FileManager::check_all_trees checking tree " << key->GetName() << endl;
-            if ( check_tree(key->GetName()) ) bad_files.insert( *iter );
+            cout << "FileManager::CheckAllTrees checking tree " << key->GetName() << endl;
+            if ( CheckTree(key->GetName()) ) badfFiles.insert( *iter );
         }
     }
 
-    return bad_files.empty();
+    return badfFiles.empty();
 }
 
 //_________________________________________________
-std::string FileManager::make_version( const char* input )
+std::string FileManager::MakeVersion( const char* input )
 {
     if( !input ) return std::string();
 
@@ -337,16 +337,16 @@ std::string FileManager::make_version( const char* input )
 }
 
 //_________________________________________________
-void FileManager::make_backup( void ) const
+void FileManager::MakeBackup( void ) const
 {
 
     // loop over files
-    for( FileSet::const_iterator iter = _files.begin(); iter!= _files.end(); iter++ )
+    for( FileSet::const_iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
     {
         const string& filename( *iter );
         if( access( filename.c_str(), R_OK ) )
         {
-            cout << "FileManager::make_backup - file " << filename << " not found. Unchanged." << endl;
+            cout << "FileManager::MakeBackup - file " << filename << " not found. Unchanged." << endl;
             continue;
         }
 
@@ -365,35 +365,35 @@ void FileManager::make_backup( void ) const
         what << "cp " << filename << " " << backup;
         system( what.str().c_str() );
 
-        cout << "FileManager::make_backup - " << filename << " -> " << backup <<endl;
+        cout << "FileManager::MakeBackup - " << filename << " -> " << backup <<endl;
 
     }
 
 }
 
 //_________________________________________________
-TChain* FileManager::get_chain( const char* key ) const
+TChain* FileManager::GetChain( const char* key ) const
 {
 
     if( !(key && strlen( key ) ) ) return 0;
-    if( empty() ) return 0;
+    if( Empty() ) return 0;
 
     // check files
     TChain *out = 0;
 
-    for( FileSet::iterator iter = _files.begin(); iter!= _files.end(); iter++ )
+    for( FileSet::iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
     {
         // open TFile
         TFile tfile( iter->c_str() );
         if( !tfile.IsOpen() ) {
-            cout << "FileManager::get_chain - troubles with TFile \"" << *iter << "\".\n";
+            cout << "FileManager::GetChain - troubles with TFile \"" << *iter << "\".\n";
             continue;
         }
 
         // load tree
         TTree * tree = (TTree*) tfile.Get( key );
         if( !tree ) {
-            cout << "FileManager::get_chain - Unable to load chain \"" << key << "\".\n";
+            cout << "FileManager::GetChain - Unable to load chain \"" << key << "\".\n";
             continue;
         }
 
@@ -406,8 +406,8 @@ TChain* FileManager::get_chain( const char* key ) const
         }
 
         // dump file
-        if( _verbosity >= ALI_MACRO::SOME )
-            cout << "FileManager::get_chain - loading \"" << *iter << "\".\n";
+        if( fVerbosity >= ALI_MACRO::SOME )
+            cout << "FileManager::GetChain - loading \"" << *iter << "\".\n";
 
         // add TFile to chain
         out->Add( iter->c_str() );
@@ -418,7 +418,7 @@ TChain* FileManager::get_chain( const char* key ) const
 }
 
 //_________________________________________________
-TH1* FileManager::tree_to_histo(
+TH1* FileManager::TreeToHisto(
     const char* tree_name,
     const char* histo_name,
     const char* var,
@@ -429,12 +429,12 @@ TH1* FileManager::tree_to_histo(
 
 
     // check files (do nothing so far)
-    if( empty() ) return 0;
+    if( Empty() ) return 0;
 
     // check if histogram with requested name exists
     TH1* h = (TH1*) gROOT->FindObject(histo_name);
     if( !h ) {
-        cout << "FileManager::tree_to_histo - fatal: cannot find predefined histogram \"" << histo_name << "\" .\n";
+        cout << "FileManager::TreeToHisto - fatal: cannot find predefined histogram \"" << histo_name << "\" .\n";
         return 0;
     }
 
@@ -443,25 +443,25 @@ TH1* FileManager::tree_to_histo(
 
     // loop over TFiles
     unsigned int count(0);
-    unsigned int total(_files.size());
-    for( FileSet::iterator iter = _files.begin(); iter!= _files.end(); iter++ )
+    unsigned int total(fFiles.size());
+    for( FileSet::iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
     {
 
         // dump file
-        if( _verbosity >= ALI_MACRO::NONE )
-            cout << "FileManager::tree_to_histo - loading \"" << *iter << "\" (" << ++count << "/" << total << ").\n";
+        if( fVerbosity >= ALI_MACRO::NONE )
+            cout << "FileManager::TreeToHisto - loading \"" << *iter << "\" (" << ++count << "/" << total << ").\n";
 
         // open TFile
         TFile tfile( iter->c_str() );
         if( !tfile.IsOpen() ) {
-            cout << "FileManager::tree_to_histo - troubles with TFile \"" << *iter << "\".\n";
+            cout << "FileManager::TreeToHisto - troubles with TFile \"" << *iter << "\".\n";
             continue;
         }
 
         // try load tree
         TTree * tree = (TTree*) tfile.Get( tree_name );
         if( !tree ) {
-            cout << "FileManager::tree_to_histo - Unable to load chain \"" << tree_name << "\".\n";
+            cout << "FileManager::TreeToHisto - Unable to load chain \"" << tree_name << "\".\n";
             continue;
         }
 
@@ -477,44 +477,44 @@ TH1* FileManager::tree_to_histo(
 }
 
 //_________________________________________________
-void FileManager::tree_to_histo( const string& tree_name, ProjectionList& projection_list ) const
+void FileManager::TreeToHisto( const string& tree_name, ProjectionList& projection_list ) const
 {
 
     // check files (do nothing so far)
-    if( empty() ) return;
+    if( Empty() ) return;
 
 
     // check if histogram with requested name exists
     for( ProjectionList::iterator iter = projection_list.begin(); iter != projection_list.end(); iter++ )
         if( !iter->_h )
     {
-        cout << "FileManager::tree_to_histo - fatal: cannot find predefined histogram \"" << iter->_h_name << "\" .\n";
+        cout << "FileManager::TreeToHisto - fatal: cannot find predefined histogram \"" << iter->_h_name << "\" .\n";
         return;
     }
 
     // loop over TFiles
     unsigned int count(0);
-    unsigned int total(_files.size());
-    for( FileSet::iterator iter = _files.begin(); iter!= _files.end(); iter++ )
+    unsigned int total(fFiles.size());
+    for( FileSet::iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
     {
 
         // open TFile
         TFile tfile( iter->c_str() );
         if( !tfile.IsOpen() ) {
-            cout << "FileManager::tree_to_histo - troubles with TFile \"" << *iter << "\".\n";
+            cout << "FileManager::TreeToHisto - troubles with TFile \"" << *iter << "\".\n";
             continue;
         }
 
         // try load tree
         TTree * tree = (TTree*) tfile.Get( tree_name.c_str() );
         if( !tree ) {
-            cout << "FileManager::tree_to_histo - Unable to load chain \"" << tree_name << "\".\n";
+            cout << "FileManager::TreeToHisto - Unable to load chain \"" << tree_name << "\".\n";
             continue;
         }
 
         // dump file
-        if( _verbosity >= ALI_MACRO::NONE )
-            cout << "FileManager::tree_to_histo - loading \"" << *iter << "\" (" << ++count << "/" << total << ").\n";
+        if( fVerbosity >= ALI_MACRO::NONE )
+            cout << "FileManager::TreeToHisto - loading \"" << *iter << "\" (" << ++count << "/" << total << ").\n";
 
         // project tree to histogram
         for( ProjectionList::iterator iter = projection_list.begin(); iter != projection_list.end(); iter++ )
@@ -532,37 +532,37 @@ void FileManager::tree_to_histo( const string& tree_name, ProjectionList& projec
 }
 
 //_________________________________________________
-TH1* FileManager::get_th1( const char* key ) const
+TH1* FileManager::GetTH1( const char* key ) const
 {
 
     if( !(key && strlen( key ) ) ) return 0;
-    if( empty() ) return 0;
+    if( Empty() ) return 0;
 
     // check if histogram with requested name exists
     ALI_MACRO::safe_delete<TH1>( key );
     TH1* out( 0 );
 
-    for( FileSet::iterator iter = _files.begin(); iter!= _files.end(); iter++ )
+    for( FileSet::iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
     {
 
         // open TFile
         TFile tfile( iter->c_str() );
         if( !tfile.IsOpen() ) {
-            cout << "FileManager::get_th1 - troubles with TFile \"" << *iter << "\".\n";
+            cout << "FileManager::GetTH1 - troubles with TFile \"" << *iter << "\".\n";
             continue;
         }
 
         TObject* object( tfile.Get( key ) );
         if( !( object && object->IsA()->InheritsFrom("TH1") ) ) {
-            cout << "FileManager::get_th1 - load histogram from \"" << *iter << "\" failed.\n";
+            cout << "FileManager::GetTH1 - load histogram from \"" << *iter << "\" failed.\n";
             continue;
         }
 
         TH1* h = (TH1*) object;
 
         // dump file
-        if( _verbosity >= ALI_MACRO::SOME )
-            cout << "FileManager::get_th1 - loading \"" << *iter << "\".\n";
+        if( fVerbosity >= ALI_MACRO::SOME )
+            cout << "FileManager::GetTH1 - loading \"" << *iter << "\".\n";
 
         if( !out ) {
             gROOT->cd();
@@ -576,37 +576,37 @@ TH1* FileManager::get_th1( const char* key ) const
 }
 
 //_________________________________________________
-TH2* FileManager::get_th2( const char* key ) const
+TH2* FileManager::GetTH2( const char* key ) const
 {
 
     if( !(key && strlen( key ) ) ) return 0;
-    if( empty() ) return 0;
+    if( Empty() ) return 0;
 
     // check if histogram with requested name exists
     ALI_MACRO::safe_delete<TH2>( key );
     TH2* out( 0 );
 
-    for( FileSet::iterator iter = _files.begin(); iter!= _files.end(); iter++ )
+    for( FileSet::iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
     {
 
         // open TFile
         TFile tfile( iter->c_str() );
         if( !tfile.IsOpen() ) {
-            cout << "FileManager::get_th2 - troubles with TFile \"" << *iter << "\".\n";
+            cout << "FileManager::GetTH2 - troubles with TFile \"" << *iter << "\".\n";
             continue;
         }
 
         TObject* object( tfile.Get( key ) );
         if( !( object && object->IsA()->InheritsFrom("TH2") ) ) {
-            cout << "FileManager::get_th1 - load histogram from \"" << *iter << "\".\n";
+            cout << "FileManager::GetTH1 - load histogram from \"" << *iter << "\".\n";
             continue;
         }
 
         TH2* h = (TH2*) object;
 
         // dump file
-        if( _verbosity >= ALI_MACRO::SOME )
-            cout << "FileManager::get_th2 - loading \"" << *iter << "\".\n";
+        if( fVerbosity >= ALI_MACRO::SOME )
+            cout << "FileManager::GetTH2 - loading \"" << *iter << "\".\n";
 
         // this probably does not work. may need a clone.
         if( !out ) {
@@ -621,10 +621,10 @@ TH2* FileManager::get_th2( const char* key ) const
 }
 
 //_________________________________________________
-void FileManager::merge( const char* output, const char* selection, const char* option ) const
+void FileManager::Merge( const char* output, const char* selection, const char* option ) const
 {
 
-    if( empty() ) return;
+    if( Empty() ) return;
 
     // store list of tree names
     set<string> tree_names;
@@ -634,12 +634,12 @@ void FileManager::merge( const char* output, const char* selection, const char* 
     string selection_string( (selection&&strlen(selection)) ? selection:"" );
 
     // open TFiles, get keys
-    for( FileSet::iterator iter = _files.begin(); iter != _files.end(); iter++ )
+    for( FileSet::iterator iter = fFiles.begin(); iter != fFiles.end(); iter++ )
     {
         TFile tfile( iter->c_str() );
         if( !tfile.IsOpen() )
         {
-            cout << "FileManager::merge - troubles with TFile \"" << *iter << "\".\n";
+            cout << "FileManager::Merge - troubles with TFile \"" << *iter << "\".\n";
             continue;
         }
 
@@ -653,7 +653,7 @@ void FileManager::merge( const char* output, const char* selection, const char* 
             if( object && selection_string.size() &&
                 selection_string.find( object->GetName() ) == string::npos )
             {
-                cout << "FileManager::merge - skipping " << object->GetName() << endl;
+                cout << "FileManager::Merge - skipping " << object->GetName() << endl;
                 continue;
             }
 
@@ -661,15 +661,15 @@ void FileManager::merge( const char* output, const char* selection, const char* 
             if( object->IsA()->InheritsFrom("TTree") )
             {
 
-                cout << "FileManager::merge - got tree " << object->GetName() << endl;
+                cout << "FileManager::Merge - got tree " << object->GetName() << endl;
                 tree_names.insert( object->GetName() );
 
             } else if( object->IsA()->InheritsFrom( "TH1" ) ) {
 
-                cout << "FileManager::merge - got histogram " << object->GetName() << endl;
+                cout << "FileManager::Merge - got histogram " << object->GetName() << endl;
                 histo_names.insert( object->GetName() );
 
-            } else cout << "FileManager::merge - unrecognized object type" << endl;
+            } else cout << "FileManager::Merge - unrecognized object type" << endl;
 
         }
 
@@ -685,11 +685,11 @@ void FileManager::merge( const char* output, const char* selection, const char* 
     for( set<string>::iterator iter = tree_names.begin(); iter!= tree_names.end(); iter++  )
     {
 
-        TChain *chain( get_chain( iter->c_str() ) );
+        TChain *chain( GetChain( iter->c_str() ) );
         if( chain && chain->GetEntries() )
         {
 
-            cout << "FileManager::merge - writing "  <<  *iter << endl;
+            cout << "FileManager::Merge - writing "  <<  *iter << endl;
 
             /*
             need to recreate the TFile every time because it gets automatically deleted
@@ -698,7 +698,7 @@ void FileManager::merge( const char* output, const char* selection, const char* 
             chain->Merge( new TFile( output, (first) ? "RECREATE":"UPDATE" ), 0, option );
             first = false;
 
-        } else cout << "FileManager::merge - chain " <<  *iter << " failed.\n";
+        } else cout << "FileManager::Merge - chain " <<  *iter << " failed.\n";
 
     }
 
@@ -706,10 +706,10 @@ void FileManager::merge( const char* output, const char* selection, const char* 
     for( set<string>::iterator iter = histo_names.begin(); iter!= histo_names.end(); iter++  )
     {
 
-        TH1* h( get_th1( iter->c_str() ) );
+        TH1* h( GetTH1( iter->c_str() ) );
         if( !h ) continue;
 
-        cout << "FileManager::merge - writing "  <<  *iter << endl;
+        cout << "FileManager::Merge - writing "  <<  *iter << endl;
         TFile out( output, (first) ? "RECREATE":"UPDATE" );
         first = false;
         out.cd();
@@ -722,42 +722,42 @@ void FileManager::merge( const char* output, const char* selection, const char* 
 }
 
 //_________________________________________________
-void FileManager::merge_recursive( const char* output, const char* selection ) const
+void FileManager::MergeRecursive( const char* output, const char* selection ) const
 {
 
-    if( empty() ) return;
+    if( Empty() ) return;
 
     // create output TFile
     TFile out( output, "RECREATE" );
-    TFile in( _files.begin()->c_str() );
+    TFile in( fFiles.begin()->c_str() );
     if( !in.IsOpen() )
     {
-        cout << "FileManager::merge_recursive - troubles with TFile \"" << in.GetName() << "\".\n";
+        cout << "FileManager::MergeRecursive - troubles with TFile \"" << in.GetName() << "\".\n";
         return;
     }
 
-    _merge_recursive( &in, &out, selection );
+    _MergeRecursive( &in, &out, selection );
     out.Write();
 
-    if( _verbosity >= ALI_MACRO::SOME ) cout << "FileManager::merge_recursive - done" << endl;
+    if( fVerbosity >= ALI_MACRO::SOME ) cout << "FileManager::MergeRecursive - done" << endl;
 
 }
 
 //_________________________________________________
-void FileManager::dump_files() const
+void FileManager::DumpFiles() const
 {
-    cout << "FileManager::dump_files";
-    if( _files.size() == 1 ) cout << " - " << *_files.begin() << endl;
+    cout << "FileManager::DumpFiles";
+    if( fFiles.size() == 1 ) cout << " - " << *fFiles.begin() << endl;
     else
     {
         cout << endl;
-        for( FileSet::iterator iter = _files.begin(); iter!= _files.end(); iter++ )
+        for( FileSet::iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
         { cout << " " << *iter << endl; }
     }
 }
 
 //_________________________________________________
-int FileManager::file_size( const char* file )
+int FileManager::FileSize( const char* file )
 {
     struct stat status;
     if( stat( file, &status ) ) return 0;
@@ -765,15 +765,15 @@ int FileManager::file_size( const char* file )
 }
 
 //_________________________________________________
-void FileManager::_merge_recursive(
+void FileManager::_MergeRecursive(
     TDirectory *input,
     TDirectory *output, const std::string& selection ) const
 {
 
-    if( _verbosity >= ALI_MACRO::MAX )
+    if( fVerbosity >= ALI_MACRO::MAX )
     {
         cout << endl;
-        cout << "FileManager::_merge_recursive - input:" << endl;
+        cout << "FileManager::_MergeRecursive - input:" << endl;
         input->ls();
     }
 
@@ -792,13 +792,13 @@ void FileManager::_merge_recursive(
         {
 
             //case of TH1 or TProfile
-            cout << "FileManager::_merge_recursive - histogram " << obj->GetName() << endl;
+            cout << "FileManager::_MergeRecursive - histogram " << obj->GetName() << endl;
             TH1* sum = static_cast<TH1*>(obj);
 
             // loop over files except the first
-            FileSet::iterator iter = _files.begin();
+            FileSet::iterator iter = fFiles.begin();
             iter++;
-            for( ;iter != _files.end(); iter++ )
+            for( ;iter != fFiles.end(); iter++ )
             {
 
                 // store base path
@@ -817,18 +817,18 @@ void FileManager::_merge_recursive(
                     sum->Add( h );
                     delete h;
                 } else {
-                    cout << "FileManager::_merge_recursive - cannot find histogram " << key->GetName() << " in file " << *iter << endl;
+                    cout << "FileManager::_MergeRecursive - cannot find histogram " << key->GetName() << " in file " << *iter << endl;
                 }
             }
 
         } else if( obj->IsA()->InheritsFrom("TDirectory") ) {
-            cout << "FileManager::_merge_recursive - directory " << obj->GetName() << endl;
+            cout << "FileManager::_MergeRecursive - directory " << obj->GetName() << endl;
             output->cd();
             TDirectory *dest = output->mkdir(obj->GetName(),obj->GetTitle());
             dest->cd();
             TObject *obj_save = obj;
             TKey    *key_save = key;
-            _merge_recursive( (TDirectory*)obj, dest, selection );
+            _MergeRecursive( (TDirectory*)obj, dest, selection );
             obj = obj_save;
             key = key_save;
 

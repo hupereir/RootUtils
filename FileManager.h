@@ -34,68 +34,68 @@ class FileManager: public TObject
 
     //! constructor
     FileManager( const char* selection=0 ):
-        _verbosity( ALI_MACRO::NONE )
-    { add_files( selection ); }
+        fVerbosity( ALI_MACRO::NONE )
+    { AddFiles( selection ); }
 
     //! clear selection
-    void clear( void )
-    { _files.clear(); }
+    void Clear( void )
+    { fFiles.clear(); }
 
     //! load an entire directory
     void add_directory( const char* directory );
 
     //! add files to existing list
-    void add_files( const char* selection );
+    void AddFiles( const char* selection );
 
     //! add files from list
-    void add_list( const char* file_list );
+    void AddList( const char* file_list );
 
     //! remove files from existing list
-    void remove_files( const char* selection );
+    void RemoveFiles( const char* selection );
 
     //! remove files from existing list
-    void remove_list( const char* file_list );
+    void RemoveList( const char* file_list );
 
     //! check if root files are valid
     /*! possibly dumps the bad fines in output */
-    bool check_files( const char* output = 0 ) const;
+    bool CheckFiles( const char* output = 0 ) const;
 
     //! check if tree is valid for each file. Dump its entries
-    bool check_tree( const char* tree_name = "", const char* output = 0 ) const;
+    bool CheckTree( const char* tree_name = "", const char* output = 0 ) const;
 
     //!check all the trees in a file.
-    bool check_all_trees( const char* output = 0 ) const;
+    bool CheckAllTrees( const char* output = 0 ) const;
 
     //! returns true if file list is empty
-    bool empty( void ) const
+    bool Empty( void ) const
     {
-        if( _files.size() ) return false;
-        std::cout << "FileManager::check_files - no files loaded" << std::endl;
+        if( fFiles.size() ) return false;
+        std::cout << "FileManager::CheckFiles - no files loaded" << std::endl;
         return true;
     }
 
     // make version name of a file
-    static std::string make_version( const char* );
+    static std::string MakeVersion( const char* );
 
     /*!
     make a backup copy of all loaded files adding _i trailer, where i is the
     first found integer so that files do not collide
     */
-    void make_backup( void ) const;
+    void MakeBackup( void ) const;
 
-    //! merge TChain from files
-    TChain* get_chain( const char* key ) const;
+    //! Merge TChain from files
+    TChain* GetChain( const char* key ) const;
 
     //! filter Tree
     //TTree* filter_tree( const char* key, const TCut& cut );
 
     //! project chain from files into histogram
     /*
-    note this method do not merge the trees but opens them one after the
+    note this method do not Merge the trees but opens them one after the
     other, project the tree, sums the result. This leads to smaller memory
     consumption
     */
-    TH1* tree_to_histo(
+    TH1* TreeToHisto(
         const char* tree_name,
         const char* name,
         const char* var,
@@ -103,64 +103,64 @@ class FileManager: public TObject
 
     #ifndef __CINT__
     //! project chain from files into histograms define by projections
-    void tree_to_histo( const std::string& tree_name, ProjectionList& projection_list ) const;
+    void TreeToHisto( const std::string& tree_name, ProjectionList& projection_list ) const;
     #endif
 
-    //! merge TH1 from files
-    TH1* get_th1( const char* key ) const;
+    //! Merge TH1 from files
+    TH1* GetTH1( const char* key ) const;
 
-    //! merge TH2 from files
-    TH2* get_th2( const char* key ) const;
+    //! Merge TH2 from files
+    TH2* GetTH2( const char* key ) const;
 
-    //!  merge all trees/histograms found in file_selection into output_file
-    void merge( const char* output_file = "out.root", const char* selection="", const char* option = "" ) const;
+    //!  Merge all trees/histograms found in file_selection into output_file
+    void Merge( const char* output_file = "out.root", const char* selection="", const char* option = "" ) const;
 
-    //! merge all histograms found in file_selection into output file
+    //! Merge all histograms found in file_selection into output file
     /*! keeps TDirectory structure of the input files into output file */
-    void merge_recursive( const char* output_file = "out.root", const char* selection="" ) const;
+    void MergeRecursive( const char* output_file = "out.root", const char* selection="" ) const;
 
     //! write files
-    void dump_files( void ) const;
+    void DumpFiles( void ) const;
 
     //! shortcut for set of files
     typedef std::set< std::string > FileSet;
     typedef std::vector< std::string > FileList;
 
     //! get number of files
-    unsigned int get_n_files( void ) const
-    { return _files.size(); }
+    unsigned int GetNFiles( void ) const
+    { return fFiles.size(); }
 
     //! get list of files
-    const FileSet& get_files( void ) const
-    { return _files; }
+    const FileSet& GetFiles( void ) const
+    { return fFiles; }
 
     //! verbosity
-    ALI_MACRO::Verbosity get_verbosity( void ) const
-    { return _verbosity; }
+    ALI_MACRO::Verbosity GetVerbosity( void ) const
+    { return fVerbosity; }
 
     //! verbosity
-    void set_verbosity( ALI_MACRO::Verbosity value )
-    { _verbosity = value; }
+    void SetVerbosity( ALI_MACRO::Verbosity value )
+    { fVerbosity = value; }
 
     //!@name utility functions
     //@{
 
     //! file size
-    static int file_size( const char* file );
+    static int FileSize( const char* file );
 
     //@}
 
     protected:
 
     //! recursive merging of TDirectories
-    void _merge_recursive(TDirectory *root,TDirectory* node, const std::string& selection) const;
+    void _MergeRecursive(TDirectory *root,TDirectory* node, const std::string& selection) const;
 
 
     //! list of input files
-    FileSet _files;
+    FileSet fFiles;
 
     //! verbosity
-    ALI_MACRO::Verbosity _verbosity;
+    ALI_MACRO::Verbosity fVerbosity;
 
     //! root dictionary
     ClassDef( FileManager, 0 );
