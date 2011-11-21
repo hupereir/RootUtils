@@ -21,11 +21,11 @@ ClassImp( ColumnBase );
 ClassImp( Table );
 
 //_________________________________________________________________
-void Line::parse( const std::string& line_buffering )
+void Line::Parse( const std::string& line_buffering )
 {
-    
+
     clear();
-    
+
     istringstream in( line_buffering.c_str() );
     while( !(in.rdstate() & ios::failbit ) )
     {
@@ -33,171 +33,171 @@ void Line::parse( const std::string& line_buffering )
         in >> value;
         if( !(in.rdstate() & ios::failbit ) ) push_back( value );
     }
-    
-    cout << "Table::Line::parse - " << size() << " values read" << endl;
+
+    cout << "Table::Line::Parse - " << size() << " values read" << endl;
 }
 
 //_________________________________________________________________
-void Table::add_conversion( const char* c1, const char* c2 )
-{ if( c1 && c2 ) _conversions.push_back( conversion_pair( string( c1 ), string( c2 ) ) ); }
+void Table::AddConversion( const char* c1, const char* c2 )
+{ if( c1 && c2 ) fConversions.push_back( ConversionPair( string( c1 ), string( c2 ) ) ); }
 
 //_________________________________________________________________
-void Table::load( const char* filename )
+void Table::Load( const char* filename )
 {
     if( !filename ) {
         cout << "Table::load - empty string." << endl;
         return;
     }
-    
+
     ifstream in( filename );
     if( !in ) {
         cout << "Table::load - invalid file: " << filename << endl;
         return;
     }
-    
+
     // clear columns
-    _columns.clear();
-    
-    // store parsed lines
+    fColumns.clear();
+
+    // store Parsed lines
     vector< Line > lines;
-    
+
     char line_buffer[1024];
     while( in.getline( line_buffer, 1024, '\n' ) )
     {
-        
+
         if( !strlen( line_buffer ) ) continue;
         if( strncmp( line_buffer, "//", 2 ) == 0 ) continue;
-        
+
         // add conversions
         string line_str( line_buffer );
-        for( list< conversion_pair >::const_iterator iter = _conversions.begin(); iter != _conversions.end(); iter++ )
-            line_str = Utils::replace_all( line_str, iter->first, iter->second );
-        
+        for( list< ConversionPair >::const_iterator iter = fConversions.begin(); iter != fConversions.end(); iter++ )
+            line_str = Utils::ReplaceAll( line_str, iter->first, iter->second );
+
         Line line;
-        line.parse( line_str.c_str() );
+        line.Parse( line_str.c_str() );
         if( !line.empty() ) lines.push_back( line );
-        
+
     }
-    
+
     cout << "Table::load - " << lines.size() << " lines read" << endl;
     if( lines.empty() ) return;
-    
+
     // retrieve number of columns
-    unsigned int n_columns = min_element(  lines.begin(), lines.end(), SizeLessFTor() )->size();
-    cout << "Table::load - number of columns: " << n_columns << endl;
-    
+    unsigned int nfColumns = min_element(  lines.begin(), lines.end(), SizeLessFTor() )->size();
+    cout << "Table::load - number of columns: " << nfColumns << endl;
+
     // fill columns
-    for( unsigned int i_column=0; i_column< n_columns; i_column++ )
+    for( unsigned int i_column=0; i_column< nfColumns; i_column++ )
     {
-        
+
         // check type
         ColumnBase* column = 0;
-        if( lines[0].is<double>(i_column) ) column = new ColumnDouble();
+        if( lines[0].Is<double>(i_column) ) column = new ColumnDouble();
         else column = new ColumnString();
         for( unsigned int i_line=0; i_line < lines.size(); i_line++ )
-            column->add_value( lines[i_line][i_column] );
-        
-        _columns.push_back( column );
-        
+            column->AddValue( lines[i_line][i_column] );
+
+        fColumns.push_back( column );
+
     }
-    
+
     return;
-    
+
 }
 
 //_________________________________________________________________
-void Table::clear_conversions( void )
-{ _conversions.clear(); }
+void Table::ClearConversions( void )
+{ fConversions.clear(); }
 
 //_________________________________________________________________
-unsigned int Table::get_n_lines( void ) const
-{ return (*std::min_element( _columns.begin(), _columns.end(), SizeLessFTor() ))->size(); }
+unsigned int Table::GetNLines( void ) const
+{ return (*std::min_element( fColumns.begin(), fColumns.end(), SizeLessFTor() ))->Size(); }
 
 //_________________________________________________________________
-double* Table::get_double_array( const unsigned int& column, const unsigned int& first_line, const unsigned int& n_lines ) const
+double* Table::GetDoubleArray( const unsigned int& column, const unsigned int& firstLine, const unsigned int& n_lines ) const
 {
-    
+
     // check column index
-    if( !_check_column( column ) ) return 0;
-    
+    if( !CheckColumn( column ) ) return 0;
+
     // try cast column
-    ColumnDouble *column_double = static_cast<ColumnDouble*>(_columns[column]);
+    ColumnDouble *column_double = static_cast<ColumnDouble*>(fColumns[column]);
     if( !column_double )
     {
         cout << "Table::get_column_array - cannot cast column " << column << endl;
         return 0;
     }
-    
-    return column_double->get_array( first_line, n_lines );
+
+    return column_double->GetArray( firstLine, n_lines );
 }
 
 //_________________________________________________________________
-void Table::print_latex( ostream& out, const unsigned int& first_line, const unsigned int& n_lines ) const
+void Table::PrintLatex( ostream& out, const unsigned int& firstLine, const unsigned int& n_lines ) const
 {
-    
+
     // dump begin of table
-    if( !(_flags & SKIP_HEADER ) )
+    if( !(fFlags & SKIP_HEADER ) )
     {
         out << "\\begin{tabular}{";
-        for( unsigned int column = 0; column < _columns.size(); column++ )
+        for( unsigned int column = 0; column < fColumns.size(); column++ )
         {
-            if( _columns[column]->type() & ColumnBase::HAS_HEADER ) {
-                out << _columns[column]->alignment();
-                if( column < _columns.size()-1 ) out << "|";
+            if( fColumns[column]->GetType() & ColumnBase::HAS_HEADER ) {
+                out << fColumns[column]->GetAlignment();
+                if( column < fColumns.size()-1 ) out << "|";
             }
         }
-        
+
         out << "}" << endl;
-        
-        for( unsigned int column = 0; column < _columns.size(); column++ )
+
+        for( unsigned int column = 0; column < fColumns.size(); column++ )
         {
-            if( column != 0 && (_columns[column]->type() & ColumnBase::HAS_HEADER) ) out << " & " << _columns[column]->name();
-            else if( column == 0 && (_columns[column]->type() & ColumnBase::HAS_HEADER) ) out << _columns[column]->name();
+            if( column != 0 && (fColumns[column]->GetType() & ColumnBase::HAS_HEADER) ) out << " & " << fColumns[column]->GetName();
+            else if( column == 0 && (fColumns[column]->GetType() & ColumnBase::HAS_HEADER) ) out << fColumns[column]->GetName();
         }
-        
+
         out << "\\\\" << endl;
     }
-    
+
     out << "\\hline" << endl;
-    
+
     // get min number of entries in the columns
-    unsigned int n_lines_max = (*std::min_element( _columns.begin(), _columns.end(), SizeLessFTor() ))->size();
-    if( n_lines ) n_lines_max = min( n_lines_max, n_lines+first_line );
-    
+    unsigned int nLinesMax = (*std::min_element( fColumns.begin(), fColumns.end(), SizeLessFTor() ))->Size();
+    if( n_lines ) nLinesMax = min( nLinesMax, n_lines+firstLine );
+
     // dump values
-    for( unsigned int line = first_line; line < n_lines_max; line++ )
+    for( unsigned int line = firstLine; line < nLinesMax; line++ )
     {
-        for( unsigned int column = 0; column < _columns.size(); column++ )
+        for( unsigned int column = 0; column < fColumns.size(); column++ )
         {
-            string value_string( _columns[column]->get_string(line) );
-            
+            string value_string( fColumns[column]->GetString(line) );
+
             // convert exp to latex format
-            while( value_string.find( "e-0" ) != string::npos ) value_string = Utils::convert( value_string, "e-0", "e-" );
-            while( value_string.find( "e0" ) != string::npos ) value_string = Utils::convert( value_string, "e0", "e" );
-            if( value_string.find( "e" ) != string::npos ) value_string = Utils::convert( value_string, "e", "\\;10^{" )+"}";
-            
+            while( value_string.find( "e-0" ) != string::npos ) value_string = Utils::Convert( value_string, "e-0", "e-" );
+            while( value_string.find( "e0" ) != string::npos ) value_string = Utils::Convert( value_string, "e0", "e" );
+            if( value_string.find( "e" ) != string::npos ) value_string = Utils::Convert( value_string, "e", "\\;10^{" )+"}";
+
             // print column
             if( column == 0 ) out << "$";
-            else if( _columns[column]->type() & ColumnBase::HAS_HEADER ) out << "$ & $";
-            if( _columns[column]->type() == ColumnBase::INTERVAL_BEGIN ) out << "[";
-            if( _columns[column]->type() == ColumnBase::INTERVAL_END ) out << " , ";
-            if( _columns[column]->type() == ColumnBase::ERROR ) out << " \\pm ";
-            if( _columns[column]->type() == ColumnBase::ERROR_PLUS ) out << "^{+";
-            if( _columns[column]->type() == ColumnBase::ERROR_MINUS ) out << "_{-";
+            else if( fColumns[column]->GetType() & ColumnBase::HAS_HEADER ) out << "$ & $";
+            if( fColumns[column]->GetType() == ColumnBase::INTERVAL_BEGIN ) out << "[";
+            if( fColumns[column]->GetType() == ColumnBase::INTERVAL_END ) out << " , ";
+            if( fColumns[column]->GetType() == ColumnBase::ERROR ) out << " \\pm ";
+            if( fColumns[column]->GetType() == ColumnBase::ERROR_PLUS ) out << "^{+";
+            if( fColumns[column]->GetType() == ColumnBase::ERROR_MINUS ) out << "_{-";
             out << value_string;
-            if( _columns[column]->type() == ColumnBase::ERROR_PLUS ) out << "}";
-            if( _columns[column]->type() == ColumnBase::ERROR_MINUS ) out << "}";
-            if( _columns[column]->type() == ColumnBase::INTERVAL_END ) out << "]";
-            
+            if( fColumns[column]->GetType() == ColumnBase::ERROR_PLUS ) out << "}";
+            if( fColumns[column]->GetType() == ColumnBase::ERROR_MINUS ) out << "}";
+            if( fColumns[column]->GetType() == ColumnBase::INTERVAL_END ) out << "]";
+
         }
         out << "$ \\\\" << endl;
 
-        if( _horizontal_lines.find( line+1 ) != _horizontal_lines.end() )
+        if( fHorizontalLines.find( line+1 ) != fHorizontalLines.end() )
         { out << "\\hline" << endl; }
-    
+
     }
 
-    if( !(_flags & SKIP_TRAILER ) )
+    if( !(fFlags & SKIP_TRAILER ) )
     {
         out << "\\end{tabular}" << endl;
         out << endl;
@@ -206,74 +206,74 @@ void Table::print_latex( ostream& out, const unsigned int& first_line, const uns
 }
 
 //_________________________________________________________________
-void Table::print_text( ostream& out, const unsigned int& first_line, const unsigned int& n_lines ) const
+void Table::PrintText( ostream& out, const unsigned int& firstLine, const unsigned int& n_lines ) const
 {
 
 
     // dump header
-    if( !(_flags & SKIP_HEADER) )
+    if( !(fFlags & SKIP_HEADER) )
     {
-        for( unsigned int column = 0; column < _columns.size(); column++ )
-            if( column != 0 ) out << "   " << _columns[column]->name();
-        else out << _columns[column]->name();
+        for( unsigned int column = 0; column < fColumns.size(); column++ )
+            if( column != 0 ) out << "   " << fColumns[column]->GetName();
+        else out << fColumns[column]->GetName();
 
         out << endl;
     }
 
     // get min number of entries in the columns
-    unsigned int n_lines_max = (*std::min_element( _columns.begin(), _columns.end(), SizeLessFTor() ))->size();
-    if( n_lines ) n_lines_max = min( n_lines_max, n_lines+first_line );
+    unsigned int nLinesMax = (*std::min_element( fColumns.begin(), fColumns.end(), SizeLessFTor() ))->Size();
+    if( n_lines ) nLinesMax = min( nLinesMax, n_lines+firstLine );
 
     // dump values
-    for( unsigned int line = first_line; line < n_lines_max; line++ )
+    for( unsigned int line = firstLine; line < nLinesMax; line++ )
     {
-        for( unsigned int column = 0; column < _columns.size(); column++ )
+        for( unsigned int column = 0; column < fColumns.size(); column++ )
         {
-            string value_string( _columns[column]->get_string(line) );
+            string value_string( fColumns[column]->GetString(line) );
 
             // convert exp to latex format
-            while( value_string.find( "e-0" ) != string::npos ) value_string = Utils::convert( value_string, "e-0", "e-" );
-            while( value_string.find( "e0" ) != string::npos ) value_string = Utils::convert( value_string, "e0", "e" );
+            while( value_string.find( "e-0" ) != string::npos ) value_string = Utils::Convert( value_string, "e-0", "e-" );
+            while( value_string.find( "e0" ) != string::npos ) value_string = Utils::Convert( value_string, "e0", "e" );
             if( value_string.find( "e" ) != string::npos )
-                value_string = Utils::convert( value_string, "e", " 10^" );
+                value_string = Utils::Convert( value_string, "e", " 10^" );
 
             // print column
-            else if( _columns[column]->type() & ColumnBase::HAS_HEADER ) out << "   ";
-            if( _columns[column]->type() == ColumnBase::INTERVAL_BEGIN ) out << "[";
-            if( _columns[column]->type() == ColumnBase::INTERVAL_END ) out << " , ";
-            if( _columns[column]->type() == ColumnBase::ERROR ) out << " +/- ";
-            if( _columns[column]->type() == ColumnBase::ERROR_PLUS ) out << " +";
-            if( _columns[column]->type() == ColumnBase::ERROR_MINUS ) out << " -";
+            else if( fColumns[column]->GetType() & ColumnBase::HAS_HEADER ) out << "   ";
+            if( fColumns[column]->GetType() == ColumnBase::INTERVAL_BEGIN ) out << "[";
+            if( fColumns[column]->GetType() == ColumnBase::INTERVAL_END ) out << " , ";
+            if( fColumns[column]->GetType() == ColumnBase::ERROR ) out << " +/- ";
+            if( fColumns[column]->GetType() == ColumnBase::ERROR_PLUS ) out << " +";
+            if( fColumns[column]->GetType() == ColumnBase::ERROR_MINUS ) out << " -";
             out << value_string;
-            if( _columns[column]->type() == ColumnBase::INTERVAL_END ) out << "]";
+            if( fColumns[column]->GetType() == ColumnBase::INTERVAL_END ) out << "]";
 
         }
-        if( !( _flags & SKIP_TRAILER ) ) { out << endl; }
+        if( !( fFlags & SKIP_TRAILER ) ) { out << endl; }
     }
 
 }
 
 //_________________________________________________________________
-void Table::print_c( ostream& out, const unsigned int& first_line, const unsigned int& n_lines ) const
+void Table::PrintC( ostream& out, const unsigned int& firstLine, const unsigned int& n_lines ) const
 {
 
     // dump values
-    for( unsigned int column = 0; column < _columns.size(); column++ )
+    for( unsigned int column = 0; column < fColumns.size(); column++ )
     {
 
         // get min number of entries in the columns
-        unsigned int n_lines_max = (*std::min_element( _columns.begin(), _columns.end(), SizeLessFTor() ))->size();
-        if( n_lines ) n_lines_max = min( n_lines_max, n_lines+first_line );
+        unsigned int nLinesMax = (*std::min_element( fColumns.begin(), fColumns.end(), SizeLessFTor() ))->Size();
+        if( n_lines ) nLinesMax = min( nLinesMax, n_lines+firstLine );
 
-        if( n_lines_max == 1 )
+        if( nLinesMax == 1 )
         {
-            out << "double " << _columns[column]->name() << " = " <<  _columns[column]->get_string(first_line) << ";" << endl;
+            out << "double " << fColumns[column]->GetName() << " = " <<  fColumns[column]->GetString(firstLine) << ";" << endl;
         } else {
-            out << "double " << _columns[column]->name() << "[" << n_lines_max-first_line << "] = {";
-            for( unsigned int line = first_line; line < n_lines_max; line++ )
+            out << "double " << fColumns[column]->GetName() << "[" << nLinesMax-firstLine << "] = {";
+            for( unsigned int line = firstLine; line < nLinesMax; line++ )
             {
-                if( line != first_line ) out << ", ";
-                out << _columns[column]->get_string(line);
+                if( line != firstLine ) out << ", ";
+                out << fColumns[column]->GetString(line);
             }
             out << "}; " << endl;
         }

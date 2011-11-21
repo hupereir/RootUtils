@@ -29,49 +29,49 @@ class Postscript: public TObject
     //! constructor
     //Postscript( const char* file = "plots.ps", int type = 111, double range_x = 20, double range_y = 29 ):
     Postscript( const char* file = "plots.ps", int type = 111, double range_x = 28, double range_y = 40 ):
-        _postscript( 0 ),
-        _state( CLOSED )
-    { open( file, type, range_x, range_y ); }
+        fPostscript( 0 ),
+        fState( CLOSED )
+    { Open( file, type, range_x, range_y ); }
 
     //! destructor
     ~Postscript( void )
-    { if( _state == OPEN ) close(); }
+    { if( fState == OPEN ) Close(); }
 
     //! open postscript file
-    bool open( const char* file = "plot.ps", int type = 111, double range_x = 20, double range_y = 29 );
+    bool Open( const char* file = "plot.ps", int type = 111, double range_x = 20, double range_y = 29 );
 
     //! close postscript file
-    bool close( void );
+    bool Close( void );
 
     //! get TPostscript singleton
-    TPostScript& get( void ) const
+    TPostScript& Get( void ) const
     {
-        assert( _postscript );
-        return *_postscript;
+        assert( fPostscript );
+        return *fPostscript;
     }
 
     //! blank page with title in center
-    void title_page( TCanvas* cv, const char* title = "title_page" );
+    void TitlePage( TCanvas* cv, const char* title = "TitlePage" );
 
     //! update postscript file from canvas
-    void update_from_canvas( TCanvas *cv );
+    void UpdateFromCanvas( TCanvas *cv );
 
     //! new page
-    void new_page( void );
+    void NewPage( void );
 
     //! title
-    void title( const char* title );
+    void Title( const char* title );
 
     private:
 
     //! postscript file name
-    std::string _file;
+    std::string fFile;
 
     //! TPostscript interface
-    TPostScript* _postscript;
+    TPostScript* fPostscript;
 
     //! state
-    State _state;
+    State fState;
 
     ClassDef( Postscript, 0 );
 

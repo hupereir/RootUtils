@@ -24,9 +24,9 @@ ClassImp(FitUtils);
 
 
 //_______________________________________________________________________________
-void FitUtils::fit( TH1* h, const char* f_name, FitUtils::FitFunction fcn, double min, double max, int n_par, double *par )
+void FitUtils::Fit( TH1* h, const char* ffName, FitUtils::FitFunction Fcn, double min, double max, int n_par, double *par )
 {
-	TF1* f = new TF1( f_name, fcn, min, max, n_par );
+	TF1* f = new TF1( ffName, Fcn, min, max, n_par );
 	if( par ) {
 		for( int i=0; i<n_par; i++ )
 			f->SetParameter( i, par[i] );
@@ -38,7 +38,7 @@ void FitUtils::fit( TH1* h, const char* f_name, FitUtils::FitFunction fcn, doubl
 }
 
 //_______________________________________________________________________________
-double FitUtils::pol1( double *x, double *par)
+double FitUtils::Pol1( double *x, double *par)
 {
 	double u = x[0];
 	double du = par[0]+par[1]*u;
@@ -46,14 +46,14 @@ double FitUtils::pol1( double *x, double *par)
 }
 
 //_______________________________________________________________________________
-double FitUtils::gaus_pol0( double *x, double *par)
+double FitUtils::GausPol0( double *x, double *par)
 {
 	double xx = x[0];
 	return par[0]*std::exp( -0.5*ALI_MACRO::SQUARE( (xx-par[1])/par[2] ) )+ par[3];
 }
 
 //_______________________________________________________________________________
-double FitUtils::gaus_gaus( double *x, double *par)
+double FitUtils::GausGaus( double *x, double *par)
 {
   return
     par[0]*std::exp( -0.5*ALI_MACRO::SQUARE( (*x-par[1])/par[2] ) )+
@@ -61,11 +61,11 @@ double FitUtils::gaus_gaus( double *x, double *par)
 }
 
 //_______________________________________________________________________________
-double FitUtils::erf_erf( double *x, double *par)
+double FitUtils::ErfErf( double *x, double *par)
 { return par[0]*TMath::Erf((*x-(par[1]-par[2]))/par[3])-par[0]*TMath::Erf((*x-(par[1]+par[2]))/par[3]); }
 
 //_______________________________________________________________________________
-double FitUtils::erf_erf_pol0( double *x, double *par)
+double FitUtils::ErfErfPol0( double *x, double *par)
 {
 	double f = par[0]*TMath::Erf((*x-(par[1]-par[2]))/par[3])-par[0]*TMath::Erf((*x-(par[1]+par[2]))/par[3]);
 	f+= par[4];
@@ -73,7 +73,7 @@ double FitUtils::erf_erf_pol0( double *x, double *par)
 }
 
 //_______________________________________________________________________________
-double FitUtils::erf_erf_gaus( double *x, double *par)
+double FitUtils::ErfErf_gaus( double *x, double *par)
 {
 	double f = par[0]*TMath::Erf((*x-(par[1]-par[2]))/par[3])-par[0]*TMath::Erf((*x-(par[1]+par[2]))/par[3]);
 	f+= par[4]*std::exp( -0.5*ALI_MACRO::SQUARE( (*x-par[5])/par[6] ) );
@@ -81,13 +81,13 @@ double FitUtils::erf_erf_gaus( double *x, double *par)
 }
 
 //_______________________________________________________________________________
-double FitUtils::gaus_int( double *x, double *par)
+double FitUtils::GausIntegrated( double *x, double *par)
 {
   return par[0]/(par[2]*sqrt(2.0*TMath::Pi()))*std::exp( -0.5*ALI_MACRO::SQUARE( (*x-par[1])/par[2] ) );
 }
 
 //_______________________________________________________________________________
-double FitUtils::gaus_int_exp( double *x, double *par)
+double FitUtils::GausIntegratedExp( double *x, double *par)
 {
   double g = par[0]/(par[2]*sqrt(2.0*TMath::Pi()))*std::exp( -0.5*ALI_MACRO::SQUARE( (*x-par[1])/par[2] ) );
   double e = par[3]*std::exp( -(*x-1.7)/par[4] );
@@ -95,7 +95,7 @@ double FitUtils::gaus_int_exp( double *x, double *par)
 }
 
 //_______________________________________________________________________________
-double FitUtils::gaus_gaus_int_exp( double *x, double *par)
+double FitUtils::GausGausIntegratedExp( double *x, double *par)
 {
   double g1 = par[0]/(par[2]*sqrt(2.0*TMath::Pi()))*std::exp( -0.5*ALI_MACRO::SQUARE( (*x-par[1])/par[2] ) );
   double g2 = par[3]/(par[5]*sqrt(2.0*TMath::Pi()))*std::exp( -0.5*ALI_MACRO::SQUARE( (*x-par[4])/par[5] ) );
@@ -104,7 +104,7 @@ double FitUtils::gaus_gaus_int_exp( double *x, double *par)
 }
 
 //_______________________________________________________________________________
-double FitUtils::gaus_gaus_int( double *x, double *par)
+double FitUtils::GausGausIntegrated( double *x, double *par)
 {
   double g1 = par[0]/(par[2]*sqrt(2.0*TMath::Pi()))*std::exp( -0.5*ALI_MACRO::SQUARE( (*x-par[1])/par[2] ) );
   double g2 = par[3]/(par[5]*sqrt(2.0*TMath::Pi()))*std::exp( -0.5*ALI_MACRO::SQUARE( (*x-par[4])/par[5] ) );
@@ -112,18 +112,18 @@ double FitUtils::gaus_gaus_int( double *x, double *par)
 }
 
 //_______________________________________________________________________________
-double FitUtils::exp( double *x, double *par)
+double FitUtils::Exp( double *x, double *par)
 { return par[0]*std::exp( -par[1]*x[0] ); }
 
 //____________________________________________
 // fit an inverted landau distribution
-double FitUtils::landau_invert( double *x, double *par )
+double FitUtils::LandauInvert( double *x, double *par )
 { return par[0]*TMath::Landau( -x[0], par[1], par[2] ); }
 
 
 //____________________________________________
 // fit an inverted landau distribution
-double FitUtils::fixed_double_gaus( double *x, double *par )
+double FitUtils::FixedDoubleGaus( double *x, double *par )
 {
   return
     par[0]*(

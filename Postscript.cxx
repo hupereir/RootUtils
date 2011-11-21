@@ -14,64 +14,64 @@ using namespace std;
 ClassImp( Postscript);
 
 //____________________________________________________
-bool Postscript::open( const char* file, int type, double range_x, double range_y )
+bool Postscript::Open( const char* file, int type, double range_x, double range_y )
 {
-    if( _state == OPEN )
+    if( fState == OPEN )
     {
         cout << "Postscript::open - already opened" << endl;
         return false;
     }
 
     cout << "Postscript::open - file: " << file << " type: " << type << endl;
-    _postscript = new TPostScript( file, type );
-    _postscript->Range( range_x, range_y );
-    _postscript->Off();
+    fPostscript = new TPostScript( file, type );
+    fPostscript->Range( range_x, range_y );
+    fPostscript->Off();
 
-    _state = OPEN;
-    _file = file;
+    fState = OPEN;
+    fFile = file;
     return true;
 
 }
 
 //____________________________________________________
-bool  Postscript::close( void )
+bool  Postscript::Close( void )
 {
 
-    cout << "Postscript::close - file: " << _file << endl;
-    if( _state == CLOSED )
+    cout << "Postscript::close - file: " << fFile << endl;
+    if( fState == CLOSED )
     {
         cout << "Postscript::close - not opened" << endl;
         return false;
     }
 
-    _postscript->On();
-    _postscript->Close();
-    delete _postscript;
-    _postscript = 0;
+    fPostscript->On();
+    fPostscript->Close();
+    delete fPostscript;
+    fPostscript = 0;
 
-    _state = CLOSED;
+    fState = CLOSED;
     return true;
 }
 
 //____________________________________________________
-void Postscript::title_page( TCanvas* cv, const char* title )
+void Postscript::TitlePage( TCanvas* cv, const char* title )
 {
-    cout << "Postscript::title_page - title = " << title  << endl;
-    assert( _state == OPEN );
-    new_page();
-    _postscript->On();
-    _postscript->SetTextSize(0.025);
-    _postscript->SetTextAlign(21);
-    _postscript->TextNDC(0.5, 1.0, title );
-    _postscript->Off();
+    cout << "Postscript::TitlePage - title = " << title  << endl;
+    assert( fState == OPEN );
+    NewPage();
+    fPostscript->On();
+    fPostscript->SetTextSize(0.025);
+    fPostscript->SetTextAlign(21);
+    fPostscript->TextNDC(0.5, 1.0, title );
+    fPostscript->Off();
     return;
 }
 
 //________________________________________________________________________________
-void Postscript::title( const char* title )
+void Postscript::Title( const char* title )
 {
 
-    assert( _state == OPEN );
+    assert( fState == OPEN );
 
     TPaveText *text = new TPaveText(0.2, 0.95, 0.8, 1.0, "NDC");
     text->SetBorderSize( 0 );
@@ -79,28 +79,28 @@ void Postscript::title( const char* title )
     text->SetFillStyle( 0 );
     text->AddText( title );
 
-    _postscript->On();
+    fPostscript->On();
     text->Draw();
-    _postscript->Off();
+    fPostscript->Off();
 
 }
 
 //________________________________________________________________________________
-void Postscript::update_from_canvas( TCanvas *cv )
+void Postscript::UpdateFromCanvas( TCanvas *cv )
 {
-    assert( _state == OPEN );
+    assert( fState == OPEN );
 
-    _postscript->On();
+    fPostscript->On();
     cv->cd();
     cv->Draw();
-    _postscript->Off();
+    fPostscript->Off();
 }
 
 //____________________________________________________
-void Postscript::new_page( void )
+void Postscript::NewPage( void )
 {
-    assert( _state == OPEN );
-    _postscript->On();
-    _postscript->NewPage();
-    _postscript->Off();
+    assert( fState == OPEN );
+    fPostscript->On();
+    fPostscript->NewPage();
+    fPostscript->Off();
 }

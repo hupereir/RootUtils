@@ -42,7 +42,7 @@ using namespace std;
 ClassImp( Utils );
 
 //________________________________________________________________________
-string Utils::replace_all( const string& in, const string& c1, const string& c2 )
+string Utils::ReplaceAll( const string& in, const string& c1, const string& c2 )
 {
     if( !c1.size() ) return "";
     string out("");
@@ -62,40 +62,40 @@ string Utils::replace_all( const string& in, const string& c1, const string& c2 
 }
 
 //________________________________________________________________________
-void Utils::print_vector( ostream& out, const char* name, const double* values, const int& size, const char* format )
-{ _print_vector<double>( out, "double", name, values, size, format ); }
+void Utils::PrintVector( ostream& out, const char* name, const double* values, const int& size, const char* format )
+{ PrintVector<double>( out, "double", name, values, size, format ); }
 
 //________________________________________________________________________
-void Utils::print_int_vector( ostream& out, const char* name, const int* values, const int& size, const char* format )
-{ _print_vector<int>( out, "int", name, values, size, format ); }
+void Utils::PrintIntVector( ostream& out, const char* name, const int* values, const int& size, const char* format )
+{ PrintVector<int>( out, "int", name, values, size, format ); }
 
 //_________________________________
-void Utils::print_vector_2d( ostream& out, const char* name, const double* values, const int& size_1, const int& size_2, const char* format )
-{ _print_vector_2d<double>( out, "double", name, values, size_1, size_2, format ); }
+void Utils::PrintVector2D( ostream& out, const char* name, const double* values, const int& size_1, const int& size_2, const char* format )
+{ PrintVector2D<double>( out, "double", name, values, size_1, size_2, format ); }
 
 //_________________________________
-void Utils::print_int_vector_2d( ostream& out, const char* name, const int* values, const int& size_1, const int& size_2, const char* format )
-{ _print_vector_2d<int>( out, "int", name, values, size_1, size_2, format ); }
+void Utils::PrintIntVector2D( ostream& out, const char* name, const int* values, const int& size_1, const int& size_2, const char* format )
+{ PrintVector2D<int>( out, "int", name, values, size_1, size_2, format ); }
 
 //_________________________________
-void Utils::print_vector_3d( ostream& out, const char* name, const double* values, const int& size_1, const int& size_2, const int& size_3,const char* format )
-{ _print_vector_3d<double>( out, "double", name, values, size_1, size_2, size_3, format ); }
+void Utils::PrintVector3D( ostream& out, const char* name, const double* values, const int& size_1, const int& size_2, const int& size_3,const char* format )
+{ PrintVector3D<double>( out, "double", name, values, size_1, size_2, size_3, format ); }
 
 //_________________________________
-void Utils::print_vector_4d( ostream& out, const char* name, const double* values, const int& size_1, const int& size_2, const int& size_3,const int& size_4, const char* format )
-{ _print_vector_4d<double>( out, "double", name, values, size_1, size_2, size_3, size_4, format ); }
+void Utils::PrintVector4D( ostream& out, const char* name, const double* values, const int& size_1, const int& size_2, const int& size_3,const int& size_4, const char* format )
+{ PrintVector4D<double>( out, "double", name, values, size_1, size_2, size_3, size_4, format ); }
 
 //________________________________________________________________________
-void Utils::print_cuts( const TCut& cut )
+void Utils::PrintCuts( const TCut& cut )
 {
 
-    cout << Utils::convert( (const char*) cut, "&&", "&&\n" );
+    cout << Utils::Convert( (const char*) cut, "&&", "&&\n" );
     cout << endl;
 
 }
 
 //________________________________________________________________________
-double Utils::get_mean( list<double>values )
+double Utils::GetMean( list<double>values )
 {
     double out(0);
     for( list<double>::iterator iter = values.begin(); iter != values.end(); iter++ )
@@ -104,20 +104,20 @@ double Utils::get_mean( list<double>values )
 }
 
 //________________________________________________________________________
-double Utils::get_rms( list<double>values )
+double Utils::GetRMS( list<double>values )
 {
     double out(0);
-    double mean( get_mean( values ) );
+    double mean( GetMean( values ) );
     for( list<double>::iterator iter = values.begin(); iter != values.end(); iter++ )
         out+=ALI_MACRO::SQUARE(*iter - mean );
     return sqrt(out/values.size());
 }
 
 //________________________________________________________________________
-void Utils::dump_histogram( TH1* h )
+void Utils::DumpHistogram( TH1* h )
 {
 
-    cout << "Utils::dump_histogram - " << h->GetName() << endl;
+    cout << "Utils::DumpHistogram - " << h->GetName() << endl;
     printf( "%5s %10s %10s %10s %10s %10s\n", "bin", "center", "content", "error", "sum", "error" );
 
     double sum( 0 );
@@ -140,10 +140,10 @@ void Utils::dump_histogram( TH1* h )
 }
 
 //________________________________________________________________________
-void Utils::dump_function_parameters( TF1* f )
+void Utils::DumpFunctionParameters( TF1* f )
 {
 
-    cout << "Utils::dump_function_parameters - " << f->GetName() << endl;
+    cout << "Utils::DumpFunctionParameters - " << f->GetName() << endl;
     printf( "%5s %10s %10s %10s\n", "index", "value", "min", "max" );
     for( int i=0; i < f->GetNpar(); i++ )
     {
@@ -156,15 +156,15 @@ void Utils::dump_function_parameters( TF1* f )
 }
 
 //________________________________________________________________________
-void Utils::draw_normalized( TTree* tree, const char* name, const char* var, const TCut& cut, const char* opt )
+void Utils::DrawNormalized( TTree* tree, const char* name, const char* var, const TCut& cut, const char* opt )
 {
-    TH1* h = tree_to_histo( tree, name, var, cut, true );
+    TH1* h = TreeToHisto( tree, name, var, cut, true );
     if( h->GetEntries() ) h->Scale( 1.0/h->GetEntries() );
     h->Draw( opt );
 }
 
 //________________________________________________________________________
-TTree *Utils::get_chisquare_tree( int ndf, int nevents )
+TTree *Utils::GetChisquareTree( int ndf, int nevents )
 {
 
     ALI_MACRO::safe_delete<TTree>( "chisquare" );
@@ -176,7 +176,7 @@ TTree *Utils::get_chisquare_tree( int ndf, int nevents )
     tree->Branch( "chi_square", &chi_square, "chi_square/D", BUFFER_SIZE );
     for( int event=0; event < nevents; event++ )
     {
-        chi_square = get_chisquare( ndf );
+        chi_square = GetChisquare( ndf );
         tree->Fill();
     }
 
@@ -185,7 +185,7 @@ TTree *Utils::get_chisquare_tree( int ndf, int nevents )
 }
 
 //________________________________________________________________________
-double Utils::get_chisquare( int ndf )
+double Utils::GetChisquare( int ndf )
 {
 
     double chi_square = 0;
@@ -204,7 +204,7 @@ double Utils::get_chisquare( int ndf )
 }
 
 //__________________________________________________
-double Utils::get_random( TH1* h )
+double Utils::GetRandom( TH1* h )
 {
     // initialize
     static bool first( true );
@@ -218,14 +218,14 @@ double Utils::get_random( TH1* h )
     double max( h->GetMaximum() );
     double x_min( h->GetXaxis()->GetXmin() );
     double x_max( h->GetXaxis()->GetXmax() );
-    Debug::str() << "Utils::get_random - x_min=" << x_min << "x_max=" << x_max << endl;
+    Debug::Str() << "Utils::GetRandom - x_min=" << x_min << "x_max=" << x_max << endl;
 
     while( 1 ) {
         double out = x_min + double( rand() )*(x_max-x_min)/RAND_MAX;
 
         int bin( h->GetXaxis()->FindBin( out ) );
         double value( h->GetBinContent(bin) );
-        Debug::str() << "Utils::get_random - max=" << max << " out=" << out << " value=" << value << endl;
+        Debug::Str() << "Utils::GetRandom - max=" << max << " out=" << out << " value=" << value << endl;
 
         double prob = double( rand() )*max/RAND_MAX;
         if( prob < value ) return out;
@@ -237,7 +237,7 @@ double Utils::get_random( TH1* h )
 }
 
 //__________________________________________________
-double Utils::get_random( TF1* f, double x_min, double x_max )
+double Utils::GetRandom( TF1* f, double x_min, double x_max )
 {
     // initialize
     static bool first( true );
@@ -249,7 +249,7 @@ double Utils::get_random( TF1* f, double x_min, double x_max )
     if( !f ) return 0;
 
     double max( f->GetMaximum( x_min, x_max ) );
-    Debug::str() << "Utils::get_random - x_min=" << x_min << "x_max=" << x_max << endl;
+    Debug::Str() << "Utils::GetRandom - x_min=" << x_min << "x_max=" << x_max << endl;
 
     while( 1 ) {
         double out = x_min + double( rand() )*(x_max-x_min)/RAND_MAX;
@@ -266,7 +266,7 @@ double Utils::get_random( TF1* f, double x_min, double x_max )
 }
 
 //__________________________________________________
-double Utils::get_random( double min, double max )
+double Utils::GetRandom( double min, double max )
 {
     // initialize
     static bool first( true );
@@ -279,7 +279,7 @@ double Utils::get_random( double min, double max )
 }
 
 //__________________________________________________
-pair<double,double> Utils::get_random_2d( TH2* h )
+pair<double,double> Utils::GetRandom2D( TH2* h )
 {
     // initialize
     static bool first( true );
@@ -314,7 +314,7 @@ pair<double,double> Utils::get_random_2d( TH2* h )
 }
 
 //_________________________________________________
-void Utils::form( ostream &out, const char* format, ... )
+void Utils::Form( ostream &out, const char* format, ... )
 {
     char* text = new char[2048];
     va_list p;
@@ -327,7 +327,7 @@ void Utils::form( ostream &out, const char* format, ... )
 }
 
 //__________________________________________________
-TH1* Utils::scale_axis( TH1* h, double scale )
+TH1* Utils::ScaleAxis( TH1* h, double scale )
 {
 
     string title( h->GetTitle() );
@@ -340,7 +340,7 @@ TH1* Utils::scale_axis( TH1* h, double scale )
     double x_max = scale*axis->GetXmax();
     if( x_min > x_max ) swap( x_min, x_max );
 
-    TH1* h_out =	new_th1( name.c_str(), title.c_str(), axis->GetNbins(), x_min, x_max );
+    TH1* h_out =	NewTH1( name.c_str(), title.c_str(), axis->GetNbins(), x_min, x_max );
     for( int bin=0; bin < axis->GetNbins()+2; bin++ )
     {
         double x = scale*axis->GetBinCenter( bin );
@@ -354,22 +354,22 @@ TH1* Utils::scale_axis( TH1* h, double scale )
 }
 
 //__________________________________________________
-TH1* Utils::integrate( TH1* h, bool normalize )
+TH1* Utils::Integrate( TH1* h, bool normalize )
 {
     string name( h->GetName() );
-    name += "_integrated";
+    name += "_Integrated";
 
     string title( h->GetTitle() );
-    title += " [integrated]";
+    title += " [Integrated]";
 
     double entries( h->GetEntries() );
-    TH1* h_int( new_clone( name.c_str(), title.c_str(), h ) );
+    TH1* h_int( NewClone( name.c_str(), title.c_str(), h ) );
 
     // retrieve number of bins in histograms
     int n_bins( h->GetNbinsX() );
     for( int bin=0; bin < n_bins; bin++ ) {
 
-        //retrieve integral
+        //retrieve Integrate
         double y( h->Integral( 1, bin+1 ) );
         double error = sqrt( y*(1.0-(y/entries)) );
         if( normalize ) {
@@ -385,11 +385,11 @@ TH1* Utils::integrate( TH1* h, bool normalize )
 }
 
 //___________________________________________
-double Utils::integral( TH1*h, double xmin, double xmax )
+double Utils::Integrate( TH1*h, double xmin, double xmax )
 {
     // check order
     if( xmin >= xmax ) {
-        cout << "Utils::integral - invalid range" << endl;
+        cout << "Utils::Integrate - invalid range" << endl;
         return 0;
     }
 
@@ -397,7 +397,7 @@ double Utils::integral( TH1*h, double xmin, double xmax )
     int bin_min = h->GetXaxis()->FindBin( xmin );
     int bin_max = h->GetXaxis()->FindBin( xmax );
 
-    // get the integral
+    // get the Integrate
     double out = h->Integral( bin_min, bin_max );
 
     // need to correct (linearly) from the bound bins
@@ -411,8 +411,8 @@ double Utils::integral( TH1*h, double xmin, double xmax )
         ( h->GetXaxis()->GetBinUpEdge( bin_max ) - xmax )/
         ( h->GetXaxis()->GetBinUpEdge( bin_max ) - h->GetXaxis()->GetBinLowEdge( bin_max ) ) );
 
-    Debug::str()
-        << "Utils::integral -"
+    Debug::Str()
+        << "Utils::Integrate -"
         << " [" << xmin << "," << xmax << "]"
         << " [" << bin_min << "," << bin_max << "]"
         << " out=" << out
@@ -425,7 +425,7 @@ double Utils::integral( TH1*h, double xmin, double xmax )
 }
 
 //__________________________________________________
-TH1* Utils::tree_to_histo(
+TH1* Utils::TreeToHisto(
     TTree *tree,
     const char* name,
     const char* var,
@@ -434,7 +434,7 @@ TH1* Utils::tree_to_histo(
 {
     // check tree
     if( !tree ) {
-        cout << "Utils::tree_to_histo - tree is NULL .\n";
+        cout << "Utils::TreeToHisto - tree is NULL .\n";
         return 0;
     }
 
@@ -444,7 +444,7 @@ TH1* Utils::tree_to_histo(
     // if histogram autoformat requested, delete found histogram if any, give error message otherwise
     if( autoH && h ) { SafeDelete( h ); }
     else if( !(autoH || h ) ) {
-        cout << "Utils::tree_to_histo - fatal: cannot find predefined histogram \"" << name << "\" .\n";
+        cout << "Utils::TreeToHisto - fatal: cannot find predefined histogram \"" << name << "\" .\n";
         return 0;
     }
 
@@ -466,7 +466,7 @@ TH1* Utils::tree_to_histo(
 }
 
 //__________________________________________________
-TH2* Utils::tree_to_histo_2d(
+TH2* Utils::TreeToHisto2D(
     TTree *tree,
     const char* name,
     const char* var,
@@ -476,7 +476,7 @@ TH2* Utils::tree_to_histo_2d(
 
     // check tree
     if( !tree ) {
-        cout << "Utils::tree_to_histo - tree is NULL .\n";
+        cout << "Utils::TreeToHisto - tree is NULL .\n";
         return 0;
     }
 
@@ -487,7 +487,7 @@ TH2* Utils::tree_to_histo_2d(
     // if histogram autoformat requested, delete found histogram if any, give error message otherwise
     if( autoH && h ) { SafeDelete( h ); }
     else if( !(autoH || h ) ) {
-        cout << "Utils::tree_to_histo - fatal: cannot find predefined histogram\"" << name << "\" .\n";
+        cout << "Utils::TreeToHisto - fatal: cannot find predefined histogram\"" << name << "\" .\n";
         return 0;
     }
 
@@ -504,7 +504,7 @@ TH2* Utils::tree_to_histo_2d(
 }
 
 //____________________________________________________________
-TGraphErrors* Utils::histo_to_tgraph( TH1* h, bool zero_sup )
+TGraphErrors* Utils::HistoToTGraph( TH1* h, bool zero_sup )
 {
     if( !h ) return 0;
 
@@ -533,16 +533,16 @@ class th1: public TH1F
     //! constructor
     th1( const char* name, const char* title, int bin, double min, double max ):
         TH1F( name, title, bin, min, max )
-   { Debug::str() << "th1::th1 - name = " << name << endl; }
+   { Debug::Str() << "th1::th1 - name = " << name << endl; }
 
 //! destructor
 ~th1( void )
-{ Debug::str() << "th1::~th1 - name = " << GetName() << endl; }
+{ Debug::Str() << "th1::~th1 - name = " << GetName() << endl; }
 
 };
 
 //____________________________________________________________
-TH1* Utils::new_th1(
+TH1* Utils::NewTH1(
     const char* name,
     const char* title,
     int bin,
@@ -555,7 +555,7 @@ TH1* Utils::new_th1(
 }
 
 //____________________________________________________________
-TH1* Utils::new_th1(
+TH1* Utils::NewTH1(
     const char* name,
     const char* title,
     int bin,
@@ -567,7 +567,7 @@ TH1* Utils::new_th1(
 }
 
 //____________________________________________________________
-TH2* Utils::new_th2(
+TH2* Utils::NewTH2(
     const char* name,
     const char* title,
     int binx ,
@@ -582,7 +582,7 @@ TH2* Utils::new_th2(
 }
 
 //____________________________________________________________
-TH1* Utils::new_clone(
+TH1* Utils::NewClone(
     const char* name,
     const char* title,
     TH1* parent,
@@ -590,11 +590,11 @@ TH1* Utils::new_clone(
     )
 {
 
-    Debug::str() << "Utils::new_clone - " << name << endl;
+    Debug::Str() << "Utils::NewClone - " << name << endl;
 
     // check parent histogram
     if( !parent ) {
-        cout << "Utils::new_clone - null parent.\n";
+        cout << "Utils::NewClone - null parent.\n";
         return 0;
     }
 
@@ -608,7 +608,7 @@ TH1* Utils::new_clone(
 }
 
 //____________________________________________________________
-TH2* Utils::new_clone_2d(
+TH2* Utils::NewClone2D(
     const char* name,
     const char* title,
     TH2* parent,
@@ -617,7 +617,7 @@ TH2* Utils::new_clone_2d(
 {
     // check parent histogram
     if( !parent ) {
-        cout << "Utils::new_clone - null parent.\n";
+        cout << "Utils::NewClone - null parent.\n";
         return 0;
     }
 
@@ -631,7 +631,7 @@ TH2* Utils::new_clone_2d(
 }
 
 //_______________________________________________________________
-TF1* Utils::new_tf1( const char* name,
+TF1* Utils::NewTF1( const char* name,
     double (*function)(double*, double*),
     const double& min, const double& max,
     const int& n_par )
@@ -643,7 +643,7 @@ TF1* Utils::new_tf1( const char* name,
 }
 
 //______________________________________________________
-double Utils::get_entries(TH1* h)
+double Utils::GetEntries(TH1* h)
 {
     double out( 0 );
     for(int i = 1; i < h->GetNbinsX(); i++)
@@ -653,7 +653,7 @@ double Utils::get_entries(TH1* h)
 }
 
 //______________________________________________________
-int Utils::h_diff(TH1* h1, TH1* h2, TH1* h3)
+int Utils::HDiff(TH1* h1, TH1* h2, TH1* h3)
 {
 
     unsigned int n1 = h1->GetNbinsX();
@@ -662,7 +662,7 @@ int Utils::h_diff(TH1* h1, TH1* h2, TH1* h3)
 
     double sum1( 0 ), sum2( 0 );
     if(!(n1 == n2 && n2 == n3)){
-        cout << "Utils::h_diff - ERROR: Different number of bins.\n";
+        cout << "Utils::HDiff - ERROR: Different number of bins.\n";
         cout << "	 " << n1 << ", " << n2 << ", " << n3 << endl;
         return int(h1->GetEntries()-h2->GetEntries() );
     }
@@ -684,14 +684,14 @@ int Utils::h_diff(TH1* h1, TH1* h2, TH1* h3)
 }
 
 //______________________________________________________
-int Utils::h_diff(TH1* h1, TF1* f, TH1* h3, double min, double max)
+int Utils::HDiff(TH1* h1, TF1* f, TH1* h3, double min, double max)
 {
 
     unsigned int n1 = h1->GetNbinsX();
     unsigned int n3 = h3->GetNbinsX();
 
     if(!(n1 == n3)){
-        cout << "Utils::h_diff - ERROR: Different number of bins.\n";
+        cout << "Utils::HDiff - ERROR: Different number of bins.\n";
         cout << "	 " << n1 << ", " << n3 << endl;
         return 0;
     }
@@ -720,7 +720,7 @@ int Utils::h_diff(TH1* h1, TF1* f, TH1* h3, double min, double max)
 }
 
 //______________________________________________________
-double Utils::h_div(TH1* h1, TH1* h2, TH1* h3, int error_mode )
+double Utils::HDiv(TH1* h1, TH1* h2, TH1* h3, int error_mode )
 {
 
     unsigned int n1 = h1->GetNbinsX();
@@ -728,16 +728,16 @@ double Utils::h_div(TH1* h1, TH1* h2, TH1* h3, int error_mode )
     unsigned int n3 = h3->GetNbinsX();
 
     if(!(n1 == n2 && n2 == n3)){
-        cout << "Utils::h_div - ERROR: Different number of bins.\n";
+        cout << "Utils::HDiv - ERROR: Different number of bins.\n";
         cout << "	 " << n1 << ", " << n2 << ", " << n3 << endl;
         return 0;
     }
-    return h_div( h1, h2, h3, 1, n1, error_mode );
+    return HDiv( h1, h2, h3, 1, n1, error_mode );
 
 }
 
 //______________________________________________________
-double Utils::h_div(TH1* h1, TH1* h2, TH1* h3, unsigned int i1, unsigned int i2, int error_mode)
+double Utils::HDiv(TH1* h1, TH1* h2, TH1* h3, unsigned int i1, unsigned int i2, int error_mode)
 {
 
     unsigned int n1 = h1->GetNbinsX();
@@ -745,7 +745,7 @@ double Utils::h_div(TH1* h1, TH1* h2, TH1* h3, unsigned int i1, unsigned int i2,
     unsigned int n3 = h3->GetNbinsX();
 
     if(!(n1 == n2 && n2 == n3)){
-        cout << "Utils::h_div - ERROR: Different number of bins.\n";
+        cout << "Utils::HDiv - ERROR: Different number of bins.\n";
         cout << "	 " << n1 << ", " << n2 << ", " << n3 << endl;
         return 0;
     }
@@ -789,11 +789,11 @@ double Utils::h_div(TH1* h1, TH1* h2, TH1* h3, unsigned int i1, unsigned int i2,
 }
 
 //______________________________________________________
-TGraphErrors* Utils::tg_div(TGraphErrors* tg1, TGraphErrors* tg2 )
+TGraphErrors* Utils::TGDiv(TGraphErrors* tg1, TGraphErrors* tg2 )
 {
     if( tg1->GetN() != tg2->GetN() )
     {
-        cout << "Utils::tg_div - ERROR: Different number of points.\n";
+        cout << "Utils::TGDiv - ERROR: Different number of points.\n";
         return 0;
     }
 
@@ -808,7 +808,7 @@ TGraphErrors* Utils::tg_div(TGraphErrors* tg1, TGraphErrors* tg2 )
 
         if( x1 != x2 )
         {
-            cout << "Utils::tg_div - different x. point " <<	i << "skipped" << endl;
+            cout << "Utils::TGDiv - different x. point " <<	i << "skipped" << endl;
             continue;
         }
 
@@ -825,7 +825,7 @@ TGraphErrors* Utils::tg_div(TGraphErrors* tg1, TGraphErrors* tg2 )
 
         tg_out->SetPoint( point, x1, eff );
         tg_out->SetPointError( point, 0, err );
-        cout << "Utils::tg_div -"
+        cout << "Utils::TGDiv -"
             << " y1=" << y1
             << " y2=" << y2
             << " eff=" << eff
@@ -840,7 +840,7 @@ TGraphErrors* Utils::tg_div(TGraphErrors* tg1, TGraphErrors* tg2 )
 }
 
 //______________________________________________________
-double Utils::h_div_2d(TH2* h1, TH2* h2, TH2* h3, int error_mode )
+double Utils::HDiv2D(TH2* h1, TH2* h2, TH2* h3, int error_mode )
 {
 
     unsigned int nx1 = h1->GetNbinsX();
@@ -852,14 +852,14 @@ double Utils::h_div_2d(TH2* h1, TH2* h2, TH2* h3, int error_mode )
     unsigned int ny3 = h3->GetNbinsY();
 
     if(!(nx1 == nx2 && nx2 == nx3)){
-        cout << "Utils::h_div - ERROR: Different number of x bins: ";
+        cout << "Utils::HDiv - ERROR: Different number of x bins: ";
         cout << " " << nx1 << ", " << nx2 << ", " << nx3 << endl;
         return 0;
     }
 
     if(!(ny1 == ny2 && ny2 == ny3))
     {
-        cout << "Utils::h_div - ERROR: Different number of bins: ";
+        cout << "Utils::HDiv - ERROR: Different number of bins: ";
         cout << " " << ny1 << ", " << ny2 << ", " << ny3 << endl;
         return 0;
     }
@@ -896,7 +896,7 @@ double Utils::h_div_2d(TH2* h1, TH2* h2, TH2* h3, int error_mode )
 }
 
 //______________________________________________________________________
-string Utils::convert( const string& in, const string& c1, const string& c2)
+string Utils::Convert( const string& in, const string& c1, const string& c2)
 {
     if( !c1.size() ) return "";
     string out("");

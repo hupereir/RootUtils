@@ -439,7 +439,7 @@ TH1* FileManager::TreeToHisto(
     }
 
     // clone histogram into template
-    string tmp_name( string(histo_name)+"_tmp" );
+    string tmpName( string(histo_name)+"_tmp" );
 
     // loop over TFiles
     unsigned int count(0);
@@ -466,9 +466,9 @@ TH1* FileManager::TreeToHisto(
         }
 
         // project tree to histogram
-        TH1* h_tmp( Utils::new_clone( tmp_name.c_str(), tmp_name.c_str(), h ) );
-        tree->Project( tmp_name.c_str(), var, cut );
-        h->Add( h_tmp );
+        TH1* hTmp( Utils::NewClone( tmpName.c_str(), tmpName.c_str(), h ) );
+        tree->Project( tmpName.c_str(), var, cut );
+        h->Add( hTmp );
 
     }
 
@@ -486,9 +486,9 @@ void FileManager::TreeToHisto( const string& tree_name, ProjectionList& projecti
 
     // check if histogram with requested name exists
     for( ProjectionList::iterator iter = projection_list.begin(); iter != projection_list.end(); iter++ )
-        if( !iter->_h )
+        if( !iter->fH )
     {
-        cout << "FileManager::TreeToHisto - fatal: cannot find predefined histogram \"" << iter->_h_name << "\" .\n";
+        cout << "FileManager::TreeToHisto - fatal: cannot find predefined histogram \"" << iter->fHName << "\" .\n";
         return;
     }
 
@@ -519,10 +519,10 @@ void FileManager::TreeToHisto( const string& tree_name, ProjectionList& projecti
         // project tree to histogram
         for( ProjectionList::iterator iter = projection_list.begin(); iter != projection_list.end(); iter++ )
         {
-            string tmp_name( iter->_h_name + "_tmp" );
-            TH1* h_tmp( Utils::new_clone( tmp_name.c_str(), tmp_name.c_str(), iter->_h ) );
-            tree->Project( tmp_name.c_str(), iter->_var_name.c_str(), iter->_cut );
-            iter->_h->Add( h_tmp );
+            string tmpName( iter->fHName + "_tmp" );
+            TH1* hTmp( Utils::NewClone( tmpName.c_str(), tmpName.c_str(), iter->fH ) );
+            tree->Project( tmpName.c_str(), iter->fVarName.c_str(), iter->fCut );
+            iter->fH->Add( hTmp );
         }
 
     }
@@ -630,7 +630,7 @@ void FileManager::Merge( const char* output, const char* selection, const char* 
     set<string> tree_names;
     set<string> histo_names;
 
-    // convert selection into a string
+    // Convert selection into a string
     string selection_string( (selection&&strlen(selection)) ? selection:"" );
 
     // open TFiles, get keys

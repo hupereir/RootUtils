@@ -49,18 +49,18 @@ class Utils:public TObject
     {}
 
     //! string replacement
-    static std::string replace_all( const std::string& in, const std::string& c0, const std::string& c1 );
+    static std::string ReplaceAll( const std::string& in, const std::string& c0, const std::string& c1 );
 
     //! print vector
-    static void print_vector(
+    static void PrintVector(
         const char* name,
         const double* values,
         const int& size,
         const char* format = "%f" )
-    { print_vector( std::cout, name, values, size, format ); }
+    { PrintVector( std::cout, name, values, size, format ); }
 
     //! print vector
-    static void print_vector(
+    static void PrintVector(
         std::ostream& out,
         const char* name,
         const double* values,
@@ -68,15 +68,15 @@ class Utils:public TObject
         const char* format = "%f" );
 
     //! print vector
-    static void print_int_vector(
+    static void PrintIntVector(
         const char* name,
         const int* values,
         const int& size,
         const char* format = "%i" )
-    { print_int_vector( std::cout, name, values, size, format ); }
+    { PrintIntVector( std::cout, name, values, size, format ); }
 
     //! print vector
-    static void print_int_vector(
+    static void PrintIntVector(
         std::ostream& out,
         const char* name,
         const int* values,
@@ -84,7 +84,7 @@ class Utils:public TObject
         const char* format = "%i" );
 
     //! print vector
-    static void print_vector_2d(
+    static void PrintVector2D(
         std::ostream& out,
         const char* name,
         const double* values,
@@ -93,25 +93,25 @@ class Utils:public TObject
         const char* format = "%f" );
 
     //! print vector
-    static void print_vector_2d(
+    static void PrintVector2D(
         const char* name,
         const double* values,
         const int& size_1,
         const int& size_2,
         const char* format = "%f" )
-    { print_vector_2d( std::cout, name, values, size_1, size_2, format ); }
+    { PrintVector2D( std::cout, name, values, size_1, size_2, format ); }
 
     //! print vector
-    static void print_int_vector_2d(
+    static void PrintIntVector2D(
         const char* name,
         const int* values,
         const int& size_1,
         const int& size_2,
         const char* format = "%i" )
-    { print_int_vector_2d( std::cout, name, values, size_1, size_2, format ); }
+    { PrintIntVector2D( std::cout, name, values, size_1, size_2, format ); }
 
     //! print vector
-    static void print_int_vector_2d(
+    static void PrintIntVector2D(
         std::ostream& out,
         const char* name,
         const int* values,
@@ -120,7 +120,7 @@ class Utils:public TObject
         const char* format = "%i" );
 
     //! print vector
-    static void print_vector_3d(
+    static void PrintVector3D(
         std::ostream& out,
         const char* name,
         const double* values,
@@ -130,17 +130,17 @@ class Utils:public TObject
         const char* format = "%f" );
 
     //! print vector
-    static void print_vector_3d(
+    static void PrintVector3D(
         const char* name,
         const double* values,
         const int& size_1,
         const int& size_2,
         const int& size_3,
         const char* format = "%f" )
-    { print_vector_3d( std::cout, name, values, size_1, size_2, size_3, format ); }
+    { PrintVector3D( std::cout, name, values, size_1, size_2, size_3, format ); }
 
     //! print vector
-    static void print_vector_4d(
+    static void PrintVector4D(
         const char* name,
         const double* values,
         const int& size_1,
@@ -148,10 +148,10 @@ class Utils:public TObject
         const int& size_3,
         const int& size_4,
         const char* format = "%f" )
-    { print_vector_4d( std::cout, name, values, size_1, size_2, size_3, size_4, format ); }
+    { PrintVector4D( std::cout, name, values, size_1, size_2, size_3, size_4, format ); }
 
     //! print vector
-    static void print_vector_4d(
+    static void PrintVector4D(
         std::ostream& out,
         const char* name,
         const double* values,
@@ -162,64 +162,64 @@ class Utils:public TObject
         const char* format = "%f" );
 
     //! print cuts, formated
-    static void print_cuts( const TCut& cut );
+    static void PrintCuts( const TCut& cut );
 
     //! get average for a number measurements
-    static double get_mean( double* values, int n )
+    static double GetMean( double* values, int n )
     {
         std::list< double > value_list;
         for( int i=0; i<n; i++ ) value_list.push_back( values[i] );
-        return get_mean( value_list );
+        return GetMean( value_list );
     }
 
     //! get rms for a number measurements
-    static double get_rms( double* values, int n )
+    static double GetRMS( double* values, int n )
     {
         std::list< double > value_list;
         for( int i=0; i<n; i++ ) value_list.push_back( values[i] );
-        return get_rms( value_list );
+        return GetRMS( value_list );
     }
 
     //! get average for a number measurements
-    static double get_mean( std::list<double> values );
+    static double GetMean( std::list<double> values );
 
     //! get rms for a number measurements
-    static double get_rms( std::list<double> values );
+    static double GetRMS( std::list<double> values );
 
     //! dump histogram
-    static void dump_histogram( TH1 *h );
+    static void DumpHistogram( TH1 *h );
 
     //! dump function parameters
-    static void dump_function_parameters( TF1 *f );
+    static void DumpFunctionParameters( TF1 *f );
 
     /*! \brief
     generate a random number following probability distribution given by
     histogram
     */
-    static double get_random( TH1* h );
+    static double GetRandom( TH1* h );
 
     /*! \brief
     generate a flat random number between 0 and max
     */
-    static double get_random( double max )
-    { return get_random( 0, max ); }
+    static double GetRandom( double max )
+    { return GetRandom( 0, max ); }
 
     /*! \brief
     generate a flat random number between min and max
     */
-    static double get_random( double min, double max );
+    static double GetRandom( double min, double max );
 
     /*! \brief
     generate a random number following probability distribution given by
     histogram
     */
-    static double get_random( TF1* f, double x_min, double x_max );
+    static double GetRandom( TF1* f, double x_min, double x_max );
 
     //! draw normalized histogram
-    static void draw_normalized( TTree* tree, const char* name, const char* var, const TCut& cut="", const char* opt = "" );
+    static void DrawNormalized( TTree* tree, const char* name, const char* var, const TCut& cut="", const char* opt = "" );
 
     //! get ideal chisquare tree for a given number of freedoms
-    static TTree* get_chisquare_tree(
+    static TTree* GetChisquareTree(
         int ndf,
         int nevents );
 
@@ -229,10 +229,10 @@ class Utils:public TObject
     Sums ndf+1 normalized gaussian distributions and get the chisquare
     corresponding to the average
     */
-    static double get_chisquare( int ndf );
+    static double GetChisquare( int ndf );
 
     //! fills histogram from tree return histogram
-    static TH1* tree_to_histo(
+    static TH1* TreeToHisto(
         TTree *tree,
         const char* name,
         const char* var,
@@ -240,33 +240,33 @@ class Utils:public TObject
         bool autoH = true );
 
     //! fills histogram from tree return histogram
-    static TH2* tree_to_histo_2d(
+    static TH2* TreeToHisto2D(
         TTree *tree,
         const char* name,
         const char* var,
         TCut cut="",
         bool autoH = true );
 
-    //! convert an histogram into a TGraph
-    static TGraphErrors* histo_to_tgraph( TH1* h, bool zero_sup = false );
+    //! Convert an histogram into a TGraph
+    static TGraphErrors* HistoToTGraph( TH1* h, bool zero_sup = false );
 
     //! returns number of entries (debugged)
-    static double get_entries( TH1* h );
+    static double GetEntries( TH1* h );
 
     //! scale histogram x axis
-    static TH1* scale_axis( TH1*h, double scale );
+    static TH1* ScaleAxis( TH1*h, double scale );
 
-    //! returns integrated histogram
-    static TH1* integrate( TH1* h, bool normalize = false );
+    //! returns Integrated histogram
+    static TH1* Integrate( TH1* h, bool normalize = false );
 
     /*!
-    returns histogram integral between to axis values
+    returns histogram Integrate between to axis values
     linearly correct from bin effects
     */
-    static double integral( TH1* h, double xmin, double xmax );
+    static double Integrate( TH1* h, double xmin, double xmax );
 
     //! create a new histogram safely (delete histograms with same name before)
-    static TH1* new_th1(
+    static TH1* NewTH1(
         const char* name,
         const char* title,
         int bin = 100,
@@ -274,14 +274,14 @@ class Utils:public TObject
         double max = 1 );
 
     //! create a new histogram safely (delete histograms with same name before)
-    static TH1* new_th1(
+    static TH1* NewTH1(
         const char* name,
         const char* title,
         int bin,
         double *x	);
 
     //! create a new 2D histogram safely (delete histograms with same name before)
-    static TH2* new_th2(
+    static TH2* NewTH2(
         const char* name,
         const char* title,
         int binx = 100,
@@ -292,28 +292,28 @@ class Utils:public TObject
         double maxy = 1 );
 
     //! create a new clone histogram safely (delete histograms with same name before)
-    static TH1* new_clone(
+    static TH1* NewClone(
         const char* name,
         const char* title,
         TH1* parent )
-    { return new_clone( name, title, parent, false ); }
+    { return NewClone( name, title, parent, false ); }
 
     //! create a new clone histogram safely (delete histograms with same name before)
-    static TH1* new_clone(
+    static TH1* NewClone(
         const char* name,
         const char* title,
         TH1* parent,
         bool reset );
 
     //! create a new clone histogram safely (delete histograms with same name before)
-    static TH2* new_clone_2d(
+    static TH2* NewClone2D(
         const char* name,
         const char* title,
         TH2* parent )
-    { return new_clone_2d( name, title, parent, false ); }
+    { return NewClone2D( name, title, parent, false ); }
 
     //! create a new clone histogram safely (delete histograms with same name before)
-    static TH2* new_clone_2d(
+    static TH2* NewClone2D(
         const char* name,
         const char* title,
         TH2* parent,
@@ -321,17 +321,17 @@ class Utils:public TObject
 
     //! create TF1
     /*! before creating the TF1, a matching TObject is looked after and deleted if found */
-    static TF1* new_tf1(
+    static TF1* NewTF1(
         const char* name,
         double (*function)(double*, double*),
         const double& min, const double& max,
         const int& n_par );
 
     //! subtract 2 histograms bin/bin; stores the result in an third histo; returns diff of number of entries
-    static int h_diff(TH1* h1, TH1* h2, TH1* h3);
+    static int HDiff(TH1* h1, TH1* h2, TH1* h3);
 
     //! subtract histogram and function bin/bin; stores the result in an third histo; returns diff of number of entries
-    static int h_diff(TH1* h1, TF1* f, TH1* h3, double min, double max);
+    static int HDiff(TH1* h1, TF1* f, TH1* h3, double min, double max);
 
     //! divides 2 histograms bin/bin; stores the result in an third histo; returns ratio of the number of entries in the 2 histo
     enum ErrorMode
@@ -341,30 +341,30 @@ class Utils:public TObject
     };
 
     //! divides 2 histograms bin/bin; stores the result in an third histo; returns ratio of the number of entries in the 2 histo
-    static double h_div(TH1* h_found, TH1* h_ref, TH1* h3, int error_mode = EFF );
+    static double HDiv(TH1* h_found, TH1* h_ref, TH1* h3, int error_mode = EFF );
 
     //! divides 2 histograms bin/bin; stores the result in an third histo; returns ratio of the number of entries in the 2 histo
-    static double h_div_2d(TH2* h_found, TH2* h_ref, TH2* h3, int error_mode = EFF);
+    static double HDiv2D(TH2* h_found, TH2* h_ref, TH2* h3, int error_mode = EFF);
 
     //! divides 2 histograms bin/bin whith specified range; stores the result in an third histo; returns ratio of the number of entries in the 2 histo
-    static double h_div(TH1* h_found, TH1* h_ref, TH1* h3, unsigned int i1, unsigned int i2, int error_mode = EFF);
+    static double HDiv(TH1* h_found, TH1* h_ref, TH1* h3, unsigned int i1, unsigned int i2, int error_mode = EFF);
 
     //! divides too TGraphs point/point; stores the result in 3 TGraph
-    static TGraphErrors* tg_div( TGraphErrors* tg_found, TGraphErrors* tg_ref );
+    static TGraphErrors* TGDiv( TGraphErrors* tg_found, TGraphErrors* tg_ref );
 
     #ifndef __CINT__
 
     //! returns a null terminated string where all occurences of c1 is replaced with c2
-    static std::string convert( const std::string& in, const std::string& c1, const std::string& c2 );
+    static std::string Convert( const std::string& in, const std::string& c1, const std::string& c2 );
 
     /*! \brief
     generate two random numbers following probability distribution given by
     histogram
     */
-    static std::pair<double,double> get_random_2d( TH2* h );
+    static std::pair<double,double> GetRandom2D( TH2* h );
 
     //! fill a string until its size reached required size
-    static std::string fill( unsigned int size, const std::string& value )
+    static std::string Fill( unsigned int size, const std::string& value )
     {
         return( value.size()>=size) ?
             value :
@@ -372,19 +372,19 @@ class Utils:public TObject
     }
 
     //! display a text, formed, to a stream
-    static void form( std::ostream &out, const char* format, ... );
+    static void Form( std::ostream &out, const char* format, ... );
     #endif
 
-    private:
+    protected:
 
     #ifndef __CINT__
 
     //! merge all ntuples from a file into output
-    static void _merge( std::vector<std::string> files, const std::string& output_file, const std::string& selection );
+    static void Merge( std::vector<std::string> files, const std::string& output_file, const std::string& selection );
 
     //! print vector
     template<typename T>
-        static void _print_vector(
+        static void PrintVector(
         std::ostream& out,
         const char* type,
         const char* name,
@@ -407,7 +407,7 @@ class Utils:public TObject
 
     //! print vector
     template<typename T>
-        static void _print_vector_2d(
+        static void PrintVector2D(
         std::ostream& out,
         const char* type,
         const char* name,
@@ -438,7 +438,7 @@ class Utils:public TObject
 
 
     //! print vector 3D
-    template<typename T> static void _print_vector_3d(
+    template<typename T> static void PrintVector3D(
         std::ostream& out,
         const char* type,
         const char* name,
@@ -475,7 +475,7 @@ class Utils:public TObject
 
 
     //! print vector 4D
-    template<typename T> static void _print_vector_4d(
+    template<typename T> static void PrintVector4D(
         std::ostream& out,
         const char* type,
         const char* name,
