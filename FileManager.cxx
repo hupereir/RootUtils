@@ -32,7 +32,7 @@ using namespace std;
 ClassImp( FileManager );
 
 //_________________________________________________
-void FileManager::add_directory( const char* directory )
+void FileManager::AddDirectory( const char* directory )
 {
     if( !(directory && strlen( directory ) ) ) return;
 
@@ -49,7 +49,7 @@ void FileManager::add_directory( const char* directory )
         name_str = string(directory)+"/"+name_str;
 
         if( access( name_str.c_str(), R_OK ) ){
-            cout << "FileManager::add_directory - cannot access file \"" << name_str << "\".\n";
+            cout << "FileManager::AddDirectory - cannot access file \"" << name_str << "\".\n";
             continue;
         }
 

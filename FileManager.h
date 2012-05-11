@@ -42,7 +42,7 @@ class FileManager: public TObject
     { fFiles.clear(); }
 
     //! load an entire directory
-    void add_directory( const char* directory );
+    void AddDirectory( const char* directory );
 
     //! add files to existing list
     void AddFiles( const char* selection );

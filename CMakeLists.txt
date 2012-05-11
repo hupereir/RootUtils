@@ -24,8 +24,8 @@ ADD_ROOT_DICTIONARIES( libpostscript_SOURCES
   PostscriptLinkDef.h
 )
 
-ADD_LIBRARY( postscript SHARED ${libpostscript_SOURCES} )
-TARGET_LINK_LIBRARIES( postscript ${ROOT_LIBRARIES})
+ADD_LIBRARY( AliUtilPostscript SHARED ${libpostscript_SOURCES} )
+TARGET_LINK_LIBRARIES( AliUtilPostscript ${ROOT_LIBRARIES})
 
 ############
 # base
@@ -36,6 +36,7 @@ SET( libbase_SOURCES
   Draw.cxx
   FileManager.cxx
   FitUtils.cxx
+  Stream.cxx
   Table.cxx
   TH2Fit.cxx
   Utils.cxx
@@ -50,13 +51,14 @@ ADD_ROOT_DICTIONARIES( libbase_SOURCES
   FileManagerLinkDef.h
   FitUtilsLinkDef.h
   PostscriptLinkDef.h
+  StreamLinkDef.h
   TableLinkDef.h
   TH2FitLinkDef.h
   UtilsLinkDef.h
 )
 
-ADD_LIBRARY( base SHARED ${libbase_SOURCES} )
-TARGET_LINK_LIBRARIES( base ${ROOT_LIBRARIES})
+ADD_LIBRARY( AliUtilBase SHARED ${libbase_SOURCES} )
+TARGET_LINK_LIBRARIES( AliUtilBase ${ROOT_LIBRARIES})
 
 ### install
-INSTALL( TARGETS postscript base DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
+INSTALL( TARGETS AliUtilPostscript AliUtilBase DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )

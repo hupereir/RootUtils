@@ -5,13 +5,14 @@
 \brief data formating
 */
 
+#include "Table.h"
+#include "Stream.h"
+#include "Utils.h"
+
 #include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <sstream>
-
-#include "Table.h"
-#include "Utils.h"
 
 using namespace std;
 
@@ -71,7 +72,7 @@ void Table::Load( const char* filename )
         // add conversions
         string line_str( line_buffer );
         for( list< ConversionPair >::const_iterator iter = fConversions.begin(); iter != fConversions.end(); iter++ )
-            line_str = Utils::ReplaceAll( line_str, iter->first, iter->second );
+        { line_str = Stream::ReplaceAll( line_str, iter->first, iter->second ); }
 
         Line line;
         line.Parse( line_str.c_str() );
@@ -172,9 +173,9 @@ void Table::PrintLatex( ostream& out, const unsigned int& firstLine, const unsig
             string value_string( fColumns[column]->GetString(line) );
 
             // convert exp to latex format
-            while( value_string.find( "e-0" ) != string::npos ) value_string = Utils::Convert( value_string, "e-0", "e-" );
-            while( value_string.find( "e0" ) != string::npos ) value_string = Utils::Convert( value_string, "e0", "e" );
-            if( value_string.find( "e" ) != string::npos ) value_string = Utils::Convert( value_string, "e", "\\;10^{" )+"}";
+            while( value_string.find( "e-0" ) != string::npos ) value_string = Stream::ReplaceAll( value_string, "e-0", "e-" );
+            while( value_string.find( "e0" ) != string::npos ) value_string = Stream::ReplaceAll( value_string, "e0", "e" );
+            if( value_string.find( "e" ) != string::npos ) value_string = Stream::ReplaceAll( value_string, "e", "\\;10^{" )+"}";
 
             // print column
             if( column == 0 ) out << "$";
@@ -232,10 +233,10 @@ void Table::PrintText( ostream& out, const unsigned int& firstLine, const unsign
             string value_string( fColumns[column]->GetString(line) );
 
             // convert exp to latex format
-            while( value_string.find( "e-0" ) != string::npos ) value_string = Utils::Convert( value_string, "e-0", "e-" );
-            while( value_string.find( "e0" ) != string::npos ) value_string = Utils::Convert( value_string, "e0", "e" );
+            while( value_string.find( "e-0" ) != string::npos ) value_string = Stream::ReplaceAll( value_string, "e-0", "e-" );
+            while( value_string.find( "e0" ) != string::npos ) value_string = Stream::ReplaceAll( value_string, "e0", "e" );
             if( value_string.find( "e" ) != string::npos )
-                value_string = Utils::Convert( value_string, "e", " 10^" );
+                value_string = Stream::ReplaceAll( value_string, "e", " 10^" );
 
             // print column
             else if( fColumns[column]->GetType() & ColumnBase::HAS_HEADER ) out << "   ";

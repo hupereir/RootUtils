@@ -35,81 +35,27 @@
 #include <unistd.h>
 #include <map>
 
-using namespace std;
-
 //__________________________________________________
 //! root dictionary
 ClassImp( Utils );
 
 //________________________________________________________________________
-string Utils::ReplaceAll( const string& in, const string& c1, const string& c2 )
-{
-    if( !c1.size() ) return "";
-    string out("");
-    size_t len = in.size();
-    size_t current = 0;
-    size_t found=0;
-    while( current < len && ( found = in.find( c1, current ) ) != string::npos )
-    {
-        out += in.substr( current, found-current ) + c2;
-        current=found+c1.size();
-    }
-
-    if( current < len ) out += in.substr( current, len-current );
-
-    return out;
-
-}
-
-//________________________________________________________________________
-void Utils::PrintVector( ostream& out, const char* name, const double* values, const int& size, const char* format )
-{ PrintVector<double>( out, "double", name, values, size, format ); }
-
-//________________________________________________________________________
-void Utils::PrintIntVector( ostream& out, const char* name, const int* values, const int& size, const char* format )
-{ PrintVector<int>( out, "int", name, values, size, format ); }
-
-//_________________________________
-void Utils::PrintVector2D( ostream& out, const char* name, const double* values, const int& size_1, const int& size_2, const char* format )
-{ PrintVector2D<double>( out, "double", name, values, size_1, size_2, format ); }
-
-//_________________________________
-void Utils::PrintIntVector2D( ostream& out, const char* name, const int* values, const int& size_1, const int& size_2, const char* format )
-{ PrintVector2D<int>( out, "int", name, values, size_1, size_2, format ); }
-
-//_________________________________
-void Utils::PrintVector3D( ostream& out, const char* name, const double* values, const int& size_1, const int& size_2, const int& size_3,const char* format )
-{ PrintVector3D<double>( out, "double", name, values, size_1, size_2, size_3, format ); }
-
-//_________________________________
-void Utils::PrintVector4D( ostream& out, const char* name, const double* values, const int& size_1, const int& size_2, const int& size_3,const int& size_4, const char* format )
-{ PrintVector4D<double>( out, "double", name, values, size_1, size_2, size_3, size_4, format ); }
-
-//________________________________________________________________________
-void Utils::PrintCuts( const TCut& cut )
-{
-
-    cout << Utils::Convert( (const char*) cut, "&&", "&&\n" );
-    cout << endl;
-
-}
-
-//________________________________________________________________________
-double Utils::GetMean( list<double>values )
+double Utils::GetMean( std::list<double>values )
 {
     double out(0);
-    for( list<double>::iterator iter = values.begin(); iter != values.end(); iter++ )
+    for( std::list<double>::iterator iter = values.begin(); iter != values.end(); iter++ )
         out+=*iter;
     return out/values.size();
 }
 
 //________________________________________________________________________
-double Utils::GetRMS( list<double>values )
+double Utils::GetRMS( std::list<double>values )
 {
     double out(0);
-    double mean( GetMean( values ) );
-    for( list<double>::iterator iter = values.begin(); iter != values.end(); iter++ )
-        out+=ALI_MACRO::SQUARE(*iter - mean );
+    const double mean( GetMean( values ) );
+    for( std::list<double>::iterator iter = values.begin(); iter != values.end(); iter++ )
+    { out+=ALI_MACRO::SQUARE(*iter - mean ); }
+
     return sqrt(out/values.size());
 }
 
@@ -117,7 +63,7 @@ double Utils::GetRMS( list<double>values )
 void Utils::DumpHistogram( TH1* h )
 {
 
-    cout << "Utils::DumpHistogram - " << h->GetName() << endl;
+    std::cout << "Utils::DumpHistogram - " << h->GetName() << std::endl;
     printf( "%5s %10s %10s %10s %10s %10s\n", "bin", "center", "content", "error", "sum", "error" );
 
     double sum( 0 );
@@ -143,7 +89,7 @@ void Utils::DumpHistogram( TH1* h )
 void Utils::DumpFunctionParameters( TF1* f )
 {
 
-    cout << "Utils::DumpFunctionParameters - " << f->GetName() << endl;
+    std::cout << "Utils::DumpFunctionParameters - " << f->GetName() << std::endl;
     printf( "%5s %10s %10s %10s\n", "index", "value", "min", "max" );
     for( int i=0; i < f->GetNpar(); i++ )
     {
@@ -218,14 +164,14 @@ double Utils::GetRandom( TH1* h )
     double max( h->GetMaximum() );
     double x_min( h->GetXaxis()->GetXmin() );
     double x_max( h->GetXaxis()->GetXmax() );
-    Debug::Str() << "Utils::GetRandom - x_min=" << x_min << "x_max=" << x_max << endl;
+    Debug::Str() << "Utils::GetRandom - x_min=" << x_min << "x_max=" << x_max << std::endl;
 
     while( 1 ) {
         double out = x_min + double( rand() )*(x_max-x_min)/RAND_MAX;
 
         int bin( h->GetXaxis()->FindBin( out ) );
         double value( h->GetBinContent(bin) );
-        Debug::Str() << "Utils::GetRandom - max=" << max << " out=" << out << " value=" << value << endl;
+        Debug::Str() << "Utils::GetRandom - max=" << max << " out=" << out << " value=" << value << std::endl;
 
         double prob = double( rand() )*max/RAND_MAX;
         if( prob < value ) return out;
@@ -249,7 +195,7 @@ double Utils::GetRandom( TF1* f, double x_min, double x_max )
     if( !f ) return 0;
 
     double max( f->GetMaximum( x_min, x_max ) );
-    Debug::Str() << "Utils::GetRandom - x_min=" << x_min << "x_max=" << x_max << endl;
+    Debug::Str() << "Utils::GetRandom - x_min=" << x_min << "x_max=" << x_max << std::endl;
 
     while( 1 ) {
         double out = x_min + double( rand() )*(x_max-x_min)/RAND_MAX;
@@ -279,7 +225,7 @@ double Utils::GetRandom( double min, double max )
 }
 
 //__________________________________________________
-pair<double,double> Utils::GetRandom2D( TH2* h )
+std::pair<double,double> Utils::GetRandom2D( TH2* h )
 {
     // initialize
     static bool first( true );
@@ -288,7 +234,7 @@ pair<double,double> Utils::GetRandom2D( TH2* h )
         srand( time( 0 ) );
     }
 
-    if( !h ) return make_pair<double,double>( 0, 0 );
+    if( !h ) return std::make_pair<double,double>( 0, 0 );
 
     while( 1 ) {
         double x_min( h->GetXaxis()->GetXmin() );
@@ -305,11 +251,11 @@ pair<double,double> Utils::GetRandom2D( TH2* h )
 
         double value( h->GetBinContent(bin_x, bin_y) );
         double prob = double( rand() )*max/RAND_MAX;
-        if( prob < value ) return make_pair<double,double>(out_x, out_y);
+        if( prob < value ) return std::make_pair<double,double>(out_x, out_y);
     }
 
     //! not reached
-    return make_pair<double,double>( 0, 0 );
+    return std::make_pair<double,double>( 0, 0 );
 
 }
 
@@ -330,15 +276,15 @@ void Utils::Form( ostream &out, const char* format, ... )
 TH1* Utils::ScaleAxis( TH1* h, double scale )
 {
 
-    string title( h->GetTitle() );
-    string name( h->GetName() );
+    std::string title( h->GetTitle() );
+    std::string name( h->GetName() );
     name += "_scale";
 
 
     TAxis* axis = h->GetXaxis();
     double x_min = scale*axis->GetXmin();
     double x_max = scale*axis->GetXmax();
-    if( x_min > x_max ) swap( x_min, x_max );
+    if( x_min > x_max ) std::swap( x_min, x_max );
 
     TH1* h_out =	NewTH1( name.c_str(), title.c_str(), axis->GetNbins(), x_min, x_max );
     for( int bin=0; bin < axis->GetNbins()+2; bin++ )
@@ -356,10 +302,10 @@ TH1* Utils::ScaleAxis( TH1* h, double scale )
 //__________________________________________________
 TH1* Utils::Integrate( TH1* h, bool normalize )
 {
-    string name( h->GetName() );
+    std::string name( h->GetName() );
     name += "_Integrated";
 
-    string title( h->GetTitle() );
+    std::string title( h->GetTitle() );
     title += " [Integrated]";
 
     double entries( h->GetEntries() );
@@ -389,7 +335,7 @@ double Utils::Integrate( TH1*h, double xmin, double xmax )
 {
     // check order
     if( xmin >= xmax ) {
-        cout << "Utils::Integrate - invalid range" << endl;
+        std::cout << "Utils::Integrate - invalid range" << std::endl;
         return 0;
     }
 
@@ -418,7 +364,7 @@ double Utils::Integrate( TH1*h, double xmin, double xmax )
         << " out=" << out
         << " low_correction=" << low_bin_correction
         << " high_correction=" << high_bin_correction
-        << endl;
+        << std::endl;
 
     return out - low_bin_correction - high_bin_correction;
 
@@ -434,7 +380,7 @@ TH1* Utils::TreeToHisto(
 {
     // check tree
     if( !tree ) {
-        cout << "Utils::TreeToHisto - tree is NULL .\n";
+        std::cout << "Utils::TreeToHisto - tree is NULL .\n";
         return 0;
     }
 
@@ -444,13 +390,13 @@ TH1* Utils::TreeToHisto(
     // if histogram autoformat requested, delete found histogram if any, give error message otherwise
     if( autoH && h ) { SafeDelete( h ); }
     else if( !(autoH || h ) ) {
-        cout << "Utils::TreeToHisto - fatal: cannot find predefined histogram \"" << name << "\" .\n";
+        std::cout << "Utils::TreeToHisto - fatal: cannot find predefined histogram \"" << name << "\" .\n";
         return 0;
     }
 
     // create/fill autoformated histogram if requested
     if( autoH ) {
-        string full_var = string( var ) + ">>" + name;
+        std::string full_var = std::string( var ) + ">>" + name;
         tree->Draw(full_var.c_str(), cut, "goff" );
         h= (TH1*) gROOT->FindObject(name);
 
@@ -458,7 +404,7 @@ TH1* Utils::TreeToHisto(
     } else tree->Project( name, var, cut );
 
     if( h ) h->SetLineWidth( 2 );
-    ostringstream what;
+    std::ostringstream what;
     what << var << "{" << cut << "}";
     h->SetTitle( what.str().c_str() );
     return h;
@@ -476,7 +422,7 @@ TH2* Utils::TreeToHisto2D(
 
     // check tree
     if( !tree ) {
-        cout << "Utils::TreeToHisto - tree is NULL .\n";
+        std::cout << "Utils::TreeToHisto - tree is NULL .\n";
         return 0;
     }
 
@@ -487,13 +433,13 @@ TH2* Utils::TreeToHisto2D(
     // if histogram autoformat requested, delete found histogram if any, give error message otherwise
     if( autoH && h ) { SafeDelete( h ); }
     else if( !(autoH || h ) ) {
-        cout << "Utils::TreeToHisto - fatal: cannot find predefined histogram\"" << name << "\" .\n";
+        std::cout << "Utils::TreeToHisto - fatal: cannot find predefined histogram\"" << name << "\" .\n";
         return 0;
     }
 
     // create/fill autoformated histogram if requested
     if( autoH ) {
-        string full_var = string( var ) + ">>" + name;
+        std::string full_var = std::string( var ) + ">>" + name;
         tree->Draw(full_var.c_str(), cut, "goff" );
         h= (TH2*) gROOT->FindObject(name);
 
@@ -533,11 +479,11 @@ class th1: public TH1F
     //! constructor
     th1( const char* name, const char* title, int bin, double min, double max ):
         TH1F( name, title, bin, min, max )
-   { Debug::Str() << "th1::th1 - name = " << name << endl; }
+   { Debug::Str() << "th1::th1 - name = " << name << std::endl; }
 
 //! destructor
 ~th1( void )
-{ Debug::Str() << "th1::~th1 - name = " << GetName() << endl; }
+{ Debug::Str() << "th1::~th1 - name = " << GetName() << std::endl; }
 
 };
 
@@ -590,11 +536,11 @@ TH1* Utils::NewClone(
     )
 {
 
-    Debug::Str() << "Utils::NewClone - " << name << endl;
+    Debug::Str() << "Utils::NewClone - " << name << std::endl;
 
     // check parent histogram
     if( !parent ) {
-        cout << "Utils::NewClone - null parent.\n";
+        std::cout << "Utils::NewClone - null parent.\n";
         return 0;
     }
 
@@ -617,7 +563,7 @@ TH2* Utils::NewClone2D(
 {
     // check parent histogram
     if( !parent ) {
-        cout << "Utils::NewClone - null parent.\n";
+        std::cout << "Utils::NewClone - null parent.\n";
         return 0;
     }
 
@@ -662,8 +608,8 @@ int Utils::HDiff(TH1* h1, TH1* h2, TH1* h3)
 
     double sum1( 0 ), sum2( 0 );
     if(!(n1 == n2 && n2 == n3)){
-        cout << "Utils::HDiff - ERROR: Different number of bins.\n";
-        cout << "	 " << n1 << ", " << n2 << ", " << n3 << endl;
+        std::cout << "Utils::HDiff - ERROR: Different number of bins.\n";
+        std::cout << "	 " << n1 << ", " << n2 << ", " << n3 << std::endl;
         return int(h1->GetEntries()-h2->GetEntries() );
     }
 
@@ -691,8 +637,8 @@ int Utils::HDiff(TH1* h1, TF1* f, TH1* h3, double min, double max)
     unsigned int n3 = h3->GetNbinsX();
 
     if(!(n1 == n3)){
-        cout << "Utils::HDiff - ERROR: Different number of bins.\n";
-        cout << "	 " << n1 << ", " << n3 << endl;
+        std::cout << "Utils::HDiff - ERROR: Different number of bins.\n";
+        std::cout << "	 " << n1 << ", " << n3 << std::endl;
         return 0;
     }
 
@@ -728,8 +674,8 @@ double Utils::HDiv(TH1* h1, TH1* h2, TH1* h3, int error_mode )
     unsigned int n3 = h3->GetNbinsX();
 
     if(!(n1 == n2 && n2 == n3)){
-        cout << "Utils::HDiv - ERROR: Different number of bins.\n";
-        cout << "	 " << n1 << ", " << n2 << ", " << n3 << endl;
+        std::cout << "Utils::HDiv - ERROR: Different number of bins.\n";
+        std::cout << "	 " << n1 << ", " << n2 << ", " << n3 << std::endl;
         return 0;
     }
     return HDiv( h1, h2, h3, 1, n1, error_mode );
@@ -745,8 +691,8 @@ double Utils::HDiv(TH1* h1, TH1* h2, TH1* h3, unsigned int i1, unsigned int i2, 
     unsigned int n3 = h3->GetNbinsX();
 
     if(!(n1 == n2 && n2 == n3)){
-        cout << "Utils::HDiv - ERROR: Different number of bins.\n";
-        cout << "	 " << n1 << ", " << n2 << ", " << n3 << endl;
+        std::cout << "Utils::HDiv - ERROR: Different number of bins.\n";
+        std::cout << "	 " << n1 << ", " << n2 << ", " << n3 << std::endl;
         return 0;
     }
 
@@ -793,7 +739,7 @@ TGraphErrors* Utils::TGDiv(TGraphErrors* tg1, TGraphErrors* tg2 )
 {
     if( tg1->GetN() != tg2->GetN() )
     {
-        cout << "Utils::TGDiv - ERROR: Different number of points.\n";
+        std::cout << "Utils::TGDiv - ERROR: Different number of points.\n";
         return 0;
     }
 
@@ -808,7 +754,7 @@ TGraphErrors* Utils::TGDiv(TGraphErrors* tg1, TGraphErrors* tg2 )
 
         if( x1 != x2 )
         {
-            cout << "Utils::TGDiv - different x. point " <<	i << "skipped" << endl;
+            std::cout << "Utils::TGDiv - different x. point " <<	i << "skipped" << std::endl;
             continue;
         }
 
@@ -825,12 +771,12 @@ TGraphErrors* Utils::TGDiv(TGraphErrors* tg1, TGraphErrors* tg2 )
 
         tg_out->SetPoint( point, x1, eff );
         tg_out->SetPointError( point, 0, err );
-        cout << "Utils::TGDiv -"
+        std::cout << "Utils::TGDiv -"
             << " y1=" << y1
             << " y2=" << y2
             << " eff=" << eff
             << " +/- " << err
-            << endl;
+            << std::endl;
 
         point++;
     }
@@ -852,15 +798,15 @@ double Utils::HDiv2D(TH2* h1, TH2* h2, TH2* h3, int error_mode )
     unsigned int ny3 = h3->GetNbinsY();
 
     if(!(nx1 == nx2 && nx2 == nx3)){
-        cout << "Utils::HDiv - ERROR: Different number of x bins: ";
-        cout << " " << nx1 << ", " << nx2 << ", " << nx3 << endl;
+        std::cout << "Utils::HDiv - ERROR: Different number of x bins: ";
+        std::cout << " " << nx1 << ", " << nx2 << ", " << nx3 << std::endl;
         return 0;
     }
 
     if(!(ny1 == ny2 && ny2 == ny3))
     {
-        cout << "Utils::HDiv - ERROR: Different number of bins: ";
-        cout << " " << ny1 << ", " << ny2 << ", " << ny3 << endl;
+        std::cout << "Utils::HDiv - ERROR: Different number of bins: ";
+        std::cout << " " << ny1 << ", " << ny2 << ", " << ny3 << std::endl;
         return 0;
     }
 
@@ -893,22 +839,4 @@ double Utils::HDiv2D(TH2* h1, TH2* h2, TH2* h3, int error_mode )
 
     return ( (double) h1->Integral() / (double) h2->Integral() );
 
-}
-
-//______________________________________________________________________
-string Utils::Convert( const string& in, const string& c1, const string& c2)
-{
-    if( !c1.size() ) return "";
-    string out("");
-    size_t len = in.size();
-    size_t current = 0;
-    size_t found=0;
-    while( current < len && ( found=in.find( c1, current ) ) != string::npos ) {
-        out += in.substr( current, found-current ) + c2;
-        current=found+c1.size();
-    }
-    if( current < len )
-    { out += in.substr( current, len-current ); }
-
-    return out;
 }
