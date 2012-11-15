@@ -18,42 +18,8 @@ class ALI_MACRO
 
   public:
 
-  //! arms
-  enum {
-    SouthArm,
-    NorthArm
-  };
-
-  //! arms (bitwise)
-  enum Arm {
-    SOUTH = 1<<0,
-    NORTH = 1<<1,
-    BOTH = SOUTH | NORTH };
-
   //! verbosity
   enum Verbosity { NONE, SOME, ALOT, MAX };
-
-  //! number of arms
-  enum { MAX_ARM = 2 };
-
-  //! number of stations
-  enum { MAX_STATION = 3 };
-
-  //! number of gaps/station
-  enum { MAX_GAP = 3 };
-
-  //! number of cathode/gap
-  enum { MAX_CATHODE = 2 };
-
-  //! returns uniq id associated to arm, station, gap and cathode
-  static int get_index( int station, int gap, int cathode )
-  {
-    return
-      cathode + MAX_CATHODE*(
-      gap + MAX_GAP*(
-      station ) );
-  }
-
 
   //! square a number of a given type
   static double SQUARE(const double& x)
@@ -62,7 +28,7 @@ class ALI_MACRO
   #ifndef __CINT__
   //! try find object of given type/name; delete it if found.
   template< typename T >
-  static void safe_delete( const char* name )
+  static void Delete( const char* name )
   {
     if( !name ) return;
     T* h = (T*) gROOT->FindObject( name );
@@ -75,23 +41,21 @@ class ALI_MACRO
     with i the first index of a non existing object of the same type
   */
   template< typename T >
-  static T* backup( T* obj, const std::string& tag = "" )
+  static T* backup( T* obj, const TString& tag = "" )
   {
 
     if( !obj ) return 0;
-    std::string name( (const char*) obj->GetName() );
-    std::string new_name( name );
+    TString name( obj->GetName() );
+    TString newName( name );
     int index( 0 );
     do {
 
-      std::ostringstream what;
-      what << name << tag << "_" << index;
-      new_name = what.str();
+      newName = Form( "%s%s_%i", name.Data(), tag.Data(), index );
       index ++;
 
-    } while( (T*) gROOT->FindObject( new_name.c_str() ) );
+    } while( (T*) gROOT->FindObject( newName ) );
 
-    return (T*) obj->Clone( new_name.c_str() );
+    return (T*) obj->Clone( newName );
 
   }
 
