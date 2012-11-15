@@ -7,10 +7,9 @@
   \brief typedefs and enumerations
 */
 
-#include <string>
 #include <TObject.h>
+#include <TString.h>
 #include <TROOT.h>
-#include <sstream>
 
 //! typedefs and enumerations
 class ALI_MACRO
