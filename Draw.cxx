@@ -118,29 +118,29 @@ TPaveStats* Draw::UpdateStats(
         Coord_t x2 = st->GetX2NDC();
         Coord_t y1 = st->GetY1NDC();
         Coord_t y2 = st->GetY2NDC();
-        Coord_t x_offset = x2-x1;
-        Coord_t y_offset = y2-y1;
+        Coord_t xOffset = x2-x1;
+        Coord_t yOffset = y2-y1;
 
         if( direction & DOWN )
         {
-            y2 -= scale*y_offset;
-            y1 -= scale*y_offset;
+            y2 -= scale*yOffset;
+            y1 -= scale*yOffset;
         }
         else if( direction & UP )
         {
-            y1 += scale*y_offset;
-            y2 += scale*y_offset;
+            y1 += scale*yOffset;
+            y2 += scale*yOffset;
         }
 
         if( direction & LEFT )
         {
-            x2 -= scale*x_offset;
-            x1 -= scale*x_offset;
+            x2 -= scale*xOffset;
+            x1 -= scale*xOffset;
         }
         else if( direction & RIGHT )
         {
-            x1 += scale*x_offset;
-            x2 += scale*x_offset;
+            x1 += scale*xOffset;
+            x2 += scale*xOffset;
         }
 
         st->SetX1NDC(x1);
@@ -173,38 +173,40 @@ void Draw::UpdatePaveSize(
     )
 {
 
-    int n_lines( pave->GetListOfLines()->GetSize() );
-    if( !n_lines ) return;
+    int nLines( pave->GetListOfLines()->GetSize() );
+    if( !nLines ) return;
 
     // resize height
     if( (direction & UP) || (direction & DOWN) )
     {
 
-        double line_height( pave->GetTextSize() );
+        double lineHeight( pave->GetTextSize() );
+        if( lineHeight <= 0 ) return;
+
         if( direction & UP )
         {
 
-            pave->SetY2( pave->GetY1() + n_lines*line_height );
+            pave->SetY2( pave->GetY1() + nLines*lineHeight );
 
         } else if( direction & DOWN ) {
 
-            pave->SetY1( pave->GetY2() - n_lines*line_height );
+            pave->SetY1( pave->GetY2() - nLines*lineHeight );
         }
 
     }
 
     if( (direction & LEFT) || (direction & RIGHT ) )
     {
-        unsigned int n_char_max( 0 );
-        double char_width( pave->GetTextSize() );
+        unsigned int nCharMax( 0 );
+        double charWidth( pave->GetTextSize() );
         double ratio( 0 );
-        for( int line = 0; line < n_lines; line++ )
+        for( int line = 0; line < nLines; line++ )
         {
             TText *text( pave->GetLine( line ) );
             unsigned int n_char( strlen( text->GetTitle() ) );
-            if( n_char > n_char_max )
+            if( n_char > nCharMax )
             {
-                n_char_max = n_char;
+                nCharMax = n_char;
                 unsigned int w(0), h(0);
                 text->GetTextExtent( w, h, text->GetTitle() );
                 ratio = double(w)/double(h);
@@ -213,11 +215,11 @@ void Draw::UpdatePaveSize(
 
         if( direction & LEFT )
         {
-            pave->SetX1( pave->GetX2() - ratio*char_width );
+            pave->SetX1( pave->GetX2() - ratio*charWidth );
 
         } else if( direction & RIGHT ) {
 
-            pave->SetX2( pave->GetX1() + ratio*char_width );
+            pave->SetX2( pave->GetX1() + ratio*charWidth );
 
         }
 
