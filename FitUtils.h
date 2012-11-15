@@ -83,6 +83,33 @@ namespace UTILS
     //! double gaussian + exp fit - 8 parameters
     static double FixedDoubleGaus( double *x, double *par );
 
+    //! cristall ball fit, using Amplitude for first parameter
+    static double CrystallBall0( double *x, double *par );
+
+    //! cristal ball
+    static double CrystallBall( double *x, double *par );
+
+    //! cristal ball
+    static double CrystallBall( double x, double mean, double sigma, double alpha, double n );
+
+    //! cristal ball
+    static double CrystallBallIntegral( double sigma, double alpha, double n );
+
+    //! cristal ball
+    static double CrystallBall2( double *x, double *par );
+
+    //! cristal ball
+    static double CrystallBall2(
+      double x, double mean, double sigma,
+      double alpha, double n,
+      double alpha2, double n2 );
+
+    //! cristal ball
+    static double CrystallBall2Integral(
+      double sigma,
+      double alpha, double n,
+      double alpha2, double n2 );
+
     ClassDef(FitUtils,0)
   };
 
