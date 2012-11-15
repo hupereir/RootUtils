@@ -206,7 +206,7 @@ template<typename T> class Column: public ColumnBase
     {
 
       // get min number of entries in the columns
-        unsigned int nLinesMax = ( n_lines )? min( fValues.size(), n_lines+firstLine ):fValues.size();
+        unsigned int nLinesMax = ( n_lines )? std::min( fValues.size(), n_lines+firstLine ):fValues.size();
         T* out = new T[nLinesMax-firstLine];
 
         for( unsigned int i = firstLine; i < nLinesMax; i++ )

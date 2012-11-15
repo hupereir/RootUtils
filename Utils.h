@@ -33,6 +33,7 @@ class TTree;
 class TF1;
 class TH1;
 class TH2;
+class TH3;
 class TText;
 class TGraphErrors;
 
@@ -49,6 +50,9 @@ class Utils:public TObject
     Utils():TObject()
     {}
 
+    // get euler angles from rotation matrix
+    static bool MatrixToAngles(const double *rot, double *angles);
+
     //! get average for a number measurements
     static double GetMean( double* values, int n )
     {
@@ -64,6 +68,9 @@ class Utils:public TObject
         for( int i=0; i<n; i++ ) value_list.push_back( values[i] );
         return GetRMS( value_list );
     }
+
+    //! delete object from name
+    static void DeleteObject( const char* );
 
     //! get average for a number measurements
     static double GetMean( std::list<double> values );
@@ -98,7 +105,7 @@ class Utils:public TObject
     generate a random number following probability distribution given by
     histogram
     */
-    static double GetRandom( TF1* f, double x_min, double x_max );
+    static double GetRandom( TF1* f, double xMin, double xMax );
 
     //! draw normalized histogram
     static void DrawNormalized( TTree* tree, const char* name, const char* var, const TCut& cut="", const char* opt = "" );
@@ -124,16 +131,8 @@ class Utils:public TObject
         TCut cut="",
         bool autoH = true );
 
-    //! fills histogram from tree return histogram
-    static TH2* TreeToHisto2D(
-        TTree *tree,
-        const char* name,
-        const char* var,
-        TCut cut="",
-        bool autoH = true );
-
     //! Convert an histogram into a TGraph
-    static TGraphErrors* HistoToTGraph( TH1* h, bool zero_sup = false );
+    static TGraphErrors* HistoToTGraph( TH1* h, bool zeroSup = false );
 
     //! returns number of entries (debugged)
     static double GetEntries( TH1* h );
@@ -149,6 +148,11 @@ class Utils:public TObject
     linearly correct from bin effects
     */
     static double Integrate( TH1* h, double xmin, double xmax );
+
+    //! create a new histogram safely (delete histograms with same name before)
+    static TCanvas* NewTCanvas(
+        const char* name, const char* title,
+        int width, int height );
 
     //! create a new histogram safely (delete histograms with same name before)
     static TH1* NewTH1(
@@ -175,6 +179,20 @@ class Utils:public TObject
         int biny = 100,
         double miny = 0,
         double maxy = 1 );
+
+    //! create a new 2D histogram safely (delete histograms with same name before)
+    static TH3* NewTH3(
+        const char* name,
+        const char* title,
+        int binx = 100,
+        double minx = 0,
+        double maxx = 1,
+        int biny = 100,
+        double miny = 0,
+        double maxy = 1,
+        int binz = 100,
+        double minz = 0,
+        double maxz = 1);
 
     //! create a new clone histogram safely (delete histograms with same name before)
     static TH1* NewClone(

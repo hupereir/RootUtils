@@ -18,7 +18,9 @@
 #include <TTree.h>
 #include <TH1.h>
 #include <TH2.h>
+#include <TH3.h>
 #include <TF1.h>
+#include <TMath.h>
 #include <TText.h>
 #include <TPad.h>
 #include <TPaveStats.h>
@@ -38,6 +40,28 @@
 //__________________________________________________
 //! root dictionary
 ClassImp( Utils );
+
+//_____________________________________________________________________________
+bool Utils::MatrixToAngles(const double *rot, Double_t *angles)
+{
+  // Calculates the Euler angles in "x y z" notation
+  // using the rotation matrix
+  // Returns false in case the rotation angles can not be
+  // extracted from the matrix
+  if(TMath::Abs(rot[0])<1e-7 || TMath::Abs(rot[8])<1e-7)
+  { return kFALSE; }
+
+  Double_t raddeg = TMath::RadToDeg();
+  angles[0]=raddeg*TMath::ATan2(-rot[5],rot[8]);
+  angles[1]=raddeg*TMath::ASin(rot[2]);
+  angles[2]=raddeg*TMath::ATan2(-rot[1],rot[0]);
+  return kTRUE;
+
+}
+
+//________________________________________________________________________
+void Utils::DeleteObject( const char* name )
+{ return ALI_MACRO::Delete<TObject>( name ); }
 
 //________________________________________________________________________
 double Utils::GetMean( std::list<double>values )
@@ -113,7 +137,7 @@ void Utils::DrawNormalized( TTree* tree, const char* name, const char* var, cons
 TTree *Utils::GetChisquareTree( int ndf, int nevents )
 {
 
-    ALI_MACRO::safe_delete<TTree>( "chisquare" );
+    ALI_MACRO::Delete<TTree>( "chisquare" );
     TTree *tree = new TTree( "chisquare", "chisquare" );
     static double chi_square(0);
 
@@ -162,12 +186,12 @@ double Utils::GetRandom( TH1* h )
     if( !h ) return 0;
 
     double max( h->GetMaximum() );
-    double x_min( h->GetXaxis()->GetXmin() );
-    double x_max( h->GetXaxis()->GetXmax() );
-    Debug::Str() << "Utils::GetRandom - x_min=" << x_min << "x_max=" << x_max << std::endl;
+    double xMin( h->GetXaxis()->GetXmin() );
+    double xMax( h->GetXaxis()->GetXmax() );
+    Debug::Str() << "Utils::GetRandom - xMin=" << xMin << "xMax=" << xMax << std::endl;
 
     while( 1 ) {
-        double out = x_min + double( rand() )*(x_max-x_min)/RAND_MAX;
+        double out = xMin + double( rand() )*(xMax-xMin)/RAND_MAX;
 
         int bin( h->GetXaxis()->FindBin( out ) );
         double value( h->GetBinContent(bin) );
@@ -183,7 +207,7 @@ double Utils::GetRandom( TH1* h )
 }
 
 //__________________________________________________
-double Utils::GetRandom( TF1* f, double x_min, double x_max )
+double Utils::GetRandom( TF1* f, double xMin, double xMax )
 {
     // initialize
     static bool first( true );
@@ -194,11 +218,11 @@ double Utils::GetRandom( TF1* f, double x_min, double x_max )
 
     if( !f ) return 0;
 
-    double max( f->GetMaximum( x_min, x_max ) );
-    Debug::Str() << "Utils::GetRandom - x_min=" << x_min << "x_max=" << x_max << std::endl;
+    double max( f->GetMaximum( xMin, xMax ) );
+    Debug::Str() << "Utils::GetRandom - xMin=" << xMin << "xMax=" << xMax << std::endl;
 
     while( 1 ) {
-        double out = x_min + double( rand() )*(x_max-x_min)/RAND_MAX;
+        double out = xMin + double( rand() )*(xMax-xMin)/RAND_MAX;
         double value( f->Eval( out ) );
 
         double prob = double( rand() )*max/RAND_MAX;
@@ -237,9 +261,9 @@ std::pair<double,double> Utils::GetRandom2D( TH2* h )
     if( !h ) return std::make_pair<double,double>( 0, 0 );
 
     while( 1 ) {
-        double x_min( h->GetXaxis()->GetXmin() );
-        double x_max( h->GetXaxis()->GetXmax() );
-        double out_x = double( rand() )*(x_max-x_min)/RAND_MAX;
+        double xMin( h->GetXaxis()->GetXmin() );
+        double xMax( h->GetXaxis()->GetXmax() );
+        double out_x = double( rand() )*(xMax-xMin)/RAND_MAX;
 
         double y_min( h->GetYaxis()->GetXmin() );
         double y_max( h->GetYaxis()->GetXmax() );
@@ -282,11 +306,11 @@ TH1* Utils::ScaleAxis( TH1* h, double scale )
 
 
     TAxis* axis = h->GetXaxis();
-    double x_min = scale*axis->GetXmin();
-    double x_max = scale*axis->GetXmax();
-    if( x_min > x_max ) std::swap( x_min, x_max );
+    double xMin = scale*axis->GetXmin();
+    double xMax = scale*axis->GetXmax();
+    if( xMin > xMax ) std::swap( xMin, xMax );
 
-    TH1* h_out =	NewTH1( name.c_str(), title.c_str(), axis->GetNbins(), x_min, x_max );
+    TH1* h_out =	NewTH1( name.c_str(), title.c_str(), axis->GetNbins(), xMin, xMax );
     for( int bin=0; bin < axis->GetNbins()+2; bin++ )
     {
         double x = scale*axis->GetBinCenter( bin );
@@ -411,57 +435,23 @@ TH1* Utils::TreeToHisto(
 
 }
 
-//__________________________________________________
-TH2* Utils::TreeToHisto2D(
-    TTree *tree,
-    const char* name,
-    const char* var,
-    TCut cut,
-    bool autoH )
-{
-
-    // check tree
-    if( !tree ) {
-        std::cout << "Utils::TreeToHisto - tree is NULL .\n";
-        return 0;
-    }
-
-
-    // check if histogram with requested name exists
-    TH2* h = (TH2*) gROOT->FindObject(name);
-
-    // if histogram autoformat requested, delete found histogram if any, give error message otherwise
-    if( autoH && h ) { SafeDelete( h ); }
-    else if( !(autoH || h ) ) {
-        std::cout << "Utils::TreeToHisto - fatal: cannot find predefined histogram\"" << name << "\" .\n";
-        return 0;
-    }
-
-    // create/fill autoformated histogram if requested
-    if( autoH ) {
-        std::string full_var = std::string( var ) + ">>" + name;
-        tree->Draw(full_var.c_str(), cut, "goff" );
-        h= (TH2*) gROOT->FindObject(name);
-
-        // project in existing histogram otherwise
-    } else tree->Project( name, var, cut );
-
-    return h;
-}
-
 //____________________________________________________________
-TGraphErrors* Utils::HistoToTGraph( TH1* h, bool zero_sup )
+TGraphErrors* Utils::HistoToTGraph( TH1* h, bool zeroSup )
 {
     if( !h ) return 0;
 
     TGraphErrors *tg = new TGraphErrors();
+    tg->SetMarkerStyle( h->GetMarkerStyle() );
+    tg->SetMarkerColor( h->GetMarkerColor() );
+    tg->SetLineColor( h->GetLineColor() );
+    tg->SetLineWidth( h->GetLineWidth() );
     int point( 0 );
     for( int i=0; i<h->GetNbinsX(); i++ )
     {
         double x = h->GetXaxis()->GetBinCenter( i+1 );
         double y = double( h->GetBinContent( i+1 ) );
         double error = double( h->GetBinError( i+1 ) );
-        if( zero_sup && !y ) continue;
+        if( zeroSup && !y ) continue;
         tg->SetPoint( point, x, y );
         tg->SetPointError( point, 0, error );
         point++;
@@ -487,6 +477,16 @@ class th1: public TH1F
 
 };
 
+
+//____________________________________________________________
+TCanvas* Utils::NewTCanvas(
+  const char* name, const char* title,
+  int width, int height )
+{
+    ALI_MACRO::Delete<TCanvas>( name );
+    return new TCanvas( name, title, width, height );
+}
+
 //____________________________________________________________
 TH1* Utils::NewTH1(
     const char* name,
@@ -496,7 +496,7 @@ TH1* Utils::NewTH1(
     double max
     )
 {
-    ALI_MACRO::safe_delete<TH1>( name );
+    ALI_MACRO::Delete<TH1>( name );
     return new th1( name, title, bin, min, max );
 }
 
@@ -508,8 +508,8 @@ TH1* Utils::NewTH1(
     double *x
     )
 {
-    ALI_MACRO::safe_delete<TH1>( name );
-    return new TH1F( name, title, bin, x );
+    ALI_MACRO::Delete<TH1>( name );
+    return Utils::NewTH1( name, title, bin, x );
 }
 
 //____________________________________________________________
@@ -523,8 +523,29 @@ TH2* Utils::NewTH2(
     double miny,
     double maxy )
 {
-    ALI_MACRO::safe_delete<TH1>( name );
+    ALI_MACRO::Delete<TH1>( name );
     return new TH2F( name, title, binx, minx, maxx, biny, miny, maxy );
+}
+
+//____________________________________________________________
+TH3* Utils::NewTH3(
+    const char* name,
+    const char* title,
+    int binx ,
+    double minx,
+    double maxx,
+    int biny,
+    double miny,
+    double maxy,
+    int binz,
+    double minz,
+    double maxz )
+{
+    ALI_MACRO::Delete<TH1>( name );
+    return new TH3F( name, title,
+      binx, minx, maxx,
+      biny, miny, maxy,
+      binz, minz, maxz );
 }
 
 //____________________________________________________________
@@ -545,7 +566,7 @@ TH1* Utils::NewClone(
     }
 
     // check if histogram with requested name exists
-    ALI_MACRO::safe_delete<th1>( name );
+    ALI_MACRO::Delete<th1>( name );
     TH1* h = (TH1*) parent->Clone( name );
     if( reset ) h->Reset();
     h->SetName(name);
@@ -568,7 +589,7 @@ TH2* Utils::NewClone2D(
     }
 
     // check if histogram with requested name exists
-    ALI_MACRO::safe_delete<TH2>( name );
+    ALI_MACRO::Delete<TH2>( name );
     TH2* h = (TH2*) parent->Clone();
     if( reset ) h->Reset();
     h->SetName(name);
@@ -583,7 +604,7 @@ TF1* Utils::NewTF1( const char* name,
     const int& n_par )
 {
 
-    ALI_MACRO::safe_delete<TF1>( name );
+    ALI_MACRO::Delete<TF1>( name );
     return new TF1( name, function, min, max, n_par );
 
 }
@@ -666,7 +687,7 @@ int Utils::HDiff(TH1* h1, TF1* f, TH1* h3, double min, double max)
 }
 
 //______________________________________________________
-double Utils::HDiv(TH1* h1, TH1* h2, TH1* h3, int error_mode )
+double Utils::HDiv(TH1* h1, TH1* h2, TH1* h3, int errorMode )
 {
 
     unsigned int n1 = h1->GetNbinsX();
@@ -678,12 +699,12 @@ double Utils::HDiv(TH1* h1, TH1* h2, TH1* h3, int error_mode )
         std::cout << "	 " << n1 << ", " << n2 << ", " << n3 << std::endl;
         return 0;
     }
-    return HDiv( h1, h2, h3, 1, n1, error_mode );
+    return HDiv( h1, h2, h3, 1, n1, errorMode );
 
 }
 
 //______________________________________________________
-double Utils::HDiv(TH1* h1, TH1* h2, TH1* h3, unsigned int i1, unsigned int i2, int error_mode)
+double Utils::HDiv(TH1* h1, TH1* h2, TH1* h3, unsigned int i1, unsigned int i2, int errorMode)
 {
 
     unsigned int n1 = h1->GetNbinsX();
@@ -696,7 +717,9 @@ double Utils::HDiv(TH1* h1, TH1* h2, TH1* h3, unsigned int i1, unsigned int i2, 
         return 0;
     }
 
-    for(unsigned int i = 1; i < n1+1; i++) {
+    for(unsigned int i = 1; i < n1+1; i++)
+    {
+
         if( i >= i1 && i< i2+1 ) {
 
             double b1 = h1->GetBinContent(i);
@@ -704,11 +727,12 @@ double Utils::HDiv(TH1* h1, TH1* h2, TH1* h3, unsigned int i1, unsigned int i2, 
             double b3 = (b2 != 0) ? b1/b2:0;
 
             double e3 = 0;
-            if( error_mode == EFF )
+            if( errorMode == EFF )
             {
 
                 e3 = (b2 != 0 ) ? sqrt( b3*(1-b3)/b2 ):0;
                 if( b1 == b2 && b1 ) e3 =	0.00001;
+                if( b1 == 0 && b2 ) e3 = 0.00001;
 
             } else {
 
@@ -726,8 +750,8 @@ double Utils::HDiv(TH1* h1, TH1* h2, TH1* h3, unsigned int i1, unsigned int i2, 
 
         } else {
 
-            h3->SetBinContent(i,0);
-            h3->SetBinError	(i,0);
+            h3->SetBinContent(i,0.);
+            h3->SetBinError	(i,0.);
 
         }
     }
@@ -786,7 +810,7 @@ TGraphErrors* Utils::TGDiv(TGraphErrors* tg1, TGraphErrors* tg2 )
 }
 
 //______________________________________________________
-double Utils::HDiv2D(TH2* h1, TH2* h2, TH2* h3, int error_mode )
+double Utils::HDiv2D(TH2* h1, TH2* h2, TH2* h3, int errorMode )
 {
 
     unsigned int nx1 = h1->GetNbinsX();
@@ -821,7 +845,7 @@ double Utils::HDiv2D(TH2* h1, TH2* h2, TH2* h3, int error_mode )
             double b3 = (b2 != 0) ? b1/b2:0;
 
             double e3 = 0;
-            if( error_mode == EFF )
+            if( errorMode == EFF )
             {
                 e3 = (b2 != 0 ) ? sqrt( b3*(1-b3)/b2 ):0;
                 if( b1 == b2 && b1 ) e3 =	0.00001;
