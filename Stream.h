@@ -33,9 +33,6 @@ class Stream:public TObject
     //! string replacement
     static std::string ReplaceAll( const std::string& in, const std::string& c0, const std::string& c1 );
 
-    //! returns a null terminated string where all occurences of c1 is replaced with c2
-    static std::string Convert( const std::string& in, const std::string& c1, const std::string& c2 );
-
     //! print vector
     static void PrintVector(
         const char* name,
