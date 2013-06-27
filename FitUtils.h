@@ -4,8 +4,8 @@
 
 /*!
 	\file	 Fit.h
-	\brief   some usefull functions for fits
-	\author  Hugo Pereira
+	\brief some usefull functions for fits
+	\author Hugo Pereira
 	\version $Revision: 1.1 $
 	\date	 $Date: 2008/07/31 16:52:31 $
 */
@@ -22,93 +22,106 @@
 namespace UTILS
 {
 
-  class FitUtils: public TObject {
+  class FitUtils: public TObject
+  {
+
     public:
 
-    // 	//! log likelyhood customized fitter
-    // 	/*!
-    // 		note that the parameters are absolutely not explained
-    // 		in root documentation.
-    // 	*/
-    // 	static void likelihood(
-    // 			int &npar,
-    // 			double *gin,
-    // 			double &f,
-    // 			double *u,
-    // 			int flag );
-
-
     //! shortcut for fit function
-    typedef double (*FitFunction) (double*, double*);
+    typedef Double_t (*FitFunction) (double*, double*);
 
     //! embeded fit
-    static void Fit( TH1*, const char* ffName, FitFunction, double min, double max, int n_par, double *pars = 0 );
+    static void Fit( TH1*, const char* ffName, FitFunction, Double_t min, Double_t max, int n_par, Double_t *pars = 0 );
 
-    //! straight line, 2 parameters
-    static double Pol1( double *x, double *par );
+    //! normalized gauss
+    static Double_t Gaus( Double_t x, Double_t mean, Double_t sigma );
 
-    //! gaussian + P0, 4 parameters
-    static double GausPol0( double *x, double *par );
+    //! gaussian, using integral for first parameter
+    static Double_t GausIntegrated( Double_t *x, Double_t *par );
 
-    //! two gaussians, 6 parameters
-    static double GausGaus( double *x, double *par );
-
-    //! two Erf
-    static double ErfErf( double *x, double *par );
-
-    //! two Erf + P0 (5 pars)
-    static double ErfErfPol0( double *x, double *par );
-
-    //! two Erf(4 pars) + a gaussian (3 pars)
-    static double ErfErf_gaus( double *x, double *par );
-
-    //! gaussian (integ,ave,sigma)
-    static double GausIntegrated( double *x, double *par );
-
-    //! 1 gaussian (integ,ave,sigma)+exp
-    static double GausIntegratedExp( double *x, double *par );
+    //! 1 gaussian, using integral for first parameter + exp
+    static Double_t GausIntegratedExp( Double_t *x, Double_t *par );
 
     //! 2 parameters exponential
-    static double Exp( double *x, double *pal );
+    static Double_t Exp( Double_t *x, Double_t *par );
+
+    //! 2 gaussian, using integral for first parameter + exp
+    static Double_t GausGausIntegratedExp( Double_t *x, Double_t *par );
 
     //! 2 gaussian (integ,ave,sigma)+exp
-    static double GausGausIntegratedExp( double *x, double *par );
+    static Double_t GausGausIntegrated( Double_t *x, Double_t *par );
 
-    //! 2 gaussian (integ,ave,sigma)+exp
-    static double GausGausIntegrated( double *x, double *par );
+    //! Crystall ball fit, using Amplitude for first parameter
+    static Double_t CrystallBall0( Double_t *x, Double_t *par );
 
-    //! landau function of (par[4]-x)
-    static double LandauInvert( double *x, double *par );
+    //! Crystal ball, using integral for first parameter
+    static Double_t CrystallBall( Double_t *x, Double_t *par );
 
-    //! double gaussian + exp fit - 8 parameters
-    static double FixedDoubleGaus( double *x, double *par );
+    //! Crystal ball
+    static Double_t CrystallBall( Double_t x, Double_t mean, Double_t sigma, Double_t alpha, Double_t n );
 
-    //! cristall ball fit, using Amplitude for first parameter
-    static double CrystallBall0( double *x, double *par );
+    //! Crystal ball integral
+    static Double_t CrystallBallIntegral( Double_t sigma, Double_t alpha, Double_t n );
 
-    //! cristal ball
-    static double CrystallBall( double *x, double *par );
+    //! Crystal ball (with tails on both sides), using integral for first parameter
+    static Double_t CrystallBall2( Double_t *x, Double_t *par );
 
-    //! cristal ball
-    static double CrystallBall( double x, double mean, double sigma, double alpha, double n );
+    //! Crystal ball
+    static Double_t CrystallBall2(
+      Double_t x, Double_t mean, Double_t sigma,
+      Double_t alpha, Double_t n,
+      Double_t alpha2, Double_t n2 );
 
-    //! cristal ball
-    static double CrystallBallIntegral( double sigma, double alpha, double n );
+    //! Crystal ball
+    static Double_t CrystallBall2Integral(
+      Double_t sigma,
+      Double_t alpha, Double_t n,
+      Double_t alpha2, Double_t n2 );
 
-    //! cristal ball
-    static double CrystallBall2( double *x, double *par );
+    //! variable width gaussian
+    static Double_t VWG( double* x, double* par );
 
-    //! cristal ball
-    static double CrystallBall2(
-      double x, double mean, double sigma,
-      double alpha, double n,
-      double alpha2, double n2 );
+    //! variable width gaussian
+    static Double_t VWG( Double_t x, Double_t mean, Double_t sigma, Double_t slope );
 
-    //! cristal ball
-    static double CrystallBall2Integral(
-      double sigma,
-      double alpha, double n,
-      double alpha2, double n2 );
+    //! Na60 function
+    static Double_t Na60( double*, double* par );
+
+    //! Na60 fit function
+    //! tails have 3 parameters each
+    static Double_t Na60(
+      Double_t mass,
+      Double_t mean, Double_t sigma,
+      double* tail1,
+      double* tail2,
+      Double_t massRatio1, Double_t massRatio2
+      );
+
+    //! Na60 function
+    static Double_t Na60Old( double*, double* par );
+
+    //! Na60 fit function
+    //! tails have 3 parameters each
+    static Double_t Na60Old(
+      Double_t mass,
+      Double_t mean, Double_t sigma,
+      double* tail1,
+      double* tail2,
+      Double_t massRatio1, Double_t massRatio2
+      );
+
+    //! Na60 function
+    static Double_t Na60New( double*, double* par );
+
+    //! Na60 fit function
+    //! tails have 3 parameters each
+    static Double_t Na60New(
+      Double_t mass,
+      Double_t mean, Double_t sigma,
+      double* tail1,
+      double* tail2,
+      Double_t alpha1, Double_t alpha2
+      );
 
     ClassDef(FitUtils,0)
   };
