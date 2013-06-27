@@ -62,10 +62,19 @@ void FileManager::AddFiles( const char* selection )
 {
     if( !(selection && strlen( selection ) ) ) return;
 
+    std::string filename( selection );
+    if( filename.find( "alien://" ) == 0 )
+    {
+        fFiles.insert( filename );
+        return;
+    }
+
     std::string command = std::string("ls -1 ") + selection;
     FILE *tmp = popen( command.c_str(), "r" );
     char line[512];
-    while( fgets( line, 512, tmp ) ){
+    while( fgets( line, 512, tmp ) )
+    {
+
         char *name = new char[512];
         sscanf( line, "%s", name );
         std::string name_str( name );
@@ -77,8 +86,10 @@ void FileManager::AddFiles( const char* selection )
 
         fFiles.insert( name_str );
         delete[] name;
+
     }
     pclose( tmp );
+
 }
 
 //_________________________________________________
@@ -185,20 +196,27 @@ bool FileManager::CheckFiles( const char* output ) const
     {
 
         current++;
-        TFile f( iter->c_str() );
-        if( !( f.IsOpen() && f.GetSeekKeys() > 0 ) )
+        TFile* f = TFile::Open( iter->c_str() );
+        if( !( f && f->IsOpen() && f->GetSeekKeys() > 0 ) )
         {
-            std::cout << "FileManager::CheckFiles - "
+
+            std::cout
+                << "FileManager::CheckFiles - "
                 << current << "/" << total
-                << " " << *iter << " looks corrupted" << std::endl;
+                << " " << *iter << " looks corrupted"
+                << std::endl;
             badfFiles.insert( *iter );
+
         } else {
+
 
             std::cout << "FileManager::CheckFiles - "
                 << current << "/" << total
                 << " " << *iter << " looks good" << std::endl;
 
         }
+
+        delete f;
 
     }
 
@@ -244,33 +262,46 @@ bool FileManager::CheckTree( const char* key, const char* output) const
 
         current++;
 
-        TFile f( iter->c_str() );
-        if( !( f.IsOpen() && f.GetSeekKeys() > 0 ) || f.IsZombie() )
+        TFile *f = TFile::Open( iter->c_str() );
+        if( !( f && f->IsOpen() && f->GetSeekKeys() > 0 ) || f->IsZombie() )
         {
-            std::cout << "FileManager::CheckTree - "
+
+            std::cout
+                << "FileManager::CheckTree - "
                 << current << "/" << total
                 << " " << *iter << " looks corrupted" << std::endl;
             badfFiles.insert( *iter );
+            delete f;
             continue;
+
         }
 
         // try retrieve tree
-        TTree * tree = (TTree*) f.Get( key );
+        TTree * tree = (TTree*) f->Get( key );
         if( !tree )
         {
-            std::cout << "FileManager::CheckTree - "
+
+            std::cout
+                << "FileManager::CheckTree - "
                 << current << "/" << total
                 << " " << *iter << ": " << key << " not found.\n";
             badfFiles.insert( *iter );
+
         } else {
+
             double entries( tree->GetEntries() );
             goodfFiles[*iter] = entries;
             total_entries += entries;
-            std::cout << "FileManager::CheckTree - "
+            std::cout
+                << "FileManager::CheckTree - "
                 << current << "/" << total
                 << " " << *iter << ": " << entries << " entries.\n";
+
+            }
+
+            delete f;
+
         }
-    }
 
     std::cout << "FileManager::CheckTree - " << fFiles.size() << " files, total: " << total_entries << " entries.\n";
 
@@ -296,20 +327,20 @@ bool FileManager::CheckAllTrees( const char* key) const
     FileSet badfFiles;
     for( FileSet::const_iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
     {
-        TFile f( iter->c_str() );
-        TKey * key=0;
-        TIter treeIter( f.GetListOfKeys() );
-        while( ( key = (TKey * ) treeIter() ) )
+        TFile* f = TFile::Open( iter->c_str() );
+        TKey* key=0;
+        TIter treeIter( f->GetListOfKeys() );
+        while( ( key = (TKey*) treeIter() ) )
         {
             std::cout << key->GetName() << std::endl;
-            if ( strcmp(key->GetClassName(),"TTree" ) )
-            {
-                continue;
-            }
+            if( std::string( key->GetClassName() ) != "TTree" ) continue;
 
             std::cout << "FileManager::CheckAllTrees checking tree " << key->GetName() << std::endl;
             if ( CheckTree(key->GetName()) ) badfFiles.insert( *iter );
         }
+
+        delete f;
+
     }
 
     return badfFiles.empty();
@@ -381,17 +412,22 @@ TChain* FileManager::GetChain( const char* key ) const
 
     for( FileSet::iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
     {
+
         // open TFile
-        TFile tfile( iter->c_str() );
-        if( !tfile.IsOpen() ) {
+        TFile* f = TFile::Open( iter->c_str() );
+
+        if( !( f && f->IsOpen() ) )
+        {
             std::cout << "FileManager::GetChain - troubles with TFile \"" << *iter << "\".\n";
+            delete f;
             continue;
         }
 
         // load tree
-        TTree * tree = (TTree*) tfile.Get( key );
+        TTree * tree = (TTree*) f->Get( key );
         if( !tree ) {
             std::cout << "FileManager::GetChain - Unable to load chain \"" << key << "\".\n";
+            delete f;
             continue;
         }
 
@@ -405,10 +441,11 @@ TChain* FileManager::GetChain( const char* key ) const
 
         // dump file
         if( fVerbosity >= ALI_MACRO::SOME )
-            std::cout << "FileManager::GetChain - loading \"" << *iter << "\".\n";
+        { std::cout << "FileManager::GetChain - loading \"" << *iter << "\".\n"; }
 
         // add TFile to chain
         out->Add( iter->c_str() );
+        delete f;
 
     }
 
@@ -417,27 +454,27 @@ TChain* FileManager::GetChain( const char* key ) const
 
 //_________________________________________________
 TH1* FileManager::TreeToHisto(
-    const char* tree_name,
-    const char* histo_name,
+    const char* treeName,
+    const char* hName,
     const char* var,
     TCut cut ) const
 {
     // check tree name
-    if( !(tree_name && strlen( tree_name ) ) ) return 0;
+    if( !(treeName && strlen( treeName ) ) ) return 0;
 
 
     // check files (do nothing so far)
     if( Empty() ) return 0;
 
     // check if histogram with requested name exists
-    TH1* h = (TH1*) gROOT->FindObject(histo_name);
+    TH1* h = (TH1*) gROOT->FindObject(hName);
     if( !h ) {
-        std::cout << "FileManager::TreeToHisto - fatal: cannot find predefined histogram \"" << histo_name << "\" .\n";
+        std::cout << "FileManager::TreeToHisto - fatal: cannot find predefined histogram \"" << hName << "\" .\n";
         return 0;
     }
 
     // clone histogram into template
-    std::string tmpName( std::string(histo_name)+"_tmp" );
+    std::string tmpName( std::string(hName)+"_tmp" );
 
     // loop over TFiles
     unsigned int count(0);
@@ -450,23 +487,33 @@ TH1* FileManager::TreeToHisto(
             std::cout << "FileManager::TreeToHisto - loading \"" << *iter << "\" (" << ++count << "/" << total << ").\n";
 
         // open TFile
-        TFile tfile( iter->c_str() );
-        if( !tfile.IsOpen() ) {
+        TFile* f = TFile::Open( iter->c_str() );
+        if( !( f && f->IsOpen() ) )
+        {
+
             std::cout << "FileManager::TreeToHisto - troubles with TFile \"" << *iter << "\".\n";
+            delete f;
             continue;
+
         }
 
         // try load tree
-        TTree * tree = (TTree*) tfile.Get( tree_name );
-        if( !tree ) {
-            std::cout << "FileManager::TreeToHisto - Unable to load chain \"" << tree_name << "\".\n";
-            continue;
+        TTree * tree = (TTree*) f->Get( treeName );
+        if( tree )
+        {
+
+            // project tree to histogram
+            TH1* hTmp( Utils::NewClone( tmpName.c_str(), tmpName.c_str(), h ) );
+            tree->Project( tmpName.c_str(), var, cut );
+            h->Add( hTmp );
+
+        } else {
+
+            std::cout << "FileManager::TreeToHisto - Unable to load chain \"" << treeName << "\".\n";
+
         }
 
-        // project tree to histogram
-        TH1* hTmp( Utils::NewClone( tmpName.c_str(), tmpName.c_str(), h ) );
-        tree->Project( tmpName.c_str(), var, cut );
-        h->Add( hTmp );
+        delete f;
 
     }
 
@@ -475,7 +522,7 @@ TH1* FileManager::TreeToHisto(
 }
 
 //_________________________________________________
-void FileManager::TreeToHisto( const std::string& tree_name, ProjectionList& projection_list ) const
+void FileManager::TreeToHisto( const std::string& treeName, ProjectionList& projection_list ) const
 {
 
     // check files (do nothing so far)
@@ -497,22 +544,26 @@ void FileManager::TreeToHisto( const std::string& tree_name, ProjectionList& pro
     {
 
         // open TFile
-        TFile tfile( iter->c_str() );
-        if( !tfile.IsOpen() ) {
+        TFile* f = TFile::Open( iter->c_str() );
+        if( !( f && f->IsOpen() ) )
+        {
             std::cout << "FileManager::TreeToHisto - troubles with TFile \"" << *iter << "\".\n";
+            delete f;
             continue;
         }
 
         // try load tree
-        TTree * tree = (TTree*) tfile.Get( tree_name.c_str() );
-        if( !tree ) {
-            std::cout << "FileManager::TreeToHisto - Unable to load chain \"" << tree_name << "\".\n";
+        TTree * tree = (TTree*) f->Get( treeName.c_str() );
+        if( !tree )
+        {
+            std::cout << "FileManager::TreeToHisto - Unable to load chain \"" << treeName << "\".\n";
+            delete f;
             continue;
         }
 
         // dump file
         if( fVerbosity >= ALI_MACRO::NONE )
-            std::cout << "FileManager::TreeToHisto - loading \"" << *iter << "\" (" << ++count << "/" << total << ").\n";
+        { std::cout << "FileManager::TreeToHisto - loading \"" << *iter << "\" (" << ++count << "/" << total << ").\n"; }
 
         // project tree to histogram
         for( ProjectionList::iterator iter = projection_list.begin(); iter != projection_list.end(); iter++ )
@@ -522,6 +573,8 @@ void FileManager::TreeToHisto( const std::string& tree_name, ProjectionList& pro
             tree->Project( tmpName.c_str(), iter->fVarName.c_str(), iter->fCut );
             iter->fH->Add( hTmp );
         }
+
+        delete f;
 
     }
 
@@ -544,15 +597,19 @@ TH1* FileManager::GetTH1( const char* key ) const
     {
 
         // open TFile
-        TFile tfile( iter->c_str() );
-        if( !tfile.IsOpen() ) {
+        TFile* f = TFile::Open( iter->c_str() );
+        if( !( f && f->IsOpen() ) )
+        {
             std::cout << "FileManager::GetTH1 - troubles with TFile \"" << *iter << "\".\n";
+            delete f;
             continue;
         }
 
-        TObject* object( tfile.Get( key ) );
-        if( !( object && object->IsA()->InheritsFrom("TH1") ) ) {
+        TObject* object( f->Get( key ) );
+        if( !( object && object->IsA()->InheritsFrom("TH1") ) )
+        {
             std::cout << "FileManager::GetTH1 - load histogram from \"" << *iter << "\" failed.\n";
+            delete f;
             continue;
         }
 
@@ -560,12 +617,14 @@ TH1* FileManager::GetTH1( const char* key ) const
 
         // dump file
         if( fVerbosity >= ALI_MACRO::SOME )
-            std::cout << "FileManager::GetTH1 - loading \"" << *iter << "\".\n";
+        { std::cout << "FileManager::GetTH1 - loading \"" << *iter << "\".\n"; }
 
         if( !out ) {
             gROOT->cd();
             out = (TH1*)h->Clone();
         } else out->Add( h );
+
+        delete f;
 
     }
 
@@ -588,15 +647,19 @@ TH2* FileManager::GetTH2( const char* key ) const
     {
 
         // open TFile
-        TFile tfile( iter->c_str() );
-        if( !tfile.IsOpen() ) {
+        TFile* f = TFile::Open( iter->c_str() );
+        if( !( f && f->IsOpen() ) )
+        {
             std::cout << "FileManager::GetTH2 - troubles with TFile \"" << *iter << "\".\n";
+            delete f;
             continue;
         }
 
-        TObject* object( tfile.Get( key ) );
-        if( !( object && object->IsA()->InheritsFrom("TH2") ) ) {
+        TObject* object( f->Get( key ) );
+        if( !( object && object->IsA()->InheritsFrom("TH2") ) )
+        {
             std::cout << "FileManager::GetTH1 - load histogram from \"" << *iter << "\".\n";
+            delete f;
             continue;
         }
 
@@ -604,13 +667,17 @@ TH2* FileManager::GetTH2( const char* key ) const
 
         // dump file
         if( fVerbosity >= ALI_MACRO::SOME )
-            std::cout << "FileManager::GetTH2 - loading \"" << *iter << "\".\n";
+        { std::cout << "FileManager::GetTH2 - loading \"" << *iter << "\".\n"; }
 
         // this probably does not work. may need a clone.
-        if( !out ) {
+        if( !out )
+        {
             gROOT->cd();
             out = (TH2*) h->Clone();
+
         } else out->Add( h );
+
+        delete f;
 
     }
 
@@ -625,8 +692,8 @@ void FileManager::Merge( const char* output, const char* selection, const char* 
     if( Empty() ) return;
 
     // store list of tree names
-    std::set<std::string> tree_names;
-    std::set<std::string> histo_names;
+    std::set<std::string> treeNames;
+    std::set<std::string> hNames;
 
     // Convert selection into a string
     std::string selection_string( (selection&&strlen(selection)) ? selection:"" );
@@ -634,16 +701,17 @@ void FileManager::Merge( const char* output, const char* selection, const char* 
     // open TFiles, get keys
     for( FileSet::iterator iter = fFiles.begin(); iter != fFiles.end(); iter++ )
     {
-        TFile tfile( iter->c_str() );
-        if( !tfile.IsOpen() )
+
+        TFile* f = TFile::Open( iter->c_str() );
+        if( !( f && f->IsOpen() ) )
         {
             std::cout << "FileManager::Merge - troubles with TFile \"" << *iter << "\".\n";
             continue;
         }
 
         // loop over all keys
-        TList* key_list( tfile.GetListOfKeys() );
-        for( TKey* key = (TKey*) key_list->First(); key; key = (TKey*) key_list->After( key ) )
+        TList* keyList( f->GetListOfKeys() );
+        for( TKey* key = (TKey*) keyList->First(); key; key = (TKey*) keyList->After( key ) )
         {
 
             // read object
@@ -660,18 +728,19 @@ void FileManager::Merge( const char* output, const char* selection, const char* 
             {
 
                 std::cout << "FileManager::Merge - got tree " << object->GetName() << std::endl;
-                tree_names.insert( object->GetName() );
+                treeNames.insert( object->GetName() );
 
             } else if( object->IsA()->InheritsFrom( "TH1" ) ) {
 
                 std::cout << "FileManager::Merge - got histogram " << object->GetName() << std::endl;
-                histo_names.insert( object->GetName() );
+                hNames.insert( object->GetName() );
 
             } else std::cout << "FileManager::Merge - unrecognized object type" << std::endl;
 
         }
 
         // for now, list of trees is retrieved from first valid TFile
+        delete f;
         break;
 
     }
@@ -680,7 +749,7 @@ void FileManager::Merge( const char* output, const char* selection, const char* 
     bool first( true );
 
     // loop over tree names, copy to output TFile
-    for( std::set<std::string>::iterator iter = tree_names.begin(); iter!= tree_names.end(); iter++  )
+    for( std::set<std::string>::iterator iter = treeNames.begin(); iter!= treeNames.end(); iter++  )
     {
 
         TChain *chain( GetChain( iter->c_str() ) );
@@ -693,7 +762,8 @@ void FileManager::Merge( const char* output, const char* selection, const char* 
             need to recreate the TFile every time because it gets automatically deleted
             in the method (from documentation)
             */
-            chain->Merge( new TFile( output, (first) ? "RECREATE":"UPDATE" ), 0, option );
+            TFile* f = TFile::Open( output, (first) ? "RECREATE":"UPDATE" );
+            chain->Merge( f, 0, option );
             first = false;
 
         } else std::cout << "FileManager::Merge - chain " <<  *iter << " failed.\n";
@@ -701,17 +771,19 @@ void FileManager::Merge( const char* output, const char* selection, const char* 
     }
 
     // histograms
-    for( std::set<std::string>::iterator iter = histo_names.begin(); iter!= histo_names.end(); iter++  )
+    for( std::set<std::string>::iterator iter = hNames.begin(); iter!= hNames.end(); iter++  )
     {
 
         TH1* h( GetTH1( iter->c_str() ) );
         if( !h ) continue;
 
         std::cout << "FileManager::Merge - writing "  <<  *iter << std::endl;
-        TFile out( output, (first) ? "RECREATE":"UPDATE" );
+        TFile* out = TFile::Open( output, (first) ? "RECREATE":"UPDATE" );
         first = false;
-        out.cd();
+        out->cd();
         h->Write( h->GetName() );
+
+        delete out;
 
     }
 
@@ -726,17 +798,20 @@ void FileManager::MergeRecursive( const char* output, const char* selection ) co
     if( Empty() ) return;
 
     // create output TFile
-    TFile out( output, "RECREATE" );
-    TFile in( fFiles.begin()->c_str() );
-    if( !in.IsOpen() )
+    TFile* out = TFile::Open( output, "RECREATE" );
+    TFile* in = TFile::Open( fFiles.begin()->c_str() );
+    if( !( in && in->IsOpen() ) )
     {
-        std::cout << "FileManager::MergeRecursive - troubles with TFile \"" << in.GetName() << "\".\n";
+        std::cout << "FileManager::MergeRecursive - troubles with TFile \"" << *fFiles.begin() << "\".\n";
+        delete in;
+        delete out;
         return;
     }
 
-    MergeRecursive( &in, &out, selection );
-    out.Write();
-
+    MergeRecursive( in, out, selection );
+    out->Write();
+    delete in;
+    delete out;
     if( fVerbosity >= ALI_MACRO::SOME ) std::cout << "FileManager::MergeRecursive - done" << std::endl;
 
 }
@@ -776,8 +851,8 @@ void FileManager::MergeRecursive(
     }
 
     //We create an iterator to loop on all objects(keys) of first file
-    TList* key_list( input->GetListOfKeys() );
-    for( TKey* key = (TKey*) key_list->First(); key; key = (TKey*) key_list->After( key ) )
+    TList* keyList( input->GetListOfKeys() );
+    for( TKey* key = (TKey*) keyList->First(); key; key = (TKey*) keyList->After( key ) )
     {
 
         // check if key is to be saved
@@ -805,30 +880,42 @@ void FileManager::MergeRecursive(
                 base_path = base_path.substr( pos+2, base_path.size()-pos-2 );
 
                 // process file
-                TFile f( iter->c_str() );
-                if( !f.IsOpen() ) continue;
+                TFile* f = TFile::Open( iter->c_str() );
+                if( !( f && f->IsOpen() ) )
+                {
+                    delete f;
+                    continue;
+                }
 
-                f.cd( base_path.c_str() );
+                f->cd( base_path.c_str() );
                 TH1 *h = (TH1*) gDirectory->Get( key->GetName() );
                 if( h )
                 {
+
                     sum->Add( h );
                     delete h;
+
                 } else {
+
                     std::cout << "FileManager::MergeRecursive - cannot find histogram " << key->GetName() << " in file " << *iter << std::endl;
+
                 }
+
+                delete f;
+
             }
 
         } else if( obj->IsA()->InheritsFrom("TDirectory") ) {
+
             std::cout << "FileManager::MergeRecursive - directory " << obj->GetName() << std::endl;
             output->cd();
             TDirectory *dest = output->mkdir(obj->GetName(),obj->GetTitle());
             dest->cd();
-            TObject *obj_save = obj;
-            TKey    *key_save = key;
+            TObject *objSave = obj;
+            TKey    *keySave = key;
             MergeRecursive( (TDirectory*)obj, dest, selection );
-            obj = obj_save;
-            key = key_save;
+            obj = objSave;
+            key = keySave;
 
         }
 
