@@ -10,8 +10,12 @@
 #include <string>
 #include <vector>
 #include <TObject.h>
+#include <TString.h>
+
 #include <iostream>
 #include <sstream>
+
+#include <cmath>
 
 #ifndef __CINT__
 #include <map>
@@ -52,11 +56,11 @@ class ColumnBase
     {}
 
     //!column name
-    virtual const std::string& GetName( void ) const
+    virtual const TString& GetName( void ) const
     { return fName; }
 
     //! column format
-    virtual const std::string& GetFormat( void ) const
+    virtual const TString& GetFormat( void ) const
     { return fFormat; }
 
     //! column type
@@ -64,15 +68,15 @@ class ColumnBase
     { return fType; }
 
     //! alignment
-    virtual const std::string& GetAlignment( void ) const
+    virtual const TString& GetAlignment( void ) const
     { return fAlignment; }
 
     //! name
-    virtual void SetName( const std::string& name )
+    virtual void SetName( const TString& name )
     { fName = name; }
 
     //! format
-    virtual void SetFormat( const std::string& format )
+    virtual void SetFormat( const TString& format )
     { fFormat = format; }
 
     //! column type
@@ -80,11 +84,11 @@ class ColumnBase
     { fType = type; }
 
     //! alignment
-    virtual void SetAlignment( const std::string& alignment )
+    virtual void SetAlignment( const TString& alignment )
     { fAlignment = alignment; }
 
     //! data size
-    virtual unsigned int Size( void ) const
+    virtual int Size( void ) const
     {
         std::cout << "ColumnBase::size - not implemented" << std::endl;
         return 0;
@@ -105,7 +109,7 @@ class ColumnBase
     }
 
     //! reduce column size
-    virtual void Shrink( const unsigned int& new_size )
+    virtual void Shrink( int new_size )
     {
         std::cout << "ColumnBase::shrink - not implemented" << std::endl;
         return;
@@ -113,14 +117,14 @@ class ColumnBase
 
 
     //! expand column size
-    virtual void Expand( const unsigned int& new_size )
+    virtual void Expand( int new_size )
     {
         std::cout << "ColumnBase::expand - not implemented" << std::endl;
         return;
     }
 
     //! print column, formated
-    virtual std::string GetString( const unsigned int& index ) const
+    virtual TString GetString( int index ) const
     {
 
         std::cout << "ColumnBase::GetString - not implemented" << std::endl;
@@ -128,7 +132,7 @@ class ColumnBase
     }
 
     //! add value to vector
-    virtual bool AddValue( const std::string& value )
+    virtual bool AddValue( const TString& value )
     {
 
         std::cout << "ColumnBase::AddValue - not implemented" << std::endl;
@@ -138,16 +142,16 @@ class ColumnBase
     protected:
 
     //! column name
-    std::string fName;
+    TString fName;
 
     //! column format
-    std::string fFormat;
+    TString fFormat;
 
     //! column type
     ColumnType fType;
 
     //! alignment
-    std::string fAlignment;
+    TString fAlignment;
 
     //! root dictionary
     ClassDef( ColumnBase, 0 );
@@ -165,7 +169,7 @@ template<typename T> class Column: public ColumnBase
     //! constructor
     Column(
         const char* name = "empty column",
-        const std::string* values = 0,
+        const TString* values = 0,
         const int& size = 0,
         const char* format = "",
         const ColumnType& type = NONE ):
@@ -181,10 +185,10 @@ template<typename T> class Column: public ColumnBase
     { return fValues; }
 
     //! values
-    virtual bool AddValue( const std::string& value )
+    virtual bool AddValue( const TString& value )
     {
         T out;
-        std::istringstream in( value );
+        std::istringstream in( value.Data() );
         in >> out;
         if( !(in.rdstate() & std::ios::failbit) )
         {
@@ -202,14 +206,14 @@ template<typename T> class Column: public ColumnBase
     note that a new array is created at each call
     and needs to be deleted from the calling method
     */
-    virtual T* GetArray( const unsigned int& firstLine = 0, const unsigned int& n_lines = 0 ) const
+    virtual T* GetArray( int firstLine = 0, int nLines = 0 ) const
     {
 
       // get min number of entries in the columns
-        unsigned int nLinesMax = ( n_lines )? std::min( fValues.size(), n_lines+firstLine ):fValues.size();
+        int nLinesMax = ( nLines )? std::min<int>( fValues.size(), nLines+firstLine ):fValues.size();
         T* out = new T[nLinesMax-firstLine];
 
-        for( unsigned int i = firstLine; i < nLinesMax; i++ )
+        for( int i = firstLine; i < nLinesMax; i++ )
         { out[i-firstLine] = fValues[i]; }
 
         return out;
@@ -217,11 +221,11 @@ template<typename T> class Column: public ColumnBase
     }
 
     //! return data size
-    virtual unsigned int Size( void ) const
+    virtual int Size( void ) const
     { return fValues.size(); }
 
     //! shrink column size
-    virtual void Shrink( const unsigned int& new_size )
+    virtual void Shrink( int new_size )
     {
         while( fValues.size() > new_size )
             fValues.pop_back();
@@ -229,11 +233,11 @@ template<typename T> class Column: public ColumnBase
     }
 
     //! expand column size
-    virtual void Expand( const unsigned int& new_size )
+    virtual void Expand( int new_size )
     {
         T value;
         if( !fValues.empty() ) value = fValues.back();
-        for( unsigned int i= fValues.size(); i<new_size; i++ )
+        for( int i= fValues.size(); i<new_size; i++ )
             fValues.push_back( value );
         return;
     }
@@ -254,7 +258,7 @@ class ColumnDouble: public Column<double>
     //! constructor
     ColumnDouble(
         const char* name = "",
-        const std::string* values = 0,
+        const TString* values = 0,
         const int& size = 0,
         const char* format = "%f",
         const ColumnType& type = NONE ):
@@ -282,21 +286,26 @@ class ColumnDouble: public Column<double>
     //! scale all values
     virtual void Scale( const double& value )
     {
-        for( unsigned int i=0; i<fValues.size(); i++ )
+        for( int i=0; i<fValues.size(); i++ )
         { fValues[i]*=value; }
     }
 
     //! scale all values
     virtual void Scale( double* value )
     {
-        for( unsigned int i=0; i<fValues.size(); i++ )
+        for( int i=0; i<fValues.size(); i++ )
         { fValues[i]*=value[i]; }
     }
+
+    //! print column, formated
+    virtual TString GetString( int index ) const
+    { return Form( GetFormat().Data(), fValues[index] ); }
+
 
 };
 
 //! column of strings
-class ColumnString: public Column<std::string>
+class ColumnString: public Column<TString>
 {
 
     public:
@@ -304,11 +313,11 @@ class ColumnString: public Column<std::string>
     //! constructor
     ColumnString(
         const char* name = "",
-        const std::string* values = 0,
+        const TString* values = 0,
         const int& size = 0,
         const char* format = "%s",
         const ColumnType& type = NONE ):
-        Column<std::string>( name, values, size, format, type )
+        Column<TString>( name, values, size, format, type )
     {}
 
     //! constructor
@@ -318,10 +327,10 @@ class ColumnString: public Column<std::string>
         const int& size = 0,
         const char* format = "%s",
         const ColumnType& type = NONE ):
-        Column<std::string>( name, 0, 0, format, type )
+        Column<TString>( name, 0, 0, format, type )
     {
         for( int i=0; i<size; i++ )
-        { fValues.push_back( std::string(values[i]) ); }
+        { fValues.push_back( TString(values[i]) ); }
     }
 
     //! destructor
@@ -329,7 +338,7 @@ class ColumnString: public Column<std::string>
     {}
 
     //! GetString column, formated
-    virtual std::string GetString( const unsigned int& index ) const
+    virtual TString GetString( int index ) const
     { return fValues[index]; }
 
 };
@@ -337,34 +346,34 @@ class ColumnString: public Column<std::string>
 #endif
 
 //! line objects, used to Parse tables from file
-class Line: public std::vector<std::string>
+class Line: public std::vector<TString>
 {
     public:
 
     //! constructor
     Line( void ):
-        std::vector<std::string>()
+        std::vector<TString>()
     {}
 
     //! Parse values from input line
-    void Parse( const std::string& line_string );
+    void Parse( const TString& line_string );
 
     #ifndef __CINT__
 
     //! return true if line is of type T
     template<typename T>
-        bool Is( const unsigned int& i ) const
+        bool Is( int i ) const
     {
         if( i>= size() ) return false;
         T out;
-        std::istringstream in( (*this)[i] );
+        std::istringstream in( (*this)[i].Data() );
         in >> out;
         return !(in.rdstate() & std::ios::failbit );
     }
 
     //! cast ith element to type T
     template<typename T>
-        T Get( const unsigned int& i ) const
+        T Get( int i ) const
     {
         T out;
         if( i>= size() ) return out;
@@ -377,6 +386,7 @@ class Line: public std::vector<std::string>
 
 };
 
+//! table class
 class Table: public TObject
 {
 
@@ -414,7 +424,7 @@ class Table: public TObject
     //@{
 
     //! flags
-    void SetFlags( const unsigned int& flags )
+    void SetFlags( int flags )
     { fFlags = flags; }
 
     //! add conversion pairs
@@ -468,49 +478,49 @@ class Table: public TObject
     //@{
 
     //! set column name
-    void SetColumnName( const unsigned int& column, const char* name )
+    void SetColumnName( int column, const char* name )
     {
         if( name && !CheckColumn( column ) ) return;
         fColumns[column]->SetName( name );
     }
 
     //! set column name
-    void SetColumnFormat( const unsigned int& column, const char* format )
+    void SetColumnFormat( int column, const char* format )
     {
         if( format && !CheckColumn( column ) ) return;
         fColumns[column]->SetFormat( format );
     }
 
     //! set column type
-    void SetColumnType( const unsigned int& column, const ColumnBase::ColumnType& type )
+    void SetColumnType( int column, const ColumnBase::ColumnType& type )
     {
         if( type && !CheckColumn( column ) ) return;
         fColumns[column]->SetType( type );
     }
 
     //! set column alignment
-    void SetColumnAlignment( const unsigned int& column, const char* alignment )
+    void SetColumnAlignment( int column, const char* alignment )
     {
         if( alignment && !CheckColumn( column ) ) return;
         fColumns[column]->SetAlignment( alignment );
     }
 
     //! scale column
-    void ScaleColumn( const unsigned int& column, const double& value )
+    void ScaleColumn( int column, const double& value )
     {
         if( !CheckColumn( column ) ) return;
         fColumns[column]->Scale( value );
     }
 
     //! scale column
-    void ScaleColumn( const unsigned int& column, double* values )
+    void ScaleColumn( int column, double* values )
     {
         if( !CheckColumn( column ) ) return;
         fColumns[column]->Scale( values );
     }
 
     //! scale column (replace first by first x second)
-    void MultiplyColumn( const unsigned int& first, const unsigned int& second )
+    void MultiplyColumn( int first, int second )
     {
         if( !CheckColumn( first ) ) return;
         if( !CheckColumn( second ) ) return;
@@ -519,7 +529,7 @@ class Table: public TObject
     }
 
     //! expand column with its last value so that its size is the new_size
-    void ExpandColumn( const unsigned int& column, const unsigned int& new_size )
+    void ExpandColumn( int column, int new_size )
     {
         if( !CheckColumn( column ) ) return;
         fColumns[column]->Expand( new_size );
@@ -530,11 +540,11 @@ class Table: public TObject
     //@{
 
     //! get number of columns
-    unsigned int GetNColumns( void ) const
+    int GetNColumns( void ) const
     { return fColumns.size(); }
 
     //! get number of lines
-    unsigned int GetNLines( void ) const;
+    int GetNLines( void ) const;
 
     //@}
 
@@ -542,35 +552,35 @@ class Table: public TObject
     //@{
 
     //! retrieve column double values
-    double* GetDoubleArray( const unsigned int& column, const unsigned int& firstLine = 0, const unsigned int& n_lines = 0 ) const;
+    double* GetDoubleArray( int column, int firstLine = 0, int nLines = 0 ) const;
 
     //! print table in latex format
-    void PrintLatex( const unsigned int& firstLine = 0, const unsigned int& n_line = 0 ) const
+    void PrintLatex( int firstLine = 0, int n_line = 0 ) const
     { PrintLatex( std::cout, firstLine, n_line ); }
 
     //! print table in latex format
-    void PrintLatex( std::ostream& out, const unsigned int& firstLine = 0, const unsigned int& n_line = 0 ) const;
+    void PrintLatex( std::ostream& out, int firstLine = 0, int n_line = 0 ) const;
 
     //! print table in text format
-    void PrintText( const unsigned int& firstLine = 0, const unsigned int& n_line = 0 ) const
+    void PrintText( int firstLine = 0, int n_line = 0 ) const
     { PrintText( std::cout, firstLine, n_line ); }
 
     //! print table in text format
-    void PrintText( std::ostream& out, const unsigned int& firstLine = 0, const unsigned int& n_line = 0 ) const;
+    void PrintText( std::ostream& out, int firstLine = 0, int n_line = 0 ) const;
 
     //! print table in c format
-    void PrintC( const unsigned int& firstLine = 0, const unsigned int& n_line = 0 ) const
+    void PrintC( int firstLine = 0, int n_line = 0 ) const
     { PrintC( std::cout, firstLine, n_line ); }
 
     //! print table in c format
-    void PrintC( std::ostream& out, const unsigned int& firstLine = 0, const unsigned int& n_line = 0 ) const;
+    void PrintC( std::ostream& out, int firstLine = 0, int n_line = 0 ) const;
 
     //@}
 
     protected:
 
     //! check column
-    bool CheckColumn( const unsigned int& column ) const
+    bool CheckColumn( int column ) const
     {
         bool out = column < fColumns.size();
         if( !out ) std::cout << "Table::CheckColumn - invalid column: " << column << std::endl;
@@ -580,7 +590,7 @@ class Table: public TObject
     private:
 
     //! flags
-    unsigned int fFlags;
+    int fFlags;
 
     //! list of columns
     std::vector< ColumnBase* > fColumns;
@@ -591,7 +601,7 @@ class Table: public TObject
     std::set< int > fHorizontalLines;
 
     //! conversions
-    typedef std::pair<std::string, std::string> ConversionPair;
+    typedef std::pair<TString, TString> ConversionPair;
 
     //! conversion
     std::list< ConversionPair > fConversions;
