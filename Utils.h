@@ -16,6 +16,8 @@
 #include <TCut.h>
 #include <TCanvas.h>
 #include <TVirtualPad.h>
+#include <TString.h>
+
 #include <cstdarg>
 #include <list>
 #include <iostream>
@@ -70,7 +72,7 @@ class Utils:public TObject
     }
 
     //! delete object from name
-    static void DeleteObject( const char* );
+    static void DeleteObject( TString );
 
     //! get average for a number measurements
     static double GetMean( std::list<double> values );
@@ -108,7 +110,7 @@ class Utils:public TObject
     static double GetRandom( TF1* f, double xMin, double xMax );
 
     //! draw normalized histogram
-    static void DrawNormalized( TTree* tree, const char* name, const char* var, const TCut& cut="", const char* opt = "" );
+    static void DrawNormalized( TTree* tree, TString name, TString var, const TCut& cut="", TString opt = "" );
 
     //! get ideal chisquare tree for a given number of freedoms
     static TTree* GetChisquareTree(
@@ -126,8 +128,8 @@ class Utils:public TObject
     //! fills histogram from tree return histogram
     static TH1* TreeToHisto(
         TTree *tree,
-        const char* name,
-        const char* var,
+        TString name,
+        TString var,
         TCut cut="",
         bool autoH = true );
 
@@ -151,28 +153,28 @@ class Utils:public TObject
 
     //! create a new histogram safely (delete histograms with same name before)
     static TCanvas* NewTCanvas(
-        const char* name, const char* title,
+        TString name, TString title,
         int width, int height );
 
     //! create a new histogram safely (delete histograms with same name before)
     static TH1* NewTH1(
-        const char* name,
-        const char* title,
+        TString name,
+        TString title,
         int bin = 100,
         double min = 0,
         double max = 1 );
 
     //! create a new histogram safely (delete histograms with same name before)
     static TH1* NewTH1(
-        const char* name,
-        const char* title,
+        TString name,
+        TString title,
         int bin,
         double *x	);
 
     //! create a new 2D histogram safely (delete histograms with same name before)
     static TH2* NewTH2(
-        const char* name,
-        const char* title,
+        TString name,
+        TString title,
         int binx = 100,
         double minx = 0,
         double maxx = 1,
@@ -182,8 +184,8 @@ class Utils:public TObject
 
     //! create a new 2D histogram safely (delete histograms with same name before)
     static TH3* NewTH3(
-        const char* name,
-        const char* title,
+        TString name,
+        TString title,
         int binx = 100,
         double minx = 0,
         double maxx = 1,
@@ -196,45 +198,45 @@ class Utils:public TObject
 
     //! create a new clone histogram safely (delete histograms with same name before)
     static TH1* NewClone(
-        const char* name,
-        const char* title,
+        TString name,
+        TString title,
         TH1* parent )
     { return NewClone( name, title, parent, false ); }
 
     //! create a new clone histogram safely (delete histograms with same name before)
     static TH1* NewClone(
-        const char* name,
-        const char* title,
+        TString name,
+        TString title,
         TH1* parent,
         bool reset );
 
     //! create a new clone histogram safely (delete histograms with same name before)
     static TH2* NewClone2D(
-        const char* name,
-        const char* title,
+        TString name,
+        TString title,
         TH2* parent )
     { return NewClone2D( name, title, parent, false ); }
 
     //! create a new clone histogram safely (delete histograms with same name before)
     static TH2* NewClone2D(
-        const char* name,
-        const char* title,
+        TString name,
+        TString title,
         TH2* parent,
         bool reset );
 
     //! create TF1
     /*! before creating the TF1, a matching TObject is looked after and deleted if found */
     static TF1* NewTF1(
-        const char* name,
+        TString name,
         double (*function)(double*, double*),
         const double& min, const double& max,
         const int& n_par );
 
     //! subtract 2 histograms bin/bin; stores the result in an third histo; returns diff of number of entries
-    static int HDiff(TH1* h1, TH1* h2, TH1* h3);
+    static int SubtractHistograms(TH1* h1, TH1* h2, TH1* h3);
 
     //! subtract histogram and function bin/bin; stores the result in an third histo; returns diff of number of entries
-    static int HDiff(TH1* h1, TF1* f, TH1* h3, double min, double max);
+    static int SubtractHistograms(TH1* h1, TF1* f, TH1* h3, double min, double max);
 
     //! divides 2 histograms bin/bin; stores the result in an third histo; returns ratio of the number of entries in the 2 histo
     enum ErrorMode
@@ -244,16 +246,16 @@ class Utils:public TObject
     };
 
     //! divides 2 histograms bin/bin; stores the result in an third histo; returns ratio of the number of entries in the 2 histo
-    static double HDiv(TH1* h_found, TH1* h_ref, TH1* h3, int error_mode = EFF );
+    static double DivideHistograms(TH1* h_found, TH1* h_ref, TH1* h3, int error_mode = EFF );
 
     //! divides 2 histograms bin/bin; stores the result in an third histo; returns ratio of the number of entries in the 2 histo
-    static double HDiv2D(TH2* h_found, TH2* h_ref, TH2* h3, int error_mode = EFF);
+    static double DivideHistograms2D(TH2* h_found, TH2* h_ref, TH2* h3, int error_mode = EFF);
 
     //! divides 2 histograms bin/bin whith specified range; stores the result in an third histo; returns ratio of the number of entries in the 2 histo
-    static double HDiv(TH1* h_found, TH1* h_ref, TH1* h3, unsigned int i1, unsigned int i2, int error_mode = EFF);
+    static double DivideHistograms(TH1* h_found, TH1* h_ref, TH1* h3, unsigned int i1, unsigned int i2, int error_mode = EFF);
 
     //! divides too TGraphs point/point; stores the result in 3 TGraph
-    static TGraphErrors* TGDiv( TGraphErrors* tg_found, TGraphErrors* tg_ref );
+    static TGraphErrors* DivideTGraphs( TGraphErrors* tg_found, TGraphErrors* tg_ref );
 
     #ifndef __CINT__
 
@@ -264,23 +266,21 @@ class Utils:public TObject
     static std::pair<double,double> GetRandom2D( TH2* h );
 
     //! fill a string until its size reached required size
-    static std::string Fill( unsigned int size, const std::string& value )
+    static TString Fill( unsigned int size, const TString& value )
     {
-        return( value.size()>=size) ?
+        return( value.Length()>=size) ?
             value :
-            value+std::string(size-value.size(), ' ');
+            value+TString(size-value.Length(), ' ');
     }
 
-    //! display a text, formed, to a stream
-    static void Form( std::ostream &out, const char* format, ... );
-    #endif
+   #endif
 
     protected:
 
     #ifndef __CINT__
 
     //! merge all ntuples from a file into output
-    static void Merge( std::vector<std::string> files, const std::string& output_file, const std::string& selection );
+    static void Merge( std::vector<TString> files, const TString& output_file, const TString& selection );
 
     #endif
 

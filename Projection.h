@@ -7,10 +7,11 @@
 \brief simple class to handle an histogram projection of a tree
 */
 
-#include <string>
 #include <list>
+
 #include <TCut.h>
 #include <TH1.h>
+#include <TString.h>
 
 //! simple class to handle an histogram projection of a tree
 class Projection
@@ -19,8 +20,8 @@ class Projection
 
   //! constructor
   Projection(
-    const std::string& hName,
-    const std::string& varName,
+    const TString& hName,
+    const TString& varName,
     const TCut& cut ):
     fHName( hName ),
     fVarName( varName ),
@@ -32,14 +33,14 @@ class Projection
   void SetBins( unsigned int bins, double min, double max )
   {
     if( fH  ) delete fH;
-    fH = new TH1F( fHName.c_str(), fHName.c_str(), bins, min, max );
+    fH = new TH1F( fHName, fHName, bins, min, max );
   }
 
   //! histogram name
-  std::string fHName;
+  TString fHName;
 
   //! variable name
-  std::string fVarName;
+  TString fVarName;
 
   //! cut used to project histogram
   TCut fCut;

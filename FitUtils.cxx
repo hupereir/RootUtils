@@ -156,7 +156,7 @@ Double_t FitUtils::CrystallBallIntegral( Double_t sigma, Double_t alpha, Double_
   alpha = fabs( alpha );
   return sigma*(
     n/(alpha*(n-1))*TMath::Exp( -ALI_MACRO::SQUARE( alpha )/2 ) +
-    sqrt( TMath::Pi()/2)*TMath::Erfc( -alpha/sqrt(2) ));
+    TMath::Sqrt( TMath::Pi()/2 )*TMath::Erfc( -alpha/TMath::Sqrt(2) ));
 
 }
 
@@ -169,13 +169,13 @@ Double_t FitUtils::CrystallBall2Integral( Double_t sigma, Double_t alpha1, Doubl
   return sigma*(
     n1/(alpha1*(n1-1))*TMath::Exp( -ALI_MACRO::SQUARE( alpha1 )/2 ) +
     n2/(alpha2*(n2-1))*TMath::Exp( -ALI_MACRO::SQUARE( alpha2 )/2 ) +
-    sqrt( TMath::Pi()/2)*TMath::Erfc( -alpha1/sqrt(2) ) -
-    sqrt( TMath::Pi()/2)*TMath::Erfc( alpha2/sqrt(2) ) );
+    TMath::Sqrt( TMath::Pi()/2)*TMath::Erfc( -alpha1/TMath::Sqrt(2) ) -
+    TMath::Sqrt( TMath::Pi()/2)*TMath::Erfc( alpha2/TMath::Sqrt(2) ) );
 
 }
 
 //____________________________________________
-Double_t FitUtils::VWG( double* x, double* par )
+Double_t FitUtils::VWG( Double_t* x, Double_t* par )
 { return par[0]*VWG( x[0], par[1], par[2], par[3] ); }
 
 //____________________________________________
@@ -186,42 +186,7 @@ Double_t FitUtils::VWG( Double_t x, Double_t mean, Double_t sigma, Double_t slop
 }
 
 //____________________________________________
-Double_t FitUtils::Na60( double* x, double* par )
-{
-  Double_t tail1[3] = { par[3], par[4], par[5] };
-  Double_t tail2[3] = { par[6], par[7], par[8] };
-  return par[0]*Na60( x[0], par[1], par[2], tail1, tail2, par[9], par[10] );
-}
-
-//____________________________________________
-// there are 3 parameters for each tail
-Double_t FitUtils::Na60(
-  Double_t mass,
-  Double_t mean, Double_t sigma,
-  double* tail1,
-  double* tail2,
-  Double_t massRatio1, Double_t massRatio2
-  )
-{
-
-  const Double_t meanRef = 3.11;
-  const Double_t sigmaRef = 0.06213;
-
-  const Double_t t = (mass-mean)/sigma;
-  const Double_t alpha1 = (massRatio1 - 1) * meanRef/sigmaRef;
-  const Double_t alpha2 = (massRatio2 - 1) * meanRef/sigmaRef;
-
-  Double_t sigmaRatio;
-  if( t < alpha1 ) sigmaRatio = ( 1.0 + TMath::Power( sigmaRef*tail1[0]*(alpha1-t), tail1[1]-tail1[2]*TMath::Sqrt(sigmaRef*(alpha1 - t ) ) ) );
-  else if( t >= alpha1 && t < alpha2 ) sigmaRatio = 1;
-  else if( t >= alpha2 ) sigmaRatio = ( 1.0 + TMath::Power( sigmaRef*tail2[0]*(t-alpha2), tail2[1]-tail2[2]*TMath::Sqrt(sigmaRef*(t - alpha2 ) ) ) );
-
-  return TMath::Exp( -ALI_MACRO::SQUARE( t/sigmaRatio )/2 );
-
-}
-
-//____________________________________________
-Double_t FitUtils::Na60Old( double* x, double* par )
+Double_t FitUtils::Na60Old( Double_t* x, Double_t* par )
 {
   Double_t tail1[3] = { par[3], par[4], par[5] };
   Double_t tail2[3] = { par[6], par[7], par[8] };
@@ -233,8 +198,8 @@ Double_t FitUtils::Na60Old( double* x, double* par )
 Double_t FitUtils::Na60Old(
   Double_t mass,
   Double_t mean, Double_t sigma,
-  double* tail1,
-  double* tail2,
+  Double_t* tail1,
+  Double_t* tail2,
   Double_t massRatio1, Double_t massRatio2
   )
 {
@@ -250,7 +215,7 @@ Double_t FitUtils::Na60Old(
 }
 
 //____________________________________________
-Double_t FitUtils::Na60New( double* x, double* par )
+Double_t FitUtils::Na60New( Double_t* x, Double_t* par )
 {
   Double_t tail1[3] = { par[3], par[4], par[5] };
   Double_t tail2[3] = { par[6], par[7], par[8] };
@@ -262,8 +227,8 @@ Double_t FitUtils::Na60New( double* x, double* par )
 Double_t FitUtils::Na60New(
   Double_t mass,
   Double_t mean, Double_t sigma,
-  double* tail1,
-  double* tail2,
+  Double_t* tail1,
+  Double_t* tail2,
   Double_t alpha1, Double_t alpha2
   )
 {

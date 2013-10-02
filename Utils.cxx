@@ -60,7 +60,7 @@ bool Utils::MatrixToAngles(const double *rot, Double_t *angles)
 }
 
 //________________________________________________________________________
-void Utils::DeleteObject( const char* name )
+void Utils::DeleteObject( TString name )
 { return ALI_MACRO::Delete<TObject>( name ); }
 
 //________________________________________________________________________
@@ -126,7 +126,7 @@ void Utils::DumpFunctionParameters( TF1* f )
 }
 
 //________________________________________________________________________
-void Utils::DrawNormalized( TTree* tree, const char* name, const char* var, const TCut& cut, const char* opt )
+void Utils::DrawNormalized( TTree* tree, TString name, TString var, const TCut& cut, TString opt )
 {
   TH1* h = TreeToHisto( tree, name, var, cut, true );
   if( h->GetEntries() ) h->Scale( 1.0/h->GetEntries() );
@@ -285,7 +285,7 @@ std::pair<double,double> Utils::GetRandom2D( TH2* h )
 }
 
 //_________________________________________________
-void Utils::Form( ostream &out, const char* format, ... )
+void UtilsForm( ostream &out, TString format, ... )
 {
   char* text = new char[2048];
   va_list p;
@@ -301,8 +301,8 @@ void Utils::Form( ostream &out, const char* format, ... )
 TH1* Utils::ScaleAxis( TH1* h, double scale )
 {
 
-  std::string title( h->GetTitle() );
-  std::string name( h->GetName() );
+  TString title( h->GetTitle() );
+  TString name( h->GetName() );
   name += "_scale";
 
 
@@ -311,7 +311,7 @@ TH1* Utils::ScaleAxis( TH1* h, double scale )
   double xMax = scale*axis->GetXmax();
   if( xMin > xMax ) std::swap( xMin, xMax );
 
-  TH1* h_out =	NewTH1( name.c_str(), title.c_str(), axis->GetNbins(), xMin, xMax );
+  TH1* h_out =	NewTH1( name.Data(), title.Data(), axis->GetNbins(), xMin, xMax );
   for( int bin=0; bin < axis->GetNbins()+2; bin++ )
   {
     double x = scale*axis->GetBinCenter( bin );
@@ -327,14 +327,14 @@ TH1* Utils::ScaleAxis( TH1* h, double scale )
 //__________________________________________________
 TH1* Utils::Integrate( TH1* h, bool normalize )
 {
-  std::string name( h->GetName() );
+  TString name( h->GetName() );
   name += "_Integrated";
 
-  std::string title( h->GetTitle() );
+  TString title( h->GetTitle() );
   title += " [Integrated]";
 
   double entries( h->GetEntries() );
-  TH1* hInt( NewClone( name.c_str(), title.c_str(), h ) );
+  TH1* hInt( NewClone( name.Data(), title.Data(), h ) );
 
   // retrieve number of bins in histograms
   int n_bins( h->GetNbinsX() );
@@ -399,8 +399,8 @@ double Utils::Integrate( TH1*h, double xmin, double xmax )
 //__________________________________________________
 TH1* Utils::TreeToHisto(
   TTree *tree,
-  const char* name,
-  const char* var,
+  TString name,
+  TString var,
   TCut cut,
   bool autoH )
 {
@@ -426,7 +426,7 @@ TH1* Utils::TreeToHisto(
   {
 
     // create/fill autoformated histogram if requested
-    tree->Draw( ::Form( "%s >> %s", var, name ), cut, "goff" );
+    tree->Draw( Form( "%s >> %s", var.Data(), name.Data() ), cut, "goff" );
     h= (TH1*) gROOT->FindObject(name);
 
   } else {
@@ -439,7 +439,7 @@ TH1* Utils::TreeToHisto(
   if( h )
   {
     h->SetLineWidth( 2 );
-    h->SetTitle( ::Form( "%s {%s}", var, (const char*) cut ) );
+    h->SetTitle( Form( "%s {%s}", var.Data(), ((TString) cut).Data() ) );
   }
 
   return h;
@@ -478,7 +478,7 @@ class th1: public TH1F
   public:
 
   //! constructor
-  th1( const char* name, const char* title, int bin, double min, double max ):
+  th1( TString name, TString title, int bin, double min, double max ):
     TH1F( name, title, bin, min, max )
   { Debug::Str() << "th1::th1 - name = " << name << std::endl; }
 
@@ -491,7 +491,7 @@ class th1: public TH1F
 
 //____________________________________________________________
 TCanvas* Utils::NewTCanvas(
-  const char* name, const char* title,
+  TString name, TString title,
   int width, int height )
 {
   ALI_MACRO::Delete<TCanvas>( name );
@@ -500,8 +500,8 @@ TCanvas* Utils::NewTCanvas(
 
 //____________________________________________________________
 TH1* Utils::NewTH1(
-  const char* name,
-  const char* title,
+  TString name,
+  TString title,
   int bin,
   double min,
   double max
@@ -513,8 +513,8 @@ TH1* Utils::NewTH1(
 
 //____________________________________________________________
 TH1* Utils::NewTH1(
-  const char* name,
-  const char* title,
+  TString name,
+  TString title,
   int bin,
   double *x
   )
@@ -525,8 +525,8 @@ TH1* Utils::NewTH1(
 
 //____________________________________________________________
 TH2* Utils::NewTH2(
-  const char* name,
-  const char* title,
+  TString name,
+  TString title,
   int binx ,
   double minx,
   double maxx,
@@ -540,8 +540,8 @@ TH2* Utils::NewTH2(
 
 //____________________________________________________________
 TH3* Utils::NewTH3(
-  const char* name,
-  const char* title,
+  TString name,
+  TString title,
   int binx ,
   double minx,
   double maxx,
@@ -561,8 +561,8 @@ TH3* Utils::NewTH3(
 
 //____________________________________________________________
 TH1* Utils::NewClone(
-  const char* name,
-  const char* title,
+  TString name,
+  TString title,
   TH1* parent,
   bool reset
   )
@@ -587,8 +587,8 @@ TH1* Utils::NewClone(
 
 //____________________________________________________________
 TH2* Utils::NewClone2D(
-  const char* name,
-  const char* title,
+  TString name,
+  TString title,
   TH2* parent,
   bool reset
   )
@@ -609,7 +609,7 @@ TH2* Utils::NewClone2D(
 }
 
 //_______________________________________________________________
-TF1* Utils::NewTF1( const char* name,
+TF1* Utils::NewTF1( TString name,
   double (*function)(double*, double*),
   const double& min, const double& max,
   const int& n_par )
@@ -631,7 +631,7 @@ double Utils::GetEntries(TH1* h)
 }
 
 //______________________________________________________
-int Utils::HDiff(TH1* h1, TH1* h2, TH1* h3)
+int Utils::SubtractHistograms(TH1* h1, TH1* h2, TH1* h3)
 {
 
   unsigned int n1 = h1->GetNbinsX();
@@ -640,7 +640,7 @@ int Utils::HDiff(TH1* h1, TH1* h2, TH1* h3)
 
   double sum1( 0 ), sum2( 0 );
   if(!(n1 == n2 && n2 == n3)){
-    std::cout << "Utils::HDiff - ERROR: Different number of bins.\n";
+    std::cout << "Utils::SubtractHistograms - ERROR: Different number of bins.\n";
     std::cout << "	 " << n1 << ", " << n2 << ", " << n3 << std::endl;
     return int(h1->GetEntries()-h2->GetEntries() );
   }
@@ -662,14 +662,14 @@ int Utils::HDiff(TH1* h1, TH1* h2, TH1* h3)
 }
 
 //______________________________________________________
-int Utils::HDiff(TH1* h1, TF1* f, TH1* h3, double min, double max)
+int Utils::SubtractHistograms(TH1* h1, TF1* f, TH1* h3, double min, double max)
 {
 
   unsigned int n1 = h1->GetNbinsX();
   unsigned int n3 = h3->GetNbinsX();
 
   if(!(n1 == n3)){
-    std::cout << "Utils::HDiff - ERROR: Different number of bins.\n";
+    std::cout << "Utils::SubtractHistograms - ERROR: Different number of bins.\n";
     std::cout << "	 " << n1 << ", " << n3 << std::endl;
     return 0;
   }
@@ -698,7 +698,7 @@ int Utils::HDiff(TH1* h1, TF1* f, TH1* h3, double min, double max)
 }
 
 //______________________________________________________
-double Utils::HDiv(TH1* h1, TH1* h2, TH1* h3, int errorMode )
+double Utils::DivideHistograms(TH1* h1, TH1* h2, TH1* h3, int errorMode )
 {
 
   unsigned int n1 = h1->GetNbinsX();
@@ -706,16 +706,16 @@ double Utils::HDiv(TH1* h1, TH1* h2, TH1* h3, int errorMode )
   unsigned int n3 = h3->GetNbinsX();
 
   if(!(n1 == n2 && n2 == n3)){
-    std::cout << "Utils::HDiv - ERROR: Different number of bins.\n";
+    std::cout << "Utils::DivideHistograms - ERROR: Different number of bins.\n";
     std::cout << "	 " << n1 << ", " << n2 << ", " << n3 << std::endl;
     return 0;
   }
-  return HDiv( h1, h2, h3, 1, n1, errorMode );
+  return DivideHistograms( h1, h2, h3, 1, n1, errorMode );
 
 }
 
 //______________________________________________________
-double Utils::HDiv(TH1* h1, TH1* h2, TH1* h3, unsigned int i1, unsigned int i2, int errorMode)
+double Utils::DivideHistograms(TH1* h1, TH1* h2, TH1* h3, unsigned int i1, unsigned int i2, int errorMode)
 {
 
   unsigned int n1 = h1->GetNbinsX();
@@ -723,7 +723,7 @@ double Utils::HDiv(TH1* h1, TH1* h2, TH1* h3, unsigned int i1, unsigned int i2, 
   unsigned int n3 = h3->GetNbinsX();
 
   if(!(n1 == n2 && n2 == n3)){
-    std::cout << "Utils::HDiv - ERROR: Different number of bins.\n";
+    std::cout << "Utils::DivideHistograms - ERROR: Different number of bins.\n";
     std::cout << "	 " << n1 << ", " << n2 << ", " << n3 << std::endl;
     return 0;
   }
@@ -770,11 +770,11 @@ double Utils::HDiv(TH1* h1, TH1* h2, TH1* h3, unsigned int i1, unsigned int i2, 
 }
 
 //______________________________________________________
-TGraphErrors* Utils::TGDiv(TGraphErrors* tg1, TGraphErrors* tg2 )
+TGraphErrors* Utils::DivideTGraphs(TGraphErrors* tg1, TGraphErrors* tg2 )
 {
   if( tg1->GetN() != tg2->GetN() )
   {
-    std::cout << "Utils::TGDiv - ERROR: Different number of points.\n";
+    std::cout << "Utils::DivideTGraphs - ERROR: Different number of points.\n";
     return 0;
   }
 
@@ -789,7 +789,7 @@ TGraphErrors* Utils::TGDiv(TGraphErrors* tg1, TGraphErrors* tg2 )
 
     if( x1 != x2 )
     {
-      std::cout << "Utils::TGDiv - different x. point " <<	i << "skipped" << std::endl;
+      std::cout << "Utils::DivideTGraphs - different x. point " <<	i << "skipped" << std::endl;
       continue;
     }
 
@@ -806,7 +806,7 @@ TGraphErrors* Utils::TGDiv(TGraphErrors* tg1, TGraphErrors* tg2 )
 
     tg_out->SetPoint( point, x1, eff );
     tg_out->SetPointError( point, 0, err );
-    std::cout << "Utils::TGDiv -"
+    std::cout << "Utils::DivideTGraphs -"
       << " y1=" << y1
       << " y2=" << y2
       << " eff=" << eff
@@ -821,7 +821,7 @@ TGraphErrors* Utils::TGDiv(TGraphErrors* tg1, TGraphErrors* tg2 )
 }
 
 //______________________________________________________
-double Utils::HDiv2D(TH2* h1, TH2* h2, TH2* h3, int errorMode )
+double Utils::DivideHistograms2D(TH2* h1, TH2* h2, TH2* h3, int errorMode )
 {
 
   unsigned int nx1 = h1->GetNbinsX();
@@ -834,14 +834,14 @@ double Utils::HDiv2D(TH2* h1, TH2* h2, TH2* h3, int errorMode )
 
   if(!(nx1 == nx2 && nx2 == nx3))
   {
-    std::cout << "Utils::HDiv - ERROR: Different number of x bins: ";
+    std::cout << "Utils::DivideHistograms - ERROR: Different number of x bins: ";
     std::cout << " " << nx1 << ", " << nx2 << ", " << nx3 << std::endl;
     return 0;
   }
 
   if(!(ny1 == ny2 && ny2 == ny3))
   {
-    std::cout << "Utils::HDiv - ERROR: Different number of bins: ";
+    std::cout << "Utils::DivideHistograms - ERROR: Different number of bins: ";
     std::cout << " " << ny1 << ", " << ny2 << ", " << ny3 << std::endl;
     return 0;
   }

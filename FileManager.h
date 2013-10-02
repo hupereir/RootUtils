@@ -33,7 +33,7 @@ class FileManager: public TObject
     public:
 
     //! constructor
-    FileManager( const char* selection=0 ):
+    FileManager( TString selection = TString() ):
         fVerbosity( ALI_MACRO::NONE )
     { AddFiles( selection ); }
 
@@ -42,29 +42,29 @@ class FileManager: public TObject
     { fFiles.clear(); }
 
     //! load an entire directory
-    void AddDirectory( const char* directory );
+    void AddDirectory( TString directory );
 
     //! add files to existing list
-    void AddFiles( const char* selection );
+    void AddFiles( TString selection );
 
     //! add files from list
-    void AddList( const char* file_list );
+    void AddList( TString file_list );
 
     //! remove files from existing list
-    void RemoveFiles( const char* selection );
+    void RemoveFiles( TString selection );
 
     //! remove files from existing list
-    void RemoveList( const char* file_list );
+    void RemoveList( TString file_list );
 
     //! check if root files are valid
     /*! possibly dumps the bad fines in output */
-    bool CheckFiles( const char* output = 0 ) const;
+    bool CheckFiles( TString output = TString() ) const;
 
     //! check if tree is valid for each file. Dump its entries
-    bool CheckTree( const char* tree_name = "", const char* output = 0 ) const;
+    bool CheckTree( TString = TString(), TString output = TString() ) const;
 
     //!check all the trees in a file.
-    bool CheckAllTrees( const char* output = 0 ) const;
+    bool CheckAllTrees( void ) const;
 
     //! returns true if file list is empty
     bool Empty( void ) const
@@ -75,7 +75,7 @@ class FileManager: public TObject
     }
 
     // make version name of a file
-    static std::string MakeVersion( const char* );
+    static TString MakeVersion( TString );
 
     /*!
     make a backup copy of all loaded files adding _i trailer, where i is the
@@ -84,10 +84,10 @@ class FileManager: public TObject
     void MakeBackup( void ) const;
 
     //! Merge TChain from files
-    TChain* GetChain( const char* key ) const;
+    TChain* GetChain( TString key ) const;
 
     //! filter Tree
-    //TTree* filter_tree( const char* key, const TCut& cut );
+    //TTree* filter_tree( TString key, const TCut& cut );
 
     //! project chain from files into histogram
     /*
@@ -96,35 +96,35 @@ class FileManager: public TObject
     consumption
     */
     TH1* TreeToHisto(
-        const char* tree_name,
-        const char* name,
-        const char* var,
+        TString tree_name,
+        TString name,
+        TString var,
         TCut cut ) const;
 
     #ifndef __CINT__
     //! project chain from files into histograms define by projections
-    void TreeToHisto( const std::string& tree_name, ProjectionList& projection_list ) const;
+    void TreeToHisto( const TString& tree_name, ProjectionList& projection_list ) const;
     #endif
 
     //! Merge TH1 from files
-    TH1* GetTH1( const char* key ) const;
+    TH1* GetTH1( TString key ) const;
 
     //! Merge TH2 from files
-    TH2* GetTH2( const char* key ) const;
+    TH2* GetTH2( TString key ) const;
 
     //!  Merge all trees/histograms found in file_selection into output_file
-    void Merge( const char* output_file = "out.root", const char* selection="", const char* option = "" ) const;
+    void Merge( TString output_file = "out.root", TString selection="", TString option = "" ) const;
 
     //! Merge all histograms found in file_selection into output file
     /*! keeps TDirectory structure of the input files into output file */
-    void MergeRecursive( const char* output_file = "out.root", const char* selection="" ) const;
+    void MergeRecursive( TString output_file = "out.root", TString selection="" ) const;
 
     //! write files
     void DumpFiles( void ) const;
 
     //! shortcut for set of files
-    typedef std::set< std::string > FileSet;
-    typedef std::vector< std::string > FileList;
+    typedef std::set< TString > FileSet;
+    typedef std::vector< TString > FileList;
 
     //! get number of files
     unsigned int GetNFiles( void ) const
@@ -146,14 +146,14 @@ class FileManager: public TObject
     //@{
 
     //! file size
-    static int FileSize( const char* file );
+    static int FileSize( TString file );
 
     //@}
 
     protected:
 
     //! recursive merging of TDirectories
-    void MergeRecursive(TDirectory *root,TDirectory* node, const std::string& selection) const;
+    void MergeRecursive(TDirectory *root,TDirectory* node, const TString& selection) const;
 
     private:
 

@@ -28,7 +28,7 @@ namespace UTILS
     public:
 
     //! shortcut for fit function
-    typedef Double_t (*FitFunction) (double*, double*);
+    typedef Double_t (*FitFunction) (Double_t*, Double_t*);
 
     //! embeded fit
     static void Fit( TH1*, const char* ffName, FitFunction, Double_t min, Double_t max, int n_par, Double_t *pars = 0 );
@@ -79,47 +79,34 @@ namespace UTILS
       Double_t alpha2, Double_t n2 );
 
     //! variable width gaussian
-    static Double_t VWG( double* x, double* par );
+    static Double_t VWG( Double_t* x, Double_t* par );
 
     //! variable width gaussian
     static Double_t VWG( Double_t x, Double_t mean, Double_t sigma, Double_t slope );
 
     //! Na60 function
-    static Double_t Na60( double*, double* par );
-
-    //! Na60 fit function
-    //! tails have 3 parameters each
-    static Double_t Na60(
-      Double_t mass,
-      Double_t mean, Double_t sigma,
-      double* tail1,
-      double* tail2,
-      Double_t massRatio1, Double_t massRatio2
-      );
-
-    //! Na60 function
-    static Double_t Na60Old( double*, double* par );
+    static Double_t Na60Old( Double_t*, Double_t* par );
 
     //! Na60 fit function
     //! tails have 3 parameters each
     static Double_t Na60Old(
       Double_t mass,
       Double_t mean, Double_t sigma,
-      double* tail1,
-      double* tail2,
+      Double_t* tail1,
+      Double_t* tail2,
       Double_t massRatio1, Double_t massRatio2
       );
 
     //! Na60 function
-    static Double_t Na60New( double*, double* par );
+    static Double_t Na60New( Double_t*, Double_t* par );
 
     //! Na60 fit function
     //! tails have 3 parameters each
     static Double_t Na60New(
       Double_t mass,
       Double_t mean, Double_t sigma,
-      double* tail1,
-      double* tail2,
+      Double_t* tail1,
+      Double_t* tail2,
       Double_t alpha1, Double_t alpha2
       );
 
