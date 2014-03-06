@@ -48,7 +48,7 @@ class ColumnBase
         fName( name ),
         fFormat( format ),
         fType( type ),
-        fAlignment( "l" )
+        fAlignment( "c" )
     {}
 
     //! destructor
