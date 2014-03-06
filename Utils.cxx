@@ -1,13 +1,5 @@
 // $Id: Utils.cxx,v 1.56 2010/09/15 02:27:25 hpereira Exp $
 
-/*!
-\file Utils.cxx
-\brief some root utilities to handle histograms safely
-\author	Hugo Pereira
-\version $Revision: 1.56 $
-\date $Date: 2010/09/15 02:27:25 $
-*/
-
 #include "ALI_MACRO.h"
 #include "Debug.h"
 #include "Utils.h"
@@ -42,11 +34,11 @@
 ClassImp( Utils );
 
 //_____________________________________________________________________________
-bool Utils::MatrixToAngles(const double *rot, Double_t *angles)
+Bool_t Utils::MatrixToAngles(const Double_t *rot, Double_t *angles)
 {
   // Calculates the Euler angles in "x y z" notation
   // using the rotation matrix
-  // Returns false in case the rotation angles can not be
+  // Returns kFALSE in case the rotation angles can not be
   // extracted from the matrix
   if(TMath::Abs(rot[0])<1e-7 || TMath::Abs(rot[8])<1e-7)
   { return kFALSE; }
@@ -64,23 +56,95 @@ void Utils::DeleteObject( TString name )
 { return ALI_MACRO::Delete<TObject>( name ); }
 
 //________________________________________________________________________
-double Utils::GetMean( std::list<double>values )
+Double_t Utils::GetMean( Double_t* values, Int_t n )
 {
-  double out(0);
-  for( std::list<double>::iterator iter = values.begin(); iter != values.end(); iter++ )
-    out+=*iter;
-  return out/values.size();
+  Double_t out(0);
+  for( Int_t i = 0; i < n; ++i )
+  { out+=values[i]; }
+  return out/n;
 }
 
 //________________________________________________________________________
-double Utils::GetRMS( std::list<double>values )
+Double_t Utils::GetRMS( Double_t* values, Int_t n  )
 {
-  double out(0);
-  const double mean( GetMean( values ) );
-  for( std::list<double>::iterator iter = values.begin(); iter != values.end(); iter++ )
-  { out+=ALI_MACRO::SQUARE(*iter - mean ); }
+  Double_t out(0);
+  const Double_t mean( GetMean( values, n ) );
+  for( Int_t i = 0; i < n; ++i )
+  { out+=ALI_MACRO::SQUARE(values[i] - mean ); }
 
-  return sqrt(out/values.size());
+  return TMath::Sqrt(out/n);
+}
+
+//________________________________________________________________________
+Double_t Utils::GetMean( Double_t* values, Double_t* errors, Int_t n )
+{
+  Double_t out(0);
+  Double_t weight(0);
+  for( Int_t i=0; i < n; ++i )
+  {
+    if( errors[i] > 0 )
+    {
+      out += values[i]/ALI_MACRO::SQUARE( errors[i] );
+      weight += 1.0/ALI_MACRO::SQUARE( errors[i] );
+    }
+  }
+
+  return out/weight;
+}
+
+//________________________________________________________________________
+Double_t Utils::GetRMS( Double_t* values, Double_t* errors, Int_t n )
+{
+  Double_t out(0);
+  Double_t weight(0);
+  const Double_t mean( GetMean( values, errors, n ) );
+  for( Int_t i=0; i < n; ++i )
+  {
+
+    if( errors[i] > 0 )
+    {
+      out += ALI_MACRO::SQUARE( values[i] - mean )/ALI_MACRO::SQUARE( errors[i] );
+      weight += 1.0/ALI_MACRO::SQUARE( errors[i] );
+    }
+
+  }
+
+  return TMath::Sqrt(out/weight);
+}
+
+//________________________________________________________________________
+Double_t* Utils::GetRelativeDifference( Double_t* values, Int_t n )
+{
+
+  Double_t* out = new Double_t[n];
+  for( Int_t i = 0; i < n; ++i )
+  {
+    if( values[0] == 0 ) out[i] = 0;
+    else out[i] = values[i]/values[0] - 1;
+  }
+
+  return out;
+
+}
+
+//________________________________________________________________________
+Double_t* Utils::GetRelativeDifferenceError( Double_t* values, Double_t* errors, Int_t n )
+{
+
+  Double_t* out = new Double_t[n];
+  for( Int_t i = 0; i < n; ++i )
+  {
+    if( values[0] == 0 ) out[i] = 0;
+    else if( values[i] > 0 ) {
+
+      Double_t ratio = values[i]/values[0];
+      out[i] = ratio * TMath::Sqrt( ALI_MACRO::SQUARE( errors[i]/values[i] ) + ALI_MACRO::SQUARE( errors[0]/values[0] ) );
+
+    } else out[i] = 0;
+  }
+
+  return out;
+
 }
 
 //________________________________________________________________________
@@ -90,9 +154,9 @@ void Utils::DumpHistogram( TH1* h )
   std::cout << "Utils::DumpHistogram - " << h->GetName() << std::endl;
   printf( "%5s %10s %10s %10s %10s %10s\n", "bin", "center", "content", "error", "sum", "error" );
 
-  double sum( 0 );
-  double sum_error( 0 );
-  for( int i=0; i<h->GetNbinsX(); i++ )
+  Double_t sum( 0 );
+  Double_t sum_error( 0 );
+  for( Int_t i=0; i<h->GetNbinsX(); i++ )
   {
     sum += h->GetBinContent(i);
     sum_error += ALI_MACRO::SQUARE( h->GetBinError(i) );
@@ -102,7 +166,7 @@ void Utils::DumpHistogram( TH1* h )
       h->GetBinContent(i),
       h->GetBinError(i),
       sum,
-      sqrt( sum_error ) );
+      TMath::Sqrt( sum_error ) );
   }
 
   return;
@@ -115,9 +179,9 @@ void Utils::DumpFunctionParameters( TF1* f )
 
   std::cout << "Utils::DumpFunctionParameters - " << f->GetName() << std::endl;
   printf( "%5s %10s %10s %10s\n", "index", "value", "min", "max" );
-  for( int i=0; i < f->GetNpar(); i++ )
+  for( Int_t i=0; i < f->GetNpar(); i++ )
   {
-    double min(0), max(0);
+    Double_t min(0), max(0);
     f->GetParLimits( i, min, max );
     printf( "%5i %10f %10f %10f\n", i, f->GetParameter(i), min, max );
   }
@@ -128,23 +192,23 @@ void Utils::DumpFunctionParameters( TF1* f )
 //________________________________________________________________________
 void Utils::DrawNormalized( TTree* tree, TString name, TString var, const TCut& cut, TString opt )
 {
-  TH1* h = TreeToHisto( tree, name, var, cut, true );
+  TH1* h = TreeToHisto( tree, name, var, cut, kTRUE );
   if( h->GetEntries() ) h->Scale( 1.0/h->GetEntries() );
   h->Draw( opt );
 }
 
 //________________________________________________________________________
-TTree *Utils::GetChisquareTree( int ndf, int nevents )
+TTree *Utils::GetChisquareTree( Int_t ndf, Int_t nevents )
 {
 
   ALI_MACRO::Delete<TTree>( "chisquare" );
   TTree *tree = new TTree( "chisquare", "chisquare" );
-  static double chi_square(0);
+  static Double_t chi_square(0);
 
   enum { BUFFER_SIZE=32000 };
   enum { AUTO_SAVE=16000 };
   tree->Branch( "chi_square", &chi_square, "chi_square/D", BUFFER_SIZE );
-  for( int event=0; event < nevents; event++ )
+  for( Int_t event=0; event < nevents; event++ )
   {
     chi_square = GetChisquare( ndf );
     tree->Fill();
@@ -155,15 +219,15 @@ TTree *Utils::GetChisquareTree( int ndf, int nevents )
 }
 
 //________________________________________________________________________
-double Utils::GetChisquare( int ndf )
+Double_t Utils::GetChisquare( Int_t ndf )
 {
 
-  double chi_square = 0;
-  double average(0);
+  Double_t chi_square = 0;
+  Double_t average(0);
   static TRandom random;
-  for( int i=0; i<ndf+1; i++ )
+  for( Int_t i=0; i<ndf+1; i++ )
   {
-    double value(random.Gaus());
+    Double_t value(random.Gaus());
     chi_square += ALI_MACRO::SQUARE( value );
     average+=value;
   }
@@ -174,30 +238,30 @@ double Utils::GetChisquare( int ndf )
 }
 
 //__________________________________________________
-double Utils::GetRandom( TH1* h )
+Double_t Utils::GetRandom( TH1* h )
 {
   // initialize
-  static bool first( true );
+  static Bool_t first( kTRUE );
   if( first ) {
-    first = false;
+    first = kFALSE;
     srand( time( 0 ) );
   }
 
   if( !h ) return 0;
 
-  double max( h->GetMaximum() );
-  double xMin( h->GetXaxis()->GetXmin() );
-  double xMax( h->GetXaxis()->GetXmax() );
+  Double_t max( h->GetMaximum() );
+  Double_t xMin( h->GetXaxis()->GetXmin() );
+  Double_t xMax( h->GetXaxis()->GetXmax() );
   Debug::Str() << "Utils::GetRandom - xMin=" << xMin << "xMax=" << xMax << std::endl;
 
   while( 1 ) {
-    double out = xMin + double( rand() )*(xMax-xMin)/RAND_MAX;
+    Double_t out = xMin + Double_t( rand() )*(xMax-xMin)/RAND_MAX;
 
-    int bin( h->GetXaxis()->FindBin( out ) );
-    double value( h->GetBinContent(bin) );
+    Int_t bin( h->GetXaxis()->FindBin( out ) );
+    Double_t value( h->GetBinContent(bin) );
     Debug::Str() << "Utils::GetRandom - max=" << max << " out=" << out << " value=" << value << std::endl;
 
-    double prob = double( rand() )*max/RAND_MAX;
+    Double_t prob = Double_t( rand() )*max/RAND_MAX;
     if( prob < value ) return out;
   }
 
@@ -207,25 +271,25 @@ double Utils::GetRandom( TH1* h )
 }
 
 //__________________________________________________
-double Utils::GetRandom( TF1* f, double xMin, double xMax )
+Double_t Utils::GetRandom( TF1* f, Double_t xMin, Double_t xMax )
 {
   // initialize
-  static bool first( true );
+  static Bool_t first( kTRUE );
   if( first ) {
-    first = false;
+    first = kFALSE;
     srand( time( 0 ) );
   }
 
   if( !f ) return 0;
 
-  double max( f->GetMaximum( xMin, xMax ) );
+  Double_t max( f->GetMaximum( xMin, xMax ) );
   Debug::Str() << "Utils::GetRandom - xMin=" << xMin << "xMax=" << xMax << std::endl;
 
   while( 1 ) {
-    double out = xMin + double( rand() )*(xMax-xMin)/RAND_MAX;
-    double value( f->Eval( out ) );
+    Double_t out = xMin + Double_t( rand() )*(xMax-xMin)/RAND_MAX;
+    Double_t value( f->Eval( out ) );
 
-    double prob = double( rand() )*max/RAND_MAX;
+    Double_t prob = Double_t( rand() )*max/RAND_MAX;
     if( prob < value ) return out;
 
   }
@@ -236,51 +300,51 @@ double Utils::GetRandom( TF1* f, double xMin, double xMax )
 }
 
 //__________________________________________________
-double Utils::GetRandom( double min, double max )
+Double_t Utils::GetRandom( Double_t min, Double_t max )
 {
   // initialize
-  static bool first( true );
+  static Bool_t first( kTRUE );
   if( first ) {
-    first = false;
+    first = kFALSE;
     srand( time( 0 ) );
   }
 
-  return (max - min)*double( rand() )/RAND_MAX;
+  return (max - min)*Double_t( rand() )/RAND_MAX;
 }
 
 //__________________________________________________
-std::pair<double,double> Utils::GetRandom2D( TH2* h )
+std::pair<Double_t,Double_t> Utils::GetRandom2D( TH2* h )
 {
   // initialize
-  static bool first( true );
+  static Bool_t first( kTRUE );
   if( first ) {
-    first = false;
+    first = kFALSE;
     srand( time( 0 ) );
   }
 
-  if( !h ) return std::make_pair<double,double>( 0, 0 );
+  if( !h ) return std::make_pair<Double_t,Double_t>( 0, 0 );
 
-  while( true )
+  while( kTRUE )
   {
-    double xMin( h->GetXaxis()->GetXmin() );
-    double xMax( h->GetXaxis()->GetXmax() );
-    double out_x = double( rand() )*(xMax-xMin)/RAND_MAX;
+    Double_t xMin( h->GetXaxis()->GetXmin() );
+    Double_t xMax( h->GetXaxis()->GetXmax() );
+    Double_t out_x = Double_t( rand() )*(xMax-xMin)/RAND_MAX;
 
-    double y_min( h->GetYaxis()->GetXmin() );
-    double y_max( h->GetYaxis()->GetXmax() );
-    double out_y = double( rand() )*(y_max-y_min)/RAND_MAX;
+    Double_t y_min( h->GetYaxis()->GetXmin() );
+    Double_t y_max( h->GetYaxis()->GetXmax() );
+    Double_t out_y = Double_t( rand() )*(y_max-y_min)/RAND_MAX;
 
-    double max( h->GetMaximum() );
-    int bin_x( h->GetXaxis()->FindBin( out_x ) );
-    int bin_y( h->GetYaxis()->FindBin( out_y ) );
+    Double_t max( h->GetMaximum() );
+    Int_t bin_x( h->GetXaxis()->FindBin( out_x ) );
+    Int_t bin_y( h->GetYaxis()->FindBin( out_y ) );
 
-    double value( h->GetBinContent(bin_x, bin_y) );
-    double prob = double( rand() )*max/RAND_MAX;
-    if( prob < value ) return std::make_pair<double,double>(out_x, out_y);
+    Double_t value( h->GetBinContent(bin_x, bin_y) );
+    Double_t prob = Double_t( rand() )*max/RAND_MAX;
+    if( prob < value ) return std::make_pair<Double_t,Double_t>(out_x, out_y);
   }
 
   //! not reached
-  return std::make_pair<double,double>( 0, 0 );
+  return std::make_pair<Double_t,Double_t>( 0, 0 );
 
 }
 
@@ -298,7 +362,7 @@ void UtilsForm( ostream &out, TString format, ... )
 }
 
 //__________________________________________________
-TH1* Utils::ScaleAxis( TH1* h, double scale )
+TH1* Utils::ScaleAxis( TH1* h, Double_t scale )
 {
 
   TString title( h->GetTitle() );
@@ -307,15 +371,15 @@ TH1* Utils::ScaleAxis( TH1* h, double scale )
 
 
   TAxis* axis = h->GetXaxis();
-  double xMin = scale*axis->GetXmin();
-  double xMax = scale*axis->GetXmax();
+  Double_t xMin = scale*axis->GetXmin();
+  Double_t xMax = scale*axis->GetXmax();
   if( xMin > xMax ) std::swap( xMin, xMax );
 
   TH1* h_out =	NewTH1( name.Data(), title.Data(), axis->GetNbins(), xMin, xMax );
-  for( int bin=0; bin < axis->GetNbins()+2; bin++ )
+  for( Int_t bin=0; bin < axis->GetNbins()+2; bin++ )
   {
-    double x = scale*axis->GetBinCenter( bin );
-    int dest_bin = h_out->FindBin( x );
+    Double_t x = scale*axis->GetBinCenter( bin );
+    Int_t dest_bin = h_out->FindBin( x );
     h_out->SetBinContent( dest_bin, h->GetBinContent( bin ) );
     h_out->SetBinError( dest_bin, h->GetBinError( bin ) );
   }
@@ -325,7 +389,7 @@ TH1* Utils::ScaleAxis( TH1* h, double scale )
 }
 
 //__________________________________________________
-TH1* Utils::Integrate( TH1* h, bool normalize )
+TH1* Utils::Integrate( TH1* h, Bool_t normalize )
 {
   TString name( h->GetName() );
   name += "_Integrated";
@@ -333,16 +397,16 @@ TH1* Utils::Integrate( TH1* h, bool normalize )
   TString title( h->GetTitle() );
   title += " [Integrated]";
 
-  double entries( h->GetEntries() );
+  Double_t entries( h->GetEntries() );
   TH1* hInt( NewClone( name.Data(), title.Data(), h ) );
 
   // retrieve number of bins in histograms
-  int n_bins( h->GetNbinsX() );
-  for( int bin=0; bin < n_bins; bin++ ) {
+  Int_t n_bins( h->GetNbinsX() );
+  for( Int_t bin=0; bin < n_bins; bin++ ) {
 
     //retrieve Integrate
-    double y( h->Integral( 1, bin+1 ) );
-    double error = sqrt( y*(1.0-(y/entries)) );
+    Double_t y( h->Integral( 1, bin+1 ) );
+    Double_t error = TMath::Sqrt( y*(1.0-(y/entries)) );
     if( normalize ) {
       y /= entries;
       error /= entries;
@@ -356,7 +420,7 @@ TH1* Utils::Integrate( TH1* h, bool normalize )
 }
 
 //___________________________________________
-double Utils::Integrate( TH1*h, double xmin, double xmax )
+Double_t Utils::Integrate( TH1*h, Double_t xmin, Double_t xmax )
 {
   // check order
   if( xmin >= xmax )
@@ -366,19 +430,19 @@ double Utils::Integrate( TH1*h, double xmin, double xmax )
   }
 
   // find bins matching var_min and var_max
-  int bin_min = h->GetXaxis()->FindBin( xmin );
-  int bin_max = h->GetXaxis()->FindBin( xmax );
+  Int_t bin_min = h->GetXaxis()->FindBin( xmin );
+  Int_t bin_max = h->GetXaxis()->FindBin( xmax );
 
   // get the Integrate
-  double out = h->Integral( bin_min, bin_max );
+  Double_t out = h->Integral( bin_min, bin_max );
 
   // need to correct (linearly) from the bound bins
-  double low_bin_correction(
+  Double_t low_bin_correction(
     h->GetBinContent( bin_min )*
     ( xmin - h->GetXaxis()->GetBinLowEdge( bin_min ) )/
     ( h->GetXaxis()->GetBinUpEdge( bin_min ) - h->GetXaxis()->GetBinLowEdge( bin_min ) ) );
 
-  double high_bin_correction(
+  Double_t high_bin_correction(
     h->GetBinContent( bin_max )*
     ( h->GetXaxis()->GetBinUpEdge( bin_max ) - xmax )/
     ( h->GetXaxis()->GetBinUpEdge( bin_max ) - h->GetXaxis()->GetBinLowEdge( bin_max ) ) );
@@ -402,7 +466,7 @@ TH1* Utils::TreeToHisto(
   TString name,
   TString var,
   TCut cut,
-  bool autoH )
+  Bool_t autoH )
 {
   // check tree
   if( !tree )
@@ -447,21 +511,22 @@ TH1* Utils::TreeToHisto(
 }
 
 //____________________________________________________________
-TGraphErrors* Utils::HistoToTGraph( TH1* h, bool zeroSup )
+TGraphErrors* Utils::HistoToTGraph( TH1* h, Bool_t zeroSup )
 {
   if( !h ) return 0;
 
   TGraphErrors *tg = new TGraphErrors();
   tg->SetMarkerStyle( h->GetMarkerStyle() );
   tg->SetMarkerColor( h->GetMarkerColor() );
+  tg->SetMarkerSize( h->GetMarkerSize() );
   tg->SetLineColor( h->GetLineColor() );
   tg->SetLineWidth( h->GetLineWidth() );
-  int point( 0 );
-  for( int i=0; i<h->GetNbinsX(); i++ )
+  Int_t point( 0 );
+  for( Int_t i=0; i<h->GetNbinsX(); i++ )
   {
-    double x = h->GetXaxis()->GetBinCenter( i+1 );
-    double y = double( h->GetBinContent( i+1 ) );
-    double error = double( h->GetBinError( i+1 ) );
+    Double_t x = h->GetXaxis()->GetBinCenter( i+1 );
+    Double_t y = Double_t( h->GetBinContent( i+1 ) );
+    Double_t error = Double_t( h->GetBinError( i+1 ) );
     if( zeroSup && !y ) continue;
     tg->SetPoint( point, x, y );
     tg->SetPointError( point, 0, error );
@@ -478,7 +543,7 @@ class th1: public TH1F
   public:
 
   //! constructor
-  th1( TString name, TString title, int bin, double min, double max ):
+  th1( TString name, TString title, Int_t bin, Double_t min, Double_t max ):
     TH1F( name, title, bin, min, max )
   { Debug::Str() << "th1::th1 - name = " << name << std::endl; }
 
@@ -492,7 +557,7 @@ class th1: public TH1F
 //____________________________________________________________
 TCanvas* Utils::NewTCanvas(
   TString name, TString title,
-  int width, int height )
+  Int_t width, Int_t height )
 {
   ALI_MACRO::Delete<TCanvas>( name );
   return new TCanvas( name, title, width, height );
@@ -502,9 +567,9 @@ TCanvas* Utils::NewTCanvas(
 TH1* Utils::NewTH1(
   TString name,
   TString title,
-  int bin,
-  double min,
-  double max
+  Int_t bin,
+  Double_t min,
+  Double_t max
   )
 {
   ALI_MACRO::Delete<TH1>( name );
@@ -515,8 +580,8 @@ TH1* Utils::NewTH1(
 TH1* Utils::NewTH1(
   TString name,
   TString title,
-  int bin,
-  double *x
+  Int_t bin,
+  Double_t *x
   )
 {
   ALI_MACRO::Delete<TH1>( name );
@@ -527,12 +592,12 @@ TH1* Utils::NewTH1(
 TH2* Utils::NewTH2(
   TString name,
   TString title,
-  int binx ,
-  double minx,
-  double maxx,
-  int biny,
-  double miny,
-  double maxy )
+  Int_t binx ,
+  Double_t minx,
+  Double_t maxx,
+  Int_t biny,
+  Double_t miny,
+  Double_t maxy )
 {
   ALI_MACRO::Delete<TH1>( name );
   return new TH2F( name, title, binx, minx, maxx, biny, miny, maxy );
@@ -542,15 +607,15 @@ TH2* Utils::NewTH2(
 TH3* Utils::NewTH3(
   TString name,
   TString title,
-  int binx ,
-  double minx,
-  double maxx,
-  int biny,
-  double miny,
-  double maxy,
-  int binz,
-  double minz,
-  double maxz )
+  Int_t binx ,
+  Double_t minx,
+  Double_t maxx,
+  Int_t biny,
+  Double_t miny,
+  Double_t maxy,
+  Int_t binz,
+  Double_t minz,
+  Double_t maxz )
 {
   ALI_MACRO::Delete<TH1>( name );
   return new TH3F( name, title,
@@ -564,7 +629,7 @@ TH1* Utils::NewClone(
   TString name,
   TString title,
   TH1* parent,
-  bool reset
+  Bool_t reset
   )
 {
 
@@ -590,7 +655,7 @@ TH2* Utils::NewClone2D(
   TString name,
   TString title,
   TH2* parent,
-  bool reset
+  Bool_t reset
   )
 {
   // check parent histogram
@@ -610,8 +675,8 @@ TH2* Utils::NewClone2D(
 
 //_______________________________________________________________
 TF1* Utils::NewTF1( TString name,
-  double (*function)(double*, double*),
-  const double& min, const double& max,
+  Double_t (*function)(Double_t*, Double_t*),
+  const Double_t& min, const Double_t& max,
   const int& n_par )
 {
 
@@ -621,24 +686,24 @@ TF1* Utils::NewTF1( TString name,
 }
 
 //______________________________________________________
-double Utils::GetEntries(TH1* h)
+Double_t Utils::GetEntries(TH1* h)
 {
-  double out( 0 );
-  for(int i = 1; i < h->GetNbinsX(); i++)
+  Double_t out( 0 );
+  for(Int_t i = 1; i < h->GetNbinsX(); i++)
     out += h->GetBinContent(i);
   return out;
 
 }
 
 //______________________________________________________
-int Utils::SubtractHistograms(TH1* h1, TH1* h2, TH1* h3)
+Int_t Utils::SubtractHistograms(TH1* h1, TH1* h2, TH1* h3)
 {
 
-  unsigned int n1 = h1->GetNbinsX();
-  unsigned int n2 = h2->GetNbinsX();
-  unsigned int n3 = h3->GetNbinsX();
+  UInt_t n1 = h1->GetNbinsX();
+  UInt_t n2 = h2->GetNbinsX();
+  UInt_t n3 = h3->GetNbinsX();
 
-  double sum1( 0 ), sum2( 0 );
+  Double_t sum1( 0 ), sum2( 0 );
   if(!(n1 == n2 && n2 == n3)){
     std::cout << "Utils::SubtractHistograms - ERROR: Different number of bins.\n";
     std::cout << "	 " << n1 << ", " << n2 << ", " << n3 << std::endl;
@@ -646,27 +711,27 @@ int Utils::SubtractHistograms(TH1* h1, TH1* h2, TH1* h3)
   }
 
   //loop over bins
-  for(unsigned int i = 1; i < n1+1; i++) {
+  for(UInt_t i = 1; i < n1+1; i++) {
 
-    double b1= h1->GetBinContent(i); sum1 += b1;
-    double b2= h2->GetBinContent(i); sum2 += b2;
+    Double_t b1= h1->GetBinContent(i); sum1 += b1;
+    Double_t b2= h2->GetBinContent(i); sum2 += b2;
     h3->SetBinContent(i,b1-b2);
 
-    double e1= ALI_MACRO::SQUARE(h1->GetBinError(i));
-    double e2= ALI_MACRO::SQUARE(h2->GetBinError(i));
+    Double_t e1= ALI_MACRO::SQUARE(h1->GetBinError(i));
+    Double_t e2= ALI_MACRO::SQUARE(h2->GetBinError(i));
 
-    h3->SetBinError( i, sqrt( e1+e2 ) );
+    h3->SetBinError( i, TMath::Sqrt( e1+e2 ) );
 
   }
   return int( sum1 - sum2 );
 }
 
 //______________________________________________________
-int Utils::SubtractHistograms(TH1* h1, TF1* f, TH1* h3, double min, double max)
+Int_t Utils::SubtractHistograms(TH1* h1, TF1* f, TH1* h3, Double_t min, Double_t max)
 {
 
-  unsigned int n1 = h1->GetNbinsX();
-  unsigned int n3 = h3->GetNbinsX();
+  UInt_t n1 = h1->GetNbinsX();
+  UInt_t n3 = h3->GetNbinsX();
 
   if(!(n1 == n3)){
     std::cout << "Utils::SubtractHistograms - ERROR: Different number of bins.\n";
@@ -674,21 +739,21 @@ int Utils::SubtractHistograms(TH1* h1, TF1* f, TH1* h3, double min, double max)
     return 0;
   }
 
-  double sum( 0 );
-  for(unsigned int i = 1; i < n1+1; i++) {
+  Double_t sum( 0 );
+  for(UInt_t i = 1; i < n1+1; i++) {
 
     // check bin is in range
-    double center( h1->GetBinCenter( i ) );
+    Double_t center( h1->GetBinCenter( i ) );
     if( !(center >= min && center <= max ) ) {
       h3->SetBinContent(i, 0 );
       h3->SetBinError( i, 0 );
       continue;
     }
 
-    double b1= h1->GetBinContent(i);
-    double function_value( f->Eval( center ) );
+    Double_t b1= h1->GetBinContent(i);
+    Double_t function_value( f->Eval( center ) );
 
-    double e1= h1->GetBinError(i);
+    Double_t e1= h1->GetBinError(i);
 
     sum+=b1-function_value;
     h3->SetBinContent(i,b1-function_value);
@@ -698,12 +763,12 @@ int Utils::SubtractHistograms(TH1* h1, TF1* f, TH1* h3, double min, double max)
 }
 
 //______________________________________________________
-double Utils::DivideHistograms(TH1* h1, TH1* h2, TH1* h3, int errorMode )
+Double_t Utils::DivideHistograms(TH1* h1, TH1* h2, TH1* h3, Int_t errorMode )
 {
 
-  unsigned int n1 = h1->GetNbinsX();
-  unsigned int n2 = h2->GetNbinsX();
-  unsigned int n3 = h3->GetNbinsX();
+  UInt_t n1 = h1->GetNbinsX();
+  UInt_t n2 = h2->GetNbinsX();
+  UInt_t n3 = h3->GetNbinsX();
 
   if(!(n1 == n2 && n2 == n3)){
     std::cout << "Utils::DivideHistograms - ERROR: Different number of bins.\n";
@@ -715,12 +780,12 @@ double Utils::DivideHistograms(TH1* h1, TH1* h2, TH1* h3, int errorMode )
 }
 
 //______________________________________________________
-double Utils::DivideHistograms(TH1* h1, TH1* h2, TH1* h3, unsigned int i1, unsigned int i2, int errorMode)
+Double_t Utils::DivideHistograms(TH1* h1, TH1* h2, TH1* h3, UInt_t i1, UInt_t i2, Int_t errorMode)
 {
 
-  unsigned int n1 = h1->GetNbinsX();
-  unsigned int n2 = h2->GetNbinsX();
-  unsigned int n3 = h3->GetNbinsX();
+  UInt_t n1 = h1->GetNbinsX();
+  UInt_t n2 = h2->GetNbinsX();
+  UInt_t n3 = h3->GetNbinsX();
 
   if(!(n1 == n2 && n2 == n3)){
     std::cout << "Utils::DivideHistograms - ERROR: Different number of bins.\n";
@@ -728,28 +793,28 @@ double Utils::DivideHistograms(TH1* h1, TH1* h2, TH1* h3, unsigned int i1, unsig
     return 0;
   }
 
-  for(unsigned int i = 1; i < n1+1; i++)
+  for(UInt_t i = 1; i < n1+1; i++)
   {
 
     if( i >= i1 && i< i2+1 ) {
 
-      double b1 = h1->GetBinContent(i);
-      double b2 = h2->GetBinContent(i);
-      double b3 = (b2 != 0) ? b1/b2:0;
+      Double_t b1 = h1->GetBinContent(i);
+      Double_t b2 = h2->GetBinContent(i);
+      Double_t b3 = (b2 != 0) ? b1/b2:0;
 
-      double e3 = 0;
+      Double_t e3 = 0;
       if( errorMode == EFF )
       {
 
-        e3 = (b2 != 0 ) ? sqrt( b3*(1-b3)/b2 ):0;
+        e3 = (b2 != 0 ) ? TMath::Sqrt( b3*(1-b3)/b2 ):0;
         if( b1 == b2 && b1 ) e3 =	0.00001;
         if( b1 == 0 && b2 ) e3 = 0.00001;
 
       } else {
 
-        e3 = (b2 != 0) ? b3*sqrt(
-          ALI_MACRO::SQUARE( 1.0/sqrt(b1) )
-          + ALI_MACRO::SQUARE( 1.0/sqrt(b2) )
+        e3 = (b2 != 0) ? b3*TMath::Sqrt(
+          ALI_MACRO::SQUARE( 1.0/TMath::Sqrt(b1) )
+          + ALI_MACRO::SQUARE( 1.0/TMath::Sqrt(b2) )
           ):0;
 
         if( b1 == 0 && b2 ) e3 = 0.00001;
@@ -766,7 +831,7 @@ double Utils::DivideHistograms(TH1* h1, TH1* h2, TH1* h3, unsigned int i1, unsig
 
     }
   }
-  return ( (double) h1->Integral() / (double) h2->Integral() );
+  return ( (Double_t) h1->Integral() / (Double_t) h2->Integral() );
 }
 
 //______________________________________________________
@@ -779,27 +844,27 @@ TGraphErrors* Utils::DivideTGraphs(TGraphErrors* tg1, TGraphErrors* tg2 )
   }
 
   TGraphErrors *tg_out = new TGraphErrors();
-  int point( 0 );
-  for( int i=0; i<tg1->GetN(); i++ )
+  Int_t point( 0 );
+  for( Int_t i=0; i<tg1->GetN(); i++ )
   {
-    double x1(0), y1(0);
-    double x2(0), y2(0);
+    Double_t x1(0), y1(0);
+    Double_t x2(0), y2(0);
     tg1->GetPoint(i, x1, y1 );
     tg2->GetPoint(i, x2, y2 );
 
     if( x1 != x2 )
     {
-      std::cout << "Utils::DivideTGraphs - different x. point " <<	i << "skipped" << std::endl;
+      std::cout << "Utils::DivideTGraphs - different x. poInt_t " <<	i << "skipped" << std::endl;
       continue;
     }
 
 
     if( !y2 ) continue;
-    double eff( y1/y2 );
+    Double_t eff( y1/y2 );
 
-    double err1( tg1->GetErrorY( i ) );
-    double err2( tg2->GetErrorY( i ) );
-    double err( sqrt(
+    Double_t err1( tg1->GetErrorY( i ) );
+    Double_t err2( tg2->GetErrorY( i ) );
+    Double_t err( TMath::Sqrt(
       ALI_MACRO::SQUARE((1-eff)*err1)+
       ALI_MACRO::SQUARE(eff)*(
       ALI_MACRO::SQUARE(err2)-ALI_MACRO::SQUARE(err1)))/y2 );
@@ -821,16 +886,16 @@ TGraphErrors* Utils::DivideTGraphs(TGraphErrors* tg1, TGraphErrors* tg2 )
 }
 
 //______________________________________________________
-double Utils::DivideHistograms2D(TH2* h1, TH2* h2, TH2* h3, int errorMode )
+Double_t Utils::DivideHistograms2D(TH2* h1, TH2* h2, TH2* h3, Int_t errorMode )
 {
 
-  unsigned int nx1 = h1->GetNbinsX();
-  unsigned int nx2 = h2->GetNbinsX();
-  unsigned int nx3 = h3->GetNbinsX();
+  UInt_t nx1 = h1->GetNbinsX();
+  UInt_t nx2 = h2->GetNbinsX();
+  UInt_t nx3 = h3->GetNbinsX();
 
-  unsigned int ny1 = h1->GetNbinsY();
-  unsigned int ny2 = h2->GetNbinsY();
-  unsigned int ny3 = h3->GetNbinsY();
+  UInt_t ny1 = h1->GetNbinsY();
+  UInt_t ny2 = h2->GetNbinsY();
+  UInt_t ny3 = h3->GetNbinsY();
 
   if(!(nx1 == nx2 && nx2 == nx3))
   {
@@ -846,27 +911,27 @@ double Utils::DivideHistograms2D(TH2* h1, TH2* h2, TH2* h3, int errorMode )
     return 0;
   }
 
-  for(unsigned int i = 1; i < nx1+1; i++)
+  for(UInt_t i = 1; i < nx1+1; i++)
   {
 
-    for(unsigned int j = 1; j < ny1+1; j++)
+    for(UInt_t j = 1; j < ny1+1; j++)
     {
 
-      int bin = h1->GetBin( i, j );
-      double b1 = h1->GetBinContent(bin);
-      double b2 = h2->GetBinContent(bin);
-      double b3 = (b2 != 0) ? b1/b2:0;
+      Int_t bin = h1->GetBin( i, j );
+      Double_t b1 = h1->GetBinContent(bin);
+      Double_t b2 = h2->GetBinContent(bin);
+      Double_t b3 = (b2 != 0) ? b1/b2:0;
 
-      double e3 = 0;
+      Double_t e3 = 0;
       if( errorMode == EFF )
       {
-        e3 = (b2 != 0 ) ? sqrt( b3*(1-b3)/b2 ):0;
+        e3 = (b2 != 0 ) ? TMath::Sqrt( b3*(1-b3)/b2 ):0;
         if( b1 == b2 && b1 ) e3 =	0.00001;
       } else {
 
-        e3 = b3*sqrt(
-          ALI_MACRO::SQUARE( 1.0/sqrt(b1) )
-          + ALI_MACRO::SQUARE( 1.0/sqrt(b2) )
+        e3 = b3*TMath::Sqrt(
+          ALI_MACRO::SQUARE( 1.0/TMath::Sqrt(b1) )
+          + ALI_MACRO::SQUARE( 1.0/TMath::Sqrt(b2) )
           );
       }
 
@@ -877,6 +942,6 @@ double Utils::DivideHistograms2D(TH2* h1, TH2* h2, TH2* h3, int errorMode )
 
   }
 
-  return ( (double) h1->Integral() / (double) h2->Integral() );
+  return ( (Double_t) h1->Integral() / (Double_t) h2->Integral() );
 
 }
