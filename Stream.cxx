@@ -36,27 +36,27 @@ std::string Stream::ReplaceAll( const std::string& in, const std::string& c1, co
 
 //________________________________________________________________________
 void Stream::PrintVector( std::ostream& out, const char* name, const double* values, const int& size, const char* format )
-{ PrintVector<double>( out, "double", name, values, size, format ); }
+{ PrintVector<double>( out, "Double_t", name, values, size, format ); }
 
 //________________________________________________________________________
 void Stream::PrintIntVector( std::ostream& out, const char* name, const int* values, const int& size, const char* format )
-{ PrintVector<int>( out, "int", name, values, size, format ); }
+{ PrintVector<int>( out, "Int_t", name, values, size, format ); }
 
 //_________________________________
 void Stream::PrintVector2D( std::ostream& out, const char* name, const double* values, const int& size_1, const int& size_2, const char* format )
-{ PrintVector2D<double>( out, "double", name, values, size_1, size_2, format ); }
+{ PrintVector2D<double>( out, "Double_t", name, values, size_1, size_2, format ); }
 
 //_________________________________
 void Stream::PrintIntVector2D( std::ostream& out, const char* name, const int* values, const int& size_1, const int& size_2, const char* format )
-{ PrintVector2D<int>( out, "int", name, values, size_1, size_2, format ); }
+{ PrintVector2D<int>( out, "Int_t", name, values, size_1, size_2, format ); }
 
 //_________________________________
 void Stream::PrintVector3D( std::ostream& out, const char* name, const double* values, const int& size_1, const int& size_2, const int& size_3,const char* format )
-{ PrintVector3D<double>( out, "double", name, values, size_1, size_2, size_3, format ); }
+{ PrintVector3D<double>( out, "Double_t", name, values, size_1, size_2, size_3, format ); }
 
 //_________________________________
 void Stream::PrintVector4D( std::ostream& out, const char* name, const double* values, const int& size_1, const int& size_2, const int& size_3,const int& size_4, const char* format )
-{ PrintVector4D<double>( out, "double", name, values, size_1, size_2, size_3, size_4, format ); }
+{ PrintVector4D<double>( out, "Double_t", name, values, size_1, size_2, size_3, size_4, format ); }
 
 //________________________________________________________________________
 void Stream::PrintCuts( const TCut& cut )

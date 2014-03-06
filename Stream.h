@@ -3,17 +3,6 @@
 
 // $Id: Streamer.h,v 1.47 2010/09/15 02:27:25 hpereira Exp $
 
-/*!
-\file Streamer.h
-\author	Hugo Pereira
-\version $Revision: 1.47 $
-\date $Date: 2010/09/15 02:27:25 $
-*/
-
-/*!
-\class Streamer
-*/
-
 #include <TROOT.h>
 #include <TCut.h>
 #include <TObject.h>
