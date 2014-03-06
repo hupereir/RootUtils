@@ -8,6 +8,7 @@
 #include <TMarker.h>
 #include <TPad.h>
 #include <TPolyLine.h>
+#include <TStyle.h>
 #include <iostream>
 #include <cmath>
 
@@ -20,20 +21,75 @@ ClassImp( Draw );
 
 //__________________________________________________
 // static members
-bool Draw::fDrawErrLimit = true;
-int Draw::fLineWidth = 2;
-int Draw::fBoxFillStyle = 2;
-double Draw::fSystShade = 0.4;
-double Draw::fDeltaXLog = 0.03;
-double Draw::fDeltaXLin = 0.012;
+Bool_t Draw::fDrawErrLimit = true;
+Int_t Draw::fLineWidth = 2;
+Int_t Draw::fBoxFillStyle = 2;
+Int_t Draw::fFont = 42;
+Double_t Draw::fMarkerSize = 2.0;
+Double_t Draw::fSystShade = 0.4;
+Double_t Draw::fDeltaXLog = 0.03;
+Double_t Draw::fDeltaXLin = 0.012;
+
+
+//__________________________________________________________
+void Draw::SetStyle( Bool_t use_title )
+{
+  gStyle->SetOptStat(0);
+  gStyle->SetTitleBorderSize(0);
+  gStyle->SetTitleW(1);
+
+  gStyle->SetPadLeftMargin(0.12);
+  gStyle->SetPadRightMargin( 0.02 );
+  gStyle->SetPadBottomMargin(0.13);
+
+  if( use_title )
+  {
+
+    gStyle->SetTitleSize(0.08,"");
+    gStyle->SetTitleStyle(0);
+    gStyle->SetPadTopMargin(0.12);
+
+  } else {
+
+    gStyle->SetTitleSize(0,"");
+    gStyle->SetTitleStyle(0.05);
+    gStyle->SetPadTopMargin(0.02);
+
+  }
+
+  gStyle->SetMarkerSize( fMarkerSize );
+  gStyle->SetPadTickX( 1 );
+  gStyle->SetPadTickY( 1 );
+
+  gStyle->SetTextFont( fFont );
+  gStyle->SetLabelFont( fFont ,"xyz");
+  gStyle->SetTitleFont( fFont ,"xyz");
+  gStyle->SetStatFont( fFont );
+
+  gStyle->SetStatFontSize(0.05);
+  gStyle->SetStatX(0.97);
+  gStyle->SetStatY(0.98);
+  gStyle->SetStatH(0.03);
+  gStyle->SetStatW(0.3);
+
+  gStyle->SetTickLength(0.02,"y");
+  gStyle->SetEndErrorSize(3);
+  gStyle->SetLabelSize(0.05,"xyz");
+  gStyle->SetLabelOffset(0.01,"xyz");
+
+  gStyle->SetTitleSize(0.05, "xyz" );
+  gStyle->SetTitleOffset(1.2,"y");
+  gStyle->SetTitleOffset(1.2,"x");
+
+}
 
 //______________________________________________________
-void Draw::DivideCanvas( TCanvas* cv, int n, bool respect_ratio )
+void Draw::DivideCanvas( TCanvas* cv, Int_t n, Bool_t respect_ratio )
 {
 
-    double ratio( respect_ratio ? double(cv->GetWindowWidth())/ double(cv->GetWindowHeight()): 1 );
-    int columns = std::max( 1, int(sqrt( n*ratio )) );
-    int rows = std::max( 1, int(n/columns) );
+    Double_t ratio( respect_ratio ? double(cv->GetWindowWidth())/ double(cv->GetWindowHeight()): 1 );
+    Int_t columns = std::max( 1, int(sqrt( n*ratio )) );
+    Int_t rows = std::max( 1, int(n/columns) );
     while( rows * columns < n )
     {
         columns++;
@@ -45,7 +101,7 @@ void Draw::DivideCanvas( TCanvas* cv, int n, bool respect_ratio )
 }
 
 //______________________________________________________
-TLatex* Draw::PutText( const double& x_ndc, const double& y_ndc, const int& color, const char* value)
+TLatex* Draw::PutText( Double_t x_ndc, Double_t y_ndc, const int& color, TString value)
 {
     TLatex* text = new TLatex();
     text->SetNDC( true );
@@ -55,7 +111,7 @@ TLatex* Draw::PutText( const double& x_ndc, const double& y_ndc, const int& colo
 }
 
 //______________________________________________________
-TPaveStats* Draw::ResizeStats( double scale, int dimension )
+TPaveStats* Draw::ResizeStats( Double_t scale, Int_t dimension )
 {
 
     gPad->Update();
@@ -66,9 +122,9 @@ TPaveStats* Draw::ResizeStats( double scale, int dimension )
     }
 
     // resize font
-    double font_size( st->GetTextSize() );
-    font_size *= scale;
-    st->SetTextSize( font_size );
+    Double_t fontSize( st->GetTextSize() );
+    fontSize *= scale;
+    st->SetTextSize( fontSize );
 
     // retrieve pave positions:
     Coord_t x1 = st->GetX1NDC();
@@ -96,11 +152,11 @@ TPaveStats* Draw::ResizeStats( double scale, int dimension )
 
 //______________________________________________________
 TPaveStats* Draw::UpdateStats(
-    int direction,
-    int color,
-    const char* new_name,
-    int scale,
-    int option )
+    Int_t direction,
+    Int_t color,
+    TString newName,
+    Int_t scale,
+    Int_t option )
 {
 
     gPad->Update();
@@ -110,7 +166,7 @@ TPaveStats* Draw::UpdateStats(
         return 0;
     }
 
-    if( new_name ) st->SetName( new_name );
+    if( newName.Length() > 0 ) st->SetName( newName );
 
     if( direction != NONE )
     {
@@ -169,18 +225,18 @@ TPaveStats* Draw::UpdateStats(
 //______________________________________________________
 void Draw::UpdatePaveSize(
     TPaveText* pave,
-    int direction
+    Int_t direction
     )
 {
 
-    int nLines( pave->GetListOfLines()->GetSize() );
+    Int_t nLines( pave->GetListOfLines()->GetSize() );
     if( !nLines ) return;
 
     // resize height
     if( (direction & UP) || (direction & DOWN) )
     {
 
-        double lineHeight( pave->GetTextSize() );
+        Double_t lineHeight( pave->GetTextSize() );
         if( lineHeight <= 0 ) return;
 
         if( direction & UP )
@@ -197,17 +253,17 @@ void Draw::UpdatePaveSize(
 
     if( (direction & LEFT) || (direction & RIGHT ) )
     {
-        unsigned int nCharMax( 0 );
-        double charWidth( pave->GetTextSize() );
-        double ratio( 0 );
-        for( int line = 0; line < nLines; line++ )
+        UInt_t nCharMax( 0 );
+        Double_t charWidth( pave->GetTextSize() );
+        Double_t ratio( 0 );
+        for( Int_t line = 0; line < nLines; line++ )
         {
             TText *text( pave->GetLine( line ) );
-            unsigned int n_char( strlen( text->GetTitle() ) );
+            UInt_t n_char( strlen( text->GetTitle() ) );
             if( n_char > nCharMax )
             {
                 nCharMax = n_char;
-                unsigned int w(0), h(0);
+                UInt_t w(0), h(0);
                 text->GetTextExtent( w, h, text->GetTitle() );
                 ratio = double(w)/double(h);
             }
@@ -232,7 +288,7 @@ void Draw::UpdatePaveSize(
 }
 
 //______________________________________________________
-void Draw::ResizeAxis( TH1* h, double size, int flag, bool update )
+void Draw::ResizeAxis( TH1* h, Double_t size, Int_t flag, Bool_t update )
 {
 
     if( !h ) return;
@@ -259,34 +315,34 @@ void Draw::ResizeAxis( TH1* h, double size, int flag, bool update )
 
 //__________________________________________________________
 TMarker* Draw::DrawPoint(
-    double x, double y,
-    double x_err, double y_err,
-    int symbol, int color,
-    int flag )
+    Double_t x, Double_t y,
+    Double_t xErr, Double_t yErr,
+    Int_t symbol, Int_t color,
+    Int_t flag )
 {
-    bool draw_err_limit_x =fDrawErrLimit;
-    bool draw_err_limit_y =fDrawErrLimit;
+    Bool_t draw_err_limit_x =fDrawErrLimit;
+    Bool_t draw_err_limit_y =fDrawErrLimit;
 
-    printf("x= %10g +/- %10g y= %10g +/- %10g\n",	x, x_err, y, y_err );
+    printf("x= %10g +/- %10g y= %10g +/- %10g\n",	x, xErr, y, yErr );
 
     // canvas limits
-    double uxmin = gPad->GetUxmin();
-    double uxmax = gPad->GetUxmax();
-    double uymin = gPad->GetUymin();
-    double uymax = gPad->GetUymax();
+    Double_t uxmin = gPad->GetUxmin();
+    Double_t uxmax = gPad->GetUxmax();
+    Double_t uymin = gPad->GetUymin();
+    Double_t uymax = gPad->GetUymax();
 
     // error bar dimensions
-    double delta_x = (flag&LOG_X) ? 0.05:0.013 * ( uxmax - uxmin );
-    double delta_y = (flag&LOG_Y) ? 0.01:0.013 * ( uymin - uymax );
+    Double_t deltaX = (flag&LOG_X) ? 0.05:0.013 * ( uxmax - uxmin );
+    Double_t deltaY = (flag&LOG_Y) ? 0.01:0.013 * ( uymin - uymax );
 
     TLine *line = new TLine();
     line->SetLineColor( color );
     line->SetLineWidth( fLineWidth );
 
     // error along x
-    if( x_err ) {
-        double x_min = x-x_err;
-        double x_max = x+x_err;
+    if( xErr ) {
+        Double_t x_min = x-xErr;
+        Double_t x_max = x+xErr;
 
         if( flag&LOG_X )
         {
@@ -303,42 +359,42 @@ TMarker* Draw::DrawPoint(
         {
             if( flag & LOG_X )
             {
-                line->DrawLine( x_min, y*(1-delta_y), x_min,  y*(1+delta_y) );
-                line->DrawLine( x_max, y*(1-delta_y), x_max,  y*(1+delta_y) );
+                line->DrawLine( x_min, y*(1-deltaY), x_min,  y*(1+deltaY) );
+                line->DrawLine( x_max, y*(1-deltaY), x_max,  y*(1+deltaY) );
             } else {
-                line->DrawLine( x_min, y-delta_y, x_min,  y+delta_y );
-                line->DrawLine( x_max, y-delta_y, x_max,  y+delta_y );
+                line->DrawLine( x_min, y-deltaY, x_min,  y+deltaY );
+                line->DrawLine( x_max, y-deltaY, x_max,  y+deltaY );
             }
         }
     }
 
     // error along y
-    if( y_err )
+    if( yErr )
     {
 
-        double y_min = y-y_err;
-        double y_max = y+y_err;
+        Double_t yMin = y-yErr;
+        Double_t yMax = y+yErr;
 
         if( flag&LOG_Y )
         {
-            if( y_min <=0 || log10(y_min) < uymin ) { y_min = exp( uymin*log(10.0) ); draw_err_limit_y = false; }
-            if( log10(y_max) > uymax ) { y_max = exp( uymax*log(10.0) ); draw_err_limit_y = false; }
+            if( yMin <=0 || log10(yMin) < uymin ) { yMin = exp( uymin*log(10.0) ); draw_err_limit_y = false; }
+            if( log10(yMax) > uymax ) { yMax = exp( uymax*log(10.0) ); draw_err_limit_y = false; }
         } else {
-            if( y_min < uymin ) { y_min = uymin; draw_err_limit_y = false; }
-            if( y_max > uymax ) { y_max = uymax; draw_err_limit_y = false; }
+            if( yMin < uymin ) { yMin = uymin; draw_err_limit_y = false; }
+            if( yMax > uymax ) { yMax = uymax; draw_err_limit_y = false; }
         }
 
-        line->DrawLine( x, y_min, x,  y_max );
+        line->DrawLine( x, yMin, x,  yMax );
 
         if( draw_err_limit_y )
         {
             if( flag & LOG_X )
             {
-                line->DrawLine( x*(1-delta_x), y_min, x*(1+delta_x),  y_min );
-                line->DrawLine( x*(1-delta_x), y_max, x*(1+delta_x),  y_max );
+                line->DrawLine( x*(1-deltaX), yMin, x*(1+deltaX),  yMin );
+                line->DrawLine( x*(1-deltaX), yMax, x*(1+deltaX),  yMax );
             } else {
-                line->DrawLine( x-delta_x, y_min, x+delta_x,  y_min );
-                line->DrawLine( x-delta_x, y_max, x+delta_x,  y_max );
+                line->DrawLine( x-deltaX, yMin, x+deltaX,  yMin );
+                line->DrawLine( x-deltaX, yMax, x+deltaX,  yMax );
             }
         }
     }
@@ -372,111 +428,111 @@ TMarker* Draw::DrawPoint(
 }
 
 //__________________________________________________________
-void Draw::DrawPoint( TGraphErrors *graph, int flag )
+void Draw::DrawPoint( TGraphErrors *graph, Int_t flag )
 {
 
-    int symbol( graph->GetMarkerStyle() );
-    int color( graph->GetMarkerColor() );
-    for( int i=0; i<graph->GetN(); i++ )
+    Int_t symbol( graph->GetMarkerStyle() );
+    Int_t color( graph->GetMarkerColor() );
+    for( Int_t i=0; i<graph->GetN(); i++ )
     {
-        double x, y;
+        Double_t x, y;
         graph->GetPoint( i, x, y  );
-        double x_err = graph->GetErrorX(i);
-        double y_err = graph->GetErrorY(i);
-        DrawPoint( x, y, x_err, y_err, symbol, color, flag );
+        Double_t xErr = graph->GetErrorX(i);
+        Double_t yErr = graph->GetErrorY(i);
+        DrawPoint( x, y, xErr, yErr, symbol, color, flag );
     }
 }
 
 //__________________________________________________________
 void Draw::DrawSystBracket(
-    double x, double y,
-    double y_err,
-    int color, int flag )
+    Double_t x, Double_t y,
+    Double_t yErr,
+    Int_t color, Int_t flag )
 {
     // check error
-    if( y_err <= 0 ) {
+    if( yErr <= 0 ) {
         std::cout << "Draw::DrawSystBracket - invalid y error" << std::endl;
         return;
     }
 
     // canvas limits
-    double uxmin = gPad->GetUxmin();
-    double uxmax = gPad->GetUxmax();
-    double uymin = gPad->GetUymin();
-    double uymax = gPad->GetUymax();
+    Double_t uxmin = gPad->GetUxmin();
+    Double_t uxmax = gPad->GetUxmax();
+    Double_t uymin = gPad->GetUymin();
+    Double_t uymax = gPad->GetUymax();
 
     // bracket limits
-    double delta_x = (flag&LOG_X) ? 0.07:0.015 * ( uxmax - uxmin );
-    double delta_y = (flag&LOG_Y) ? 0.07:0.01 * ( uymax - uymin );
+    Double_t deltaX = (flag&LOG_X) ? 0.07:0.015 * ( uxmax - uxmin );
+    Double_t deltaY = (flag&LOG_Y) ? 0.07:0.01 * ( uymax - uymin );
 
     // error limits
-    double y_min = y-y_err;
-    double y_max = y+y_err;
+    Double_t yMin = y-yErr;
+    Double_t yMax = y+yErr;
 
     TPolyLine* pline = new TPolyLine();
     pline->SetLineColor( color );
     pline->SetLineWidth( fLineWidth );
 
-    static double px[4] = {0};
-    static double py[4] = {0};
+    static Double_t px[4] = {0};
+    static Double_t py[4] = {0};
 
     // lower bracket
-    bool draw_lower = (flag&LOG_Y) ? (log10(y_min) >= uymin):(y_min>=uymin);
+    Bool_t draw_lower = (flag&LOG_Y) ? (log10(yMin) >= uymin):(yMin>=uymin);
     if( draw_lower ) {
         if( flag&LOG_Y )
         {
-            py[0] = log10((1+delta_y)*(y_min));
-            py[1] = log10(y_min);
-            py[2] = log10(y_min);
-            py[3] = log10((1+delta_y)*(y_min));
+            py[0] = log10((1+deltaY)*(yMin));
+            py[1] = log10(yMin);
+            py[2] = log10(yMin);
+            py[3] = log10((1+deltaY)*(yMin));
         } else {
-            py[0] = y_min+delta_y;
-            py[1] = y_min;
-            py[2] = y_min;
-            py[3] = y_min+delta_y;
+            py[0] = yMin+deltaY;
+            py[1] = yMin;
+            py[2] = yMin;
+            py[3] = yMin+deltaY;
         }
 
         if( flag&LOG_X )
         {
-            px[0] = log10((1-delta_x)*x);
-            px[1] = log10((1-delta_x)*x);
-            px[2] = log10((1+delta_x)*x);
-            px[3] = log10((1+delta_x)*x);
+            px[0] = log10((1-deltaX)*x);
+            px[1] = log10((1-deltaX)*x);
+            px[2] = log10((1+deltaX)*x);
+            px[3] = log10((1+deltaX)*x);
         } else {
-            px[0] = x-delta_x;
-            px[1] = x-delta_x;
-            px[2] = x+delta_x;
-            px[3] = x+delta_x;
+            px[0] = x-deltaX;
+            px[1] = x-deltaX;
+            px[2] = x+deltaX;
+            px[3] = x+deltaX;
         }
         pline->DrawPolyLine( 4, px, py);
     }
 
     // upper bracket
-    bool draw_upper = (flag&LOG_Y) ? (log10(y_max) <= uymax):(y_max<=uymax);
+    Bool_t draw_upper = (flag&LOG_Y) ? (log10(yMax) <= uymax):(yMax<=uymax);
     if( draw_upper ) {
         if( flag&LOG_Y )
         {
-            py[0] = log10((1-delta_y)*(y+y_err));
-            py[1] = log10(y+y_err);
-            py[2] = log10(y+y_err);
-            py[3] = log10((1-delta_y)*(y+y_err));
+            py[0] = log10((1-deltaY)*(y+yErr));
+            py[1] = log10(y+yErr);
+            py[2] = log10(y+yErr);
+            py[3] = log10((1-deltaY)*(y+yErr));
         } else {
-            py[0] = y+y_err-delta_y;
-            py[1] = y+y_err;
-            py[2] = y+y_err;
-            py[3] = y+y_err-delta_y;
+            py[0] = y+yErr-deltaY;
+            py[1] = y+yErr;
+            py[2] = y+yErr;
+            py[3] = y+yErr-deltaY;
         }
         if( flag&LOG_X )
         {
-            px[0] = log10((1-delta_x)*x);
-            px[1] = log10((1-delta_x)*x);
-            px[2] = log10((1+delta_x)*x);
-            px[3] = log10((1+delta_x)*x);
+            px[0] = log10((1-deltaX)*x);
+            px[1] = log10((1-deltaX)*x);
+            px[2] = log10((1+deltaX)*x);
+            px[3] = log10((1+deltaX)*x);
         } else {
-            px[0] = x-delta_x;
-            px[1] = x-delta_x;
-            px[2] = x+delta_x;
-            px[3] = x+delta_x;
+            px[0] = x-deltaX;
+            px[1] = x-deltaX;
+            px[2] = x+deltaX;
+            px[3] = x+deltaX;
         }
         pline->DrawPolyLine( 4, px, py);
     }
@@ -484,52 +540,52 @@ void Draw::DrawSystBracket(
 }
 
 //__________________________________________________________
-void Draw::DrawSystBracket( TGraphErrors *graph, int flag )
+void Draw::DrawSystBracket( TGraphErrors *graph, Int_t flag )
 {
 
-    int color( graph->GetMarkerColor() );
-    for( int i=0; i<graph->GetN(); i++ )
+    Int_t color( graph->GetMarkerColor() );
+    for( Int_t i=0; i<graph->GetN(); i++ )
     {
-        double x, y;
+        Double_t x, y;
         graph->GetPoint( i, x, y  );
-        double y_err = graph->GetErrorY(i);
-        DrawSystBracket( x, y, y_err, color, flag );
+        Double_t yErr = graph->GetErrorY(i);
+        DrawSystBracket( x, y, yErr, color, flag );
     }
 }
 
 //__________________________________________________________
 void Draw::DrawSystBox(
-    double x, double y,
-    double y_err,
-    int color, int flag )
+    Double_t x, Double_t y,
+    Double_t yErr,
+    Int_t color, Int_t flag )
 {
     // check error
-    if( y_err <= 0 ) {
+    if( yErr <= 0 ) {
         std::cout << "Draw::DrawSystBox - invalid y error" << std::endl;
         return;
     }
 
     // canvas limits
-    double uxmin = gPad->GetUxmin();
-    double uxmax = gPad->GetUxmax();
-    double uymin = gPad->GetUymin();
-    double uymax = gPad->GetUymax();
+    Double_t uxmin = gPad->GetUxmin();
+    Double_t uxmax = gPad->GetUxmax();
+    Double_t uymin = gPad->GetUymin();
+    Double_t uymax = gPad->GetUymax();
 
     // Relative flag
-    if( (flag&RELATIVE) ) y_err = fabs( y*y_err );
+    if( (flag&RELATIVE) ) yErr = fabs( y*yErr );
 
     // error limits
-    double y_min = std::max<double>( (flag&LOG_Y) ? exp( log(10.0)*uymin ):uymin , y-y_err );
-    double y_max = std::min<double>( (flag&LOG_Y) ? exp( log(10.0)*uymax ):uymax , y+y_err );
+    Double_t yMin = std::max<double>( (flag&LOG_Y) ? exp( log(10.0)*uymin ):uymin , y-yErr );
+    Double_t yMax = std::min<double>( (flag&LOG_Y) ? exp( log(10.0)*uymax ):uymax , y+yErr );
 
     // bracket limits
-    double delta_x = (flag&LOG_X) ? fDeltaXLog:fDeltaXLin * ( uxmax - uxmin );
+    Double_t deltaX = (flag&LOG_X) ? fDeltaXLog:fDeltaXLin * ( uxmax - uxmin );
 
     // box limits
-    double x0 = (flag&LOG_X) ?  log10((1-delta_x)*x):x-delta_x;
-    double x1 = (flag&LOG_X) ?  log10((1+delta_x)*x):x+delta_x;
-    double y0 = (flag&LOG_Y) ? log10(y_min):y_min;
-    double y1 = (flag&LOG_Y) ? log10(y_max):y_max;
+    Double_t x0 = (flag&LOG_X) ?  log10((1-deltaX)*x):x-deltaX;
+    Double_t x1 = (flag&LOG_X) ?  log10((1+deltaX)*x):x+deltaX;
+    Double_t y0 = (flag&LOG_Y) ? log10(yMin):yMin;
+    Double_t y1 = (flag&LOG_Y) ? log10(yMax):yMax;
 
     TBox *box = new TBox(x0, y0, x1, y1 );
     color = Color(color).Merge( 0, 0.4 );
@@ -541,36 +597,36 @@ void Draw::DrawSystBox(
 }
 
 //__________________________________________________________
-void Draw::DrawSystBox( TGraphErrors *graph, int flag )
+void Draw::DrawSystBox( TGraphErrors *graph, Int_t flag )
 {
 
-    int color( graph->GetMarkerColor() );
-    for( int i=0; i<graph->GetN(); i++ )
+    Int_t color( graph->GetMarkerColor() );
+    for( Int_t i=0; i<graph->GetN(); i++ )
     {
-        double x, y;
+        Double_t x, y;
         graph->GetPoint( i, x, y  );
-        double y_err = graph->GetErrorY(i);
-        DrawSystBox( x, y, y_err, color, flag );
+        Double_t yErr = graph->GetErrorY(i);
+        DrawSystBox( x, y, yErr, color, flag );
     }
 }
 
 //___________________________________________________________
-void Draw::DrawSystGlobal(  TGraph* tg, double err_rel, int flag )
+void Draw::DrawSystGlobal(  TGraph* tg, Double_t err_rel, Int_t flag )
 {
 
-    const int n_points = tg->GetN();
+    const Int_t n_points = tg->GetN();
 
     TPolyLine* pline = new TPolyLine(2*n_points+1);
     pline->SetLineColor( tg->GetLineColor() );
     pline->SetLineWidth( tg->GetLineWidth() );
 
-    for( int i=0; i<n_points; i++ )
+    for( Int_t i=0; i<n_points; i++ )
     {
-        double x = 0;
-        double y = 0;
+        Double_t x = 0;
+        Double_t y = 0;
         tg->GetPoint( i, x, y );
-        double y_up =  y*(1+err_rel);
-        double y_down =  y*(1-err_rel);
+        Double_t y_up =  y*(1+err_rel);
+        Double_t y_down =  y*(1-err_rel);
 
         if( flag & LOG_X ) x=log10(x);
         if( flag & LOG_Y ) {
@@ -589,22 +645,99 @@ void Draw::DrawSystGlobal(  TGraph* tg, double err_rel, int flag )
 
 //___________________________________________________________
 void Draw::DrawBox(
-    double x, double y,
-    double delta_x, double delta_y,
-    int color, int flag )
+    Double_t x, Double_t y,
+    Double_t deltaX, Double_t deltaY,
+    Int_t color, Int_t flag )
 {
-    printf( "global= %10g\n", delta_y );
+    printf( "global= %10g\n", deltaY );
 
-    double x0 = (flag&LOG_X)? log10(x)+delta_x:x+delta_x;
-    double x1 = (flag&LOG_X)? log10(x)-delta_x:x-delta_x;
+    Double_t x0 = (flag&LOG_X)? log10(x)+deltaX:x+deltaX;
+    Double_t x1 = (flag&LOG_X)? log10(x)-deltaX:x-deltaX;
 
-    double y0 = (flag&LOG_Y)? log10(y+delta_y):y+delta_y;
-    double y1 = (flag&LOG_Y)? log10(y-delta_y):y-delta_y;
+    Double_t y0 = (flag&LOG_Y)? log10(y+deltaY):y+deltaY;
+    Double_t y1 = (flag&LOG_Y)? log10(y-deltaY):y-deltaY;
 
     TBox *box = new TBox( x0, y0, x1, y1 );
     if( fBoxFillStyle ) box->SetFillStyle( fBoxFillStyle );
     box->SetFillColor( color );
     box->SetLineColor( color );
     box->Draw();
+
+}
+
+//__________________________________________________
+TGraphErrors* Draw::DrawMarkers( Int_t n, Double_t* x, Double_t* y, Double_t* xErr, Double_t* yErr, Int_t symbol, Int_t color )
+{
+  TGraphErrors* tge = new TGraphErrors();
+  for( Int_t i=0; i<n; ++i )
+  {
+    tge->SetPoint( i, x[i], y[i] );
+    tge->SetPointError( i, xErr[i], yErr[i]  );
+
+  }
+
+  tge->SetMarkerStyle( symbol );
+  tge->SetMarkerColor( color );
+  tge->SetLineWidth( fLineWidth );
+  tge->SetLineColor( color );
+  tge->Draw( "P" );
+  return tge;
+
+}
+
+//__________________________________________________
+TGraphErrors* Draw::DrawSystematics( Int_t n, Double_t* x, Double_t* y, Double_t* yErr, Int_t color )
+{
+
+  Double_t uxmin = gPad->GetUxmin();
+  Double_t uxmax = gPad->GetUxmax();
+  Double_t deltaX = fDeltaXLin*( uxmax - uxmin );
+
+  TGraphErrors* tge = new TGraphErrors();
+  for( Int_t i=0; i<n; ++i )
+  {
+    tge->SetPoint( i, x[i], y[i] );
+    tge->SetPointError( i, deltaX, yErr[i]  );
+  }
+
+  tge->SetLineWidth( fLineWidth );
+  tge->SetLineColor( color );
+  tge->SetFillStyle( 0 );
+  tge->Draw( "5" );
+  return tge;
+
+}
+
+
+//__________________________________________________
+TGraphErrors* Draw::DrawBand( Int_t n, Double_t* x, Double_t* yMin, Double_t* yMax, Int_t color )
+{
+  TGraphErrors* tge = new TGraphErrors();
+  for( Int_t i=0; i<n; ++i )
+  {
+    Double_t y = 0.5*(yMin[i]+yMax[i]);
+    Double_t yErr = 0.5*fabs( yMin[i]-yMax[i] );
+    tge->SetPoint( i, x[i], y );
+    tge->SetPointError( i, 0, yErr  );
+
+  }
+
+  tge->SetLineWidth( fLineWidth );
+  tge->SetFillStyle( 3363 );
+  tge->SetFillColor( color );
+  tge->SetLineColor( color );
+  tge->Draw( "3" );
+
+  TGraph* tgLow = new TGraph( n, x, yMin );
+  tgLow->SetLineWidth( fLineWidth );
+  tgLow->SetLineColor( color );
+  tgLow->Draw( "L" );
+
+  TGraph* tgHigh = new TGraph( n, x, yMax );
+  tgHigh->SetLineWidth( fLineWidth );
+  tgHigh->SetLineColor( color );
+  tgHigh->Draw( "L" );
+
+  return tge;
 
 }

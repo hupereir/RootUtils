@@ -9,18 +9,19 @@
 #include <TMarker.h>
 #include <TPaveStats.h>
 #include <TLatex.h>
+#include <TString.h>
 
 /*!
-  \file Draw.h
-  \brief some root utilities to handle histograms safely
-  \author	Hugo Pereira
-  \version $Revision: 1.8 $
-  \date $Date: 2011/07/01 15:15:05 $
+\file Draw.h
+\brief some root utilities to handle histograms safely
+\author	Hugo Pereira
+\version $Revision: 1.8 $
+\date $Date: 2011/07/01 15:15:05 $
 */
 
 /*!
-  \class Draw
-  \brief some graphical root utilities
+\class Draw
+\brief some graphical root utilities
 */
 class Draw:public TObject {
 
@@ -55,112 +56,139 @@ class Draw:public TObject {
     ALL = LABEL|TITLE|X|Y
   };
 
+  // divide canvas following dimensions ratio to have at least N panels
+  static void SetStyle( Bool_t );
 
   // divide canvas following dimensions ratio to have at least N panels
-  static void DivideCanvas( TCanvas*, int, bool respectRatio = true );
+  static void DivideCanvas( TCanvas*, int, Bool_t respectRatio = true );
 
   //! add text
-  static TLatex* PutText( const double& x_ndc, const double& y_ndc, const int& color, const char* text );
+  static TLatex* PutText( Double_t x_ndc, Double_t y_ndc, const int& color, TString text );
 
   //! apply scale factor to TPaveStats object. Both to fonts and size
-  static TPaveStats* ResizeStats( double scale=1, int dimension = WIDTH | HEIGHT  );
+  static TPaveStats* ResizeStats( Double_t scale=1, Int_t dimension = WIDTH | HEIGHT  );
 
   //! display latest drawn histogram PaveStat together with original PaveStats
   static TPaveStats* UpdateStats(
-    int direction = NONE,
-    int color = 0,
-    const char* new_name = 0,
-    int scale = 1,
-    int option = 0 );
+    Int_t direction = NONE,
+    Int_t color = 0,
+    TString newName = TString(),
+    Int_t scale = 1,
+    Int_t option = 0 );
 
   //! update TPaveText size according to it's number of lines
   static void UpdatePaveSize(
     TPaveText *text,
-    int direction = DOWN );
+    Int_t direction = DOWN );
 
   //! modify histogram axis sizes using flags and new size
-  static void ResizeAxis( TH1* h, double size, int flag = ALL, bool update = false );
+  static void ResizeAxis( TH1* h, Double_t size, Int_t flag = ALL, Bool_t update = false );
 
   //! small bars at statistical errors limits
-  static void SetDrawErrLimit( bool value )
+  static void SetDrawErrLimit( Bool_t value )
   { fDrawErrLimit = value; }
 
   //! box width (linear x scale)
-  static void SetDeltaXLin( const double& value )
+  static void SetDeltaXLin( Double_t value )
   { fDeltaXLin = value; }
 
   //! box width (logarythmic x scale)
-  static void SetDeltaXLog( const double& value )
+  static void SetDeltaXLog( Double_t value )
   { fDeltaXLog = value; }
 
   //! line width
-  static void SetLineWidth( int value )
+  static void SetLineWidth( Int_t value )
   { fLineWidth = value; }
 
   //! box fill style
-  static void SetBoxFillStyle( int value )
+  static void SetBoxFillStyle( Int_t value )
   { fBoxFillStyle = value; }
 
   //! systematic error box shade
-  static void SetSystShade( double value )
+  static void SetSystShade( Double_t value )
   { fSystShade = value; }
 
   //! draw symbol and error bar at given point
   static TMarker* DrawPoint(
-      double x, double y,
-      double x_err, double y_err,
-      int symbol = 20, int color = 1, int flag = 0 );
+    Double_t x, Double_t y,
+    Double_t x_err, Double_t y_err,
+    Int_t symbol = 20, Int_t color = 1, Int_t flag = 0 );
 
   //! draw symbol and error bar at TGraph points
-  static void DrawPoint( TGraphErrors *graph, int flag = 0 );
+  static void DrawPoint( TGraphErrors *graph, Int_t flag = 0 );
 
   //! draw systematic error at given point, using brackets
   static void DrawSystBracket(
-      double x, double y,
-      double y_err,
-      int color = 1, int flag = 0 );
+    Double_t x, Double_t y,
+    Double_t y_err,
+    Int_t color = 1, Int_t flag = 0 );
 
   //! draw systematic error at TGraph points, using brackets
-  static void DrawSystBracket( TGraphErrors* graph, int flag = 0 );
+  static void DrawSystBracket( TGraphErrors* graph, Int_t flag = 0 );
 
   //! draw systematic error at given point, using box
-  static void DrawSystBox( double x, double y, double y_err, int color = 1, int flag = 0 );
+  static void DrawSystBox( Double_t x, Double_t y, Double_t y_err, Int_t color = 1, Int_t flag = 0 );
 
   //! draw systematic error at given point, using box
-  static void DrawSystBox( int size, double* x, double* y, double* y_err, int color = 1, int flag = 0 )
-  { for( int i=0; i<size; i++ ) DrawSystBox( x[i], y[i], y_err[i], color, flag ); }
+  static void DrawSystBox( Int_t size, Double_t* x, Double_t* y, Double_t* y_err, Int_t color = 1, Int_t flag = 0 )
+  { for( Int_t i=0; i<size; i++ ) DrawSystBox( x[i], y[i], y_err[i], color, flag ); }
 
-  //! draw shaded area on TGraph point using X errors for limits
-  static void DrawSystBox( TGraphErrors* graph, int flag = 0 );
+  //! draw shaded area on TGraph poInt_t using X errors for limits
+  static void DrawSystBox( TGraphErrors* graph, Int_t flag = 0 );
 
   //! draw contour around TGraph error bars
-  void DrawSystGlobal( TGraph* tg, double err_rel, int flag = 0 );
+  void DrawSystGlobal( TGraph* tg, Double_t err_rel, Int_t flag = 0 );
 
-  //! draw shaded box around point using given color and style
+  //! draw shaded box around poInt_t using given color and style
   static void DrawBox(
-      double x, double y,
-      double delta_x, double delta_y,
-      int color = 1 , int flag = 0 );
+    Double_t x, Double_t y,
+    Double_t delta_x, Double_t delta_y,
+    Int_t color = 1 , Int_t flag = 0 );
+
+  //! draw markers
+  static TGraphErrors* DrawMarkers(
+    Int_t n,
+    Double_t* x, Double_t* y,
+    Double_t* xErr, Double_t* yErr,
+    Int_t symbol = 20, Int_t color = 1 );
+
+  //! draw systematic boxes
+  static TGraphErrors* DrawSystematics(
+    Int_t n,
+    Double_t* x, Double_t* y, Double_t* yErr,
+    Int_t color = 1 );
+
+  //! draw error band (for theory)
+  static TGraphErrors* DrawBand(
+    Int_t n,
+    Double_t* x, Double_t* yLow, Double_t* yHigh,
+    Int_t color = 1 );
 
   private:
 
   //! if true, draw small bars at statistical errors limits
-  static bool fDrawErrLimit;
+  static Bool_t fDrawErrLimit;
 
   //! default line width
-  static int fLineWidth;
+  static Int_t fLineWidth;
 
   //! box fill style
-  static int fBoxFillStyle;
+  static Int_t fBoxFillStyle;
 
   //! boxes width
-  static double fDeltaXLog;
+  static Double_t fDeltaXLog;
 
   //! boxes height
-  static double fDeltaXLin;
+  static Double_t fDeltaXLin;
 
   //! systematic error shade
-  static double fSystShade;
+  static Double_t fSystShade;
+
+  //! marker style
+  static Double_t fMarkerSize;
+
+  //! font
+  static Int_t fFont;
 
   ClassDef(Draw,0)
 
