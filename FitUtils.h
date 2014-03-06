@@ -36,6 +36,9 @@ namespace UTILS
     //! normalized gauss
     static Double_t Gaus( Double_t x, Double_t mean, Double_t sigma );
 
+    //! normalized gauss
+    static Double_t GausIntegrated( Double_t x, Double_t mean, Double_t sigma );
+
     //! gaussian, using integral for first parameter
     static Double_t GausIntegrated( Double_t *x, Double_t *par );
 

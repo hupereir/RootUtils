@@ -39,16 +39,20 @@ void FitUtils::Fit( TH1* h, const char* ffName, FitUtils::FitFunction Fcn, Doubl
 
 //_______________________________________________________________________________
 Double_t FitUtils::Gaus( Double_t x, Double_t mean, Double_t sigma )
+{ return TMath::Exp( -0.5*ALI_MACRO::SQUARE( (x-mean)/sigma ) ); }
+
+//_______________________________________________________________________________
+Double_t FitUtils::GausIntegrated( Double_t x, Double_t mean, Double_t sigma )
 { return 1/(sigma*TMath::Sqrt(2.0*TMath::Pi()))*TMath::Exp( -0.5*ALI_MACRO::SQUARE( (x-mean)/sigma ) ); }
 
 //_______________________________________________________________________________
 Double_t FitUtils::GausIntegrated( Double_t *x, Double_t *par)
-{ return par[0]*Gaus( x[0], par[1], par[2] ); }
+{ return par[0]*GausIntegrated( x[0], par[1], par[2] ); }
 
 //_______________________________________________________________________________
 Double_t FitUtils::GausIntegratedExp( Double_t *x, Double_t *par)
 {
-  Double_t g = par[0]*Gaus( x[0], par[1], par[2] );
+  Double_t g = par[0]*GausIntegrated( x[0], par[1], par[2] );
   Double_t e = par[3]*TMath::Exp( -(x[0]-par[1])/par[4] );
   return g+e;
 }
@@ -56,8 +60,8 @@ Double_t FitUtils::GausIntegratedExp( Double_t *x, Double_t *par)
 //_______________________________________________________________________________
 Double_t FitUtils::GausGausIntegratedExp( Double_t *x, Double_t *par)
 {
-  Double_t g1 = par[0]*Gaus( x[0], par[1], par[2] );
-  Double_t g2 = par[3]*Gaus( x[0], par[4], par[5] );
+  Double_t g1 = par[0]*GausIntegrated( x[0], par[1], par[2] );
+  Double_t g2 = par[3]*GausIntegrated( x[0], par[4], par[5] );
   Double_t e = par[6]*TMath::Exp( -1*(x[0])/par[7] );
   return g1+g2+e;
 }
@@ -65,8 +69,8 @@ Double_t FitUtils::GausGausIntegratedExp( Double_t *x, Double_t *par)
 //_______________________________________________________________________________
 Double_t FitUtils::GausGausIntegrated( Double_t *x, Double_t *par)
 {
-  Double_t g1 = par[0]*Gaus( x[0], par[1], par[2] );
-  Double_t g2 = par[3]*Gaus( x[0], par[4], par[5] );
+  Double_t g1 = par[0]*GausIntegrated( x[0], par[1], par[2] );
+  Double_t g2 = par[3]*GausIntegrated( x[0], par[4], par[5] );
   return g1+g2;
 }
 
