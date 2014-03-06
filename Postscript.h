@@ -27,8 +27,8 @@ class Postscript: public TObject
     };
 
     //! constructor
-    //Postscript( const char* file = "plots.ps", int type = 111, double range_x = 20, double range_y = 29 ):
-    Postscript( const char* file = "plots.ps", int type = 111, double range_x = 28, double range_y = 40 ):
+    //Postscript( TString file = "plots.ps", int type = 111, double range_x = 20, double range_y = 29 ):
+    Postscript( TString file = "plots.ps", int type = 111, double range_x = 28, double range_y = 40 ):
         fPostscript( 0 ),
         fState( CLOSED )
     { Open( file, type, range_x, range_y ); }
@@ -38,7 +38,7 @@ class Postscript: public TObject
     { if( fState == OPEN ) Close(); }
 
     //! open postscript file
-    bool Open( const char* file = "plot.ps", int type = 111, double range_x = 20, double range_y = 29 );
+    bool Open( TString file = "plot.ps", int type = 111, double range_x = 20, double range_y = 29 );
 
     //! close postscript file
     bool Close( void );
@@ -51,16 +51,16 @@ class Postscript: public TObject
     }
 
     //! blank page with title in center
-    void TitlePage( TCanvas* cv, const char* title = "TitlePage" );
+    void TitlePage( TCanvas* cv, TString title = "TitlePage" );
 
     //! update postscript file from canvas
     void UpdateFromCanvas( TCanvas *cv );
 
     //! new page
-    void NewPage( void );
+    void NewPage( TString title = TString() );
 
     //! title
-    void Title( const char* title );
+    void Title( TString title );
 
     private:
 
