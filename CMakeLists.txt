@@ -50,7 +50,6 @@ ADD_ROOT_DICTIONARIES( libbase_SOURCES
   DrawLinkDef.h
   FileManagerLinkDef.h
   FitUtilsLinkDef.h
-  PostscriptLinkDef.h
   StreamLinkDef.h
   TableLinkDef.h
   TH2FitLinkDef.h
