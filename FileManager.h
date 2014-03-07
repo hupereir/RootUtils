@@ -61,7 +61,7 @@ class FileManager: public TObject
     bool CheckFiles( TString output = TString() ) const;
 
     //! check if tree is valid for each file. Dump its entries
-    bool CheckTree( TString = TString(), TString output = TString() ) const;
+    bool CheckTree( TString = TString(), Int_t = 0, TString output = TString() ) const;
 
     //!check all the trees in a file.
     bool CheckAllTrees( void ) const;

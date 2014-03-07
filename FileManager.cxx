@@ -186,7 +186,7 @@ void FileManager::RemoveList( TString selection )
 bool FileManager::CheckFiles( TString output ) const
 {
 
-  FileSet badfFiles;
+  FileSet badFiles;
 
   unsigned int total( fFiles.size() );
   unsigned int current( 0 );
@@ -205,7 +205,7 @@ bool FileManager::CheckFiles( TString output ) const
         << current << "/" << total
         << " " << *iter << " looks corrupted"
         << std::endl;
-      badfFiles.insert( *iter );
+      badFiles.insert( *iter );
 
     } else {
 
@@ -223,17 +223,17 @@ bool FileManager::CheckFiles( TString output ) const
   if( output.Length() )
   {
     ofstream out( output );
-    for( FileSet::const_iterator iter = badfFiles.begin(); iter!= badfFiles.end(); iter++ )
+    for( FileSet::const_iterator iter = badFiles.begin(); iter!= badFiles.end(); iter++ )
     { out << *iter << std::endl; }
     out.close();
   }
 
-  return badfFiles.empty();
+  return badFiles.empty();
 
 }
 
 //_________________________________________________
-bool FileManager::CheckTree( TString key, TString output) const
+bool FileManager::CheckTree( TString key, Int_t refEntries, TString output) const
 {
 
   if( output.Length() )
@@ -244,15 +244,16 @@ bool FileManager::CheckTree( TString key, TString output) const
       std::cout << "FileManager::CheckTree - unable to write file to " << output << std::endl;
       return false;
     }
+
   }
 
   // loop over files
-  double total_entries( 0 );
+  double totalEntries( 0 );
 
   typedef std::map<TString, double> FileMap;
 
   FileMap goodfFiles;
-  FileSet badfFiles;
+  FileSet badFiles;
 
   unsigned int total( fFiles.size() );
   unsigned int current( 0 );
@@ -270,7 +271,7 @@ bool FileManager::CheckTree( TString key, TString output) const
         << "FileManager::CheckTree - "
         << current << "/" << total
         << " " << *iter << " looks corrupted" << std::endl;
-      badfFiles.insert( *iter );
+      badFiles.insert( *iter );
       delete f;
       continue;
 
@@ -285,17 +286,25 @@ bool FileManager::CheckTree( TString key, TString output) const
         << "FileManager::CheckTree - "
         << current << "/" << total
         << " " << *iter << ": " << key << " not found.\n";
-      badfFiles.insert( *iter );
+      badFiles.insert( *iter );
 
     } else {
 
       double entries( tree->GetEntries() );
       goodfFiles[*iter] = entries;
-      total_entries += entries;
+      totalEntries += entries;
+
       std::cout
         << "FileManager::CheckTree - "
         << current << "/" << total
         << " " << *iter << ": " << entries << " entries.\n";
+
+      if( refEntries > 0 && entries != refEntries )
+      {
+        std::cout << "FileManager::CheckTree - number of entries do not match reference." << std::endl;
+        badFiles.insert( *iter );
+      }
+
 
     }
 
@@ -303,7 +312,7 @@ bool FileManager::CheckTree( TString key, TString output) const
 
   }
 
-  std::cout << "FileManager::CheckTree - " << fFiles.size() << " files, total: " << total_entries << " entries.\n";
+  std::cout << "FileManager::CheckTree - " << fFiles.size() << " files, total: " << totalEntries << " entries.\n";
 
   if( output.Length() )
   {
@@ -312,20 +321,20 @@ bool FileManager::CheckTree( TString key, TString output) const
     for( FileMap::const_iterator iter = goodfFiles.begin(); iter != goodfFiles.end(); iter++ )
     { out << iter->first << ": " << iter->second << " entries" << std::endl; }
 
-    for( FileSet::const_iterator iter = badfFiles.begin(); iter!= badfFiles.end(); iter++ )
+    for( FileSet::const_iterator iter = badFiles.begin(); iter!= badFiles.end(); iter++ )
     { out << *iter << " is corrupted" << std::endl; }
 
     out.close();
   }
 
-  return badfFiles.empty();
+  return badFiles.empty();
 
 }
 
 //_________________________________________________
 bool FileManager::CheckAllTrees( void ) const
 {
-  FileSet badfFiles;
+  FileSet badFiles;
   for( FileSet::const_iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
   {
     TString value( *iter );
@@ -339,14 +348,14 @@ bool FileManager::CheckAllTrees( void ) const
 
       std::cout << "FileManager::CheckAllTrees checking tree " << key->GetName() << std::endl;
       if( CheckTree( TString( key->GetName() ) ) )
-        badfFiles.insert( value );
+      { badFiles.insert( value ); }
     }
 
     delete f;
 
   }
 
-  return badfFiles.empty();
+  return badFiles.empty();
 }
 
 //_________________________________________________
