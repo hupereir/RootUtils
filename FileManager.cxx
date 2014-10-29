@@ -183,7 +183,7 @@ void FileManager::RemoveList( TString selection )
 }
 
 //_________________________________________________
-bool FileManager::CheckFiles( TString output ) const
+bool FileManager::CheckFiles( void ) const
 {
 
   FileSet badFiles;
@@ -220,32 +220,16 @@ bool FileManager::CheckFiles( TString output ) const
 
   }
 
-  if( output.Length() )
-  {
-    ofstream out( output );
-    for( FileSet::const_iterator iter = badFiles.begin(); iter!= badFiles.end(); iter++ )
-    { out << *iter << std::endl; }
-    out.close();
-  }
+  for( FileSet::const_iterator iter = badFiles.begin(); iter!= badFiles.end(); iter++ )
+  { std::cout << *iter << std::endl; }
 
   return badFiles.empty();
 
 }
 
 //_________________________________________________
-bool FileManager::CheckTree( TString key, Int_t refEntries, TString output) const
+bool FileManager::CheckTree( TString key, Int_t refEntries) const
 {
-
-  if( output.Length() )
-  {
-    ofstream out( output.Data() );
-    if( out ) std::cout << "FileManager::CheckTree - output written to file " << output << std::endl;
-    else {
-      std::cout << "FileManager::CheckTree - unable to write file to " << output << std::endl;
-      return false;
-    }
-
-  }
 
   // loop over files
   double totalEntries( 0 );
@@ -314,18 +298,11 @@ bool FileManager::CheckTree( TString key, Int_t refEntries, TString output) cons
 
   std::cout << "FileManager::CheckTree - " << fFiles.size() << " files, total: " << totalEntries << " entries.\n";
 
-  if( output.Length() )
-  {
-    ofstream out( output );
+  for( FileMap::const_iterator iter = goodfFiles.begin(); iter != goodfFiles.end(); iter++ )
+  { std::cout << iter->first << ": " << iter->second << " entries" << std::endl; }
 
-    for( FileMap::const_iterator iter = goodfFiles.begin(); iter != goodfFiles.end(); iter++ )
-    { out << iter->first << ": " << iter->second << " entries" << std::endl; }
-
-    for( FileSet::const_iterator iter = badFiles.begin(); iter!= badFiles.end(); iter++ )
-    { out << *iter << " is corrupted" << std::endl; }
-
-    out.close();
-  }
+  for( FileSet::const_iterator iter = badFiles.begin(); iter!= badFiles.end(); iter++ )
+  { std::cout << *iter << " is corrupted" << std::endl; }
 
   return badFiles.empty();
 

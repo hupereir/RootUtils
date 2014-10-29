@@ -58,10 +58,10 @@ class FileManager: public TObject
 
     //! check if root files are valid
     /*! possibly dumps the bad fines in output */
-    bool CheckFiles( TString output = TString() ) const;
+    bool CheckFiles( void ) const;
 
     //! check if tree is valid for each file. Dump its entries
-    bool CheckTree( TString = TString(), Int_t = 0, TString output = TString() ) const;
+    bool CheckTree( TString = TString(), Int_t = 0 ) const;
 
     //!check all the trees in a file.
     bool CheckAllTrees( void ) const;
