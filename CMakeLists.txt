@@ -3,34 +3,34 @@ project(AliUtil CXX)
 
 ######################
 # module path
-SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 ######
 # ROOT
-FIND_PACKAGE(ROOT REQUIRED)
+find_package(ROOT REQUIRED)
 
 ######################
 # include directories
-INCLUDE_DIRECTORIES(SYSTEM ${PROJECT_SOURCE_DIR} ${ROOT_INCLUDE_DIR})
+include_directories(SYSTEM ${PROJECT_SOURCE_DIR} ${ROOT_INCLUDE_DIR})
 
 ############
 # postscript
 
-SET( libpostscript_SOURCES
+set( libpostscript_SOURCES
   Postscript.cxx
 )
 
-ADD_ROOT_DICTIONARIES( libpostscript_SOURCES
+add_root_dictionaries( libpostscript_SOURCES
   PostscriptLinkDef.h
 )
 
-ADD_LIBRARY( AliUtilPostscript SHARED ${libpostscript_SOURCES} )
-TARGET_LINK_LIBRARIES( AliUtilPostscript ${ROOT_LIBRARIES})
+add_library( AliUtilPostscript SHARED ${libpostscript_SOURCES} )
+target_link_libraries( AliUtilPostscript ${ROOT_LIBRARIES})
 
 ############
 # base
 
-SET( libbase_SOURCES
+set( libbase_SOURCES
   Color.cxx
   Debug.cxx
   Draw.cxx
@@ -43,7 +43,7 @@ SET( libbase_SOURCES
  )
 
 
-ADD_ROOT_DICTIONARIES( libbase_SOURCES
+add_root_dictionaries( libbase_SOURCES
   ALI_MACROLinkDef.h
   ColorLinkDef.h
   DebugLinkDef.h
@@ -56,8 +56,8 @@ ADD_ROOT_DICTIONARIES( libbase_SOURCES
   UtilsLinkDef.h
 )
 
-ADD_LIBRARY( AliUtilBase SHARED ${libbase_SOURCES} )
-TARGET_LINK_LIBRARIES( AliUtilBase ${ROOT_LIBRARIES})
+add_library( AliUtilBase SHARED ${libbase_SOURCES} )
+target_link_libraries( AliUtilBase ${ROOT_LIBRARIES})
 
 ### install
-INSTALL( TARGETS AliUtilPostscript AliUtilBase DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
+install( TARGETS AliUtilPostscript AliUtilBase DESTINATION ${CMAKE_install_PREFIX}/lib )
