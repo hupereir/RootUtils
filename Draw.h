@@ -6,23 +6,12 @@
 #include <TH1.h>
 #include <TGraph.h>
 #include <TGraphErrors.h>
+#include <TLine.h>
 #include <TMarker.h>
 #include <TPaveStats.h>
 #include <TLatex.h>
 #include <TString.h>
 
-/*!
-\file Draw.h
-\brief some root utilities to handle histograms safely
-\author	Hugo Pereira
-\version $Revision: 1.8 $
-\date $Date: 2011/07/01 15:15:05 $
-*/
-
-/*!
-\class Draw
-\brief some graphical root utilities
-*/
 class Draw:public TObject {
 
   public:
@@ -65,9 +54,6 @@ class Draw:public TObject {
   //! add text
   static TLatex* PutText( Double_t x_ndc, Double_t y_ndc, const int& color, TString text );
 
-  //! apply scale factor to TPaveStats object. Both to fonts and size
-  static TPaveStats* ResizeStats( Double_t scale=1, Int_t dimension = WIDTH | HEIGHT  );
-
   //! display latest drawn histogram PaveStat together with original PaveStats
   static TPaveStats* UpdateStats(
     Int_t direction = NONE,
@@ -76,10 +62,16 @@ class Draw:public TObject {
     Int_t scale = 1,
     Int_t option = 0 );
 
+  //! display latest drawn histogram PaveStat together with original PaveStats
+  static void UpdatePave(
+    TPaveText*,
+    Int_t direction = DOWN,
+    Int_t color = 1,
+    Int_t scale = 1,
+    Int_t option = TRANSPARENT );
+
   //! update TPaveText size according to it's number of lines
-  static void UpdatePaveSize(
-    TPaveText *text,
-    Int_t direction = DOWN );
+  static void UpdatePaveSize( TPaveText*, Int_t direction = DOWN );
 
   //! modify histogram axis sizes using flags and new size
   static void ResizeAxis( TH1* h, Double_t size, Int_t flag = ALL, Bool_t update = false );
@@ -163,6 +155,12 @@ class Draw:public TObject {
     Int_t n,
     Double_t* x, Double_t* yLow, Double_t* yHigh,
     Int_t color = 1 );
+
+  //! vertical line
+  static TLine* VerticalLine( TVirtualPad*, Double_t );
+
+  //! vertical line
+  static TLine* HorizontalLine( TVirtualPad*, Double_t );
 
   private:
 
