@@ -148,6 +148,21 @@ Double_t* Utils::GetRelativeDifferenceError( Double_t* values, Double_t* errors,
 }
 
 //________________________________________________________________________
+Double_t Utils::GetEfficiency( Double_t ref, Double_t found )
+{ return ref > 0 ? found/ref : 0; }
+
+//________________________________________________________________________
+Double_t Utils::GetEffError( Double_t ref, Double_t found )
+{
+  if( ref <= 0 ) return 0;
+
+  Double_t eff( GetEfficiency( ref, found ) );
+  if( eff > 1 ) return 0;
+
+  return TMath::Sqrt( eff*(1.0-eff)/ref );
+}
+
+  //________________________________________________________________________
 void Utils::DumpHistogram( TH1* h )
 {
 
@@ -812,13 +827,10 @@ Double_t Utils::DivideHistograms(TH1* h1, TH1* h2, TH1* h3, UInt_t i1, UInt_t i2
 
       } else {
 
-        e3 = (b2 != 0) ? b3*TMath::Sqrt(
-          ALI_MACRO::SQUARE( 1.0/TMath::Sqrt(b1) )
-          + ALI_MACRO::SQUARE( 1.0/TMath::Sqrt(b2) )
-          ):0;
-
-        if( b1 == 0 && b2 ) e3 = 0.00001;
-
+        if( b1 != 0 ) e3 += ALI_MACRO::SQUARE( 1.0/TMath::Sqrt(b1) );
+        if( b2 != 0 ) e3 += ALI_MACRO::SQUARE( 1.0/TMath::Sqrt(b2) );
+        e3 = b3*TMath::Sqrt(e3);
+        if( e3 == 0 ) e3 = 0.00001;
       }
 
       h3->SetBinContent(i,b3);

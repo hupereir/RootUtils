@@ -78,7 +78,13 @@ class Utils:public TObject
   //! get average for a number measurements
   static Double_t* GetRelativeDifferenceError( Double_t*, Double_t*, Int_t );
 
-    //! delete object from name
+  //! get the efficiency (ratio) from two numbers
+  static Double_t GetEfficiency( Double_t reference, Double_t found );
+
+  //! get the efficiency (ratio) errir from two numbers
+  static Double_t GetEffError( Double_t reference, Double_t found );
+
+  //! delete object from name
   static void DeleteObject( TString );
 
   //! dump histogram
@@ -247,13 +253,13 @@ class Utils:public TObject
   };
 
   //! divides 2 histograms bin/bin; stores the result in an third histo; returns ratio of the number of entries in the 2 histo
-  static Double_t DivideHistograms(TH1* h_found, TH1* h_ref, TH1* h3, Int_t error_mode = EFF );
+  static Double_t DivideHistograms(TH1* hFound, TH1* hRef, TH1* h3, Int_t errorMode = EFF );
 
   //! divides 2 histograms bin/bin; stores the result in an third histo; returns ratio of the number of entries in the 2 histo
-  static Double_t DivideHistograms2D(TH2* h_found, TH2* h_ref, TH2* h3, Int_t error_mode = EFF);
+  static Double_t DivideHistograms2D(TH2* hFound, TH2* hRef, TH2* h3, Int_t errorMode = EFF);
 
   //! divides 2 histograms bin/bin whith specified range; stores the result in an third histo; returns ratio of the number of entries in the 2 histo
-  static Double_t DivideHistograms(TH1* h_found, TH1* h_ref, TH1* h3, UInt_t i1, UInt_t i2, Int_t error_mode = EFF);
+  static Double_t DivideHistograms(TH1* hFound, TH1* hRef, TH1* h3, UInt_t i1, UInt_t i2, Int_t errorMode = EFF);
 
   //! divides too TGraphs point/point; stores the result in 3 TGraph
   static TGraphErrors* DivideTGraphs( TGraphErrors* tg_found, TGraphErrors* tg_ref );
