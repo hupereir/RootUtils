@@ -140,7 +140,8 @@ void Table::PrintLatex( std::ostream& out, int firstLine, int nLines ) const
     out << "\\begin{tabular}{";
     for( int column = 0; column < fColumns.size(); column++ )
     {
-      if( fColumns[column]->GetType() & ColumnBase::HAS_HEADER ) {
+      if( fColumns[column]->GetType() & ColumnBase::HAS_HEADER )
+      {
         out << fColumns[column]->GetAlignment();
         if( column < fColumns.size()-1 ) out << "|";
       }
@@ -168,12 +169,12 @@ void Table::PrintLatex( std::ostream& out, int firstLine, int nLines ) const
   {
     for( int column = 0; column < fColumns.size(); column++ )
     {
-      std::string value_string( fColumns[column]->GetString(line) );
+      std::string valueString( fColumns[column]->GetString(line) );
 
       // convert exp to latex format
-      while( value_string.find( "e-0" ) != std::string::npos ) value_string = Stream::ReplaceAll( value_string, "e-0", "e-" );
-      while( value_string.find( "e0" ) != std::string::npos ) value_string = Stream::ReplaceAll( value_string, "e0", "e" );
-      if( value_string.find( "e" ) != std::string::npos ) value_string = Stream::ReplaceAll( value_string, "e", "\\;10^{" )+"}";
+      while( valueString.find( "e-0" ) != std::string::npos ) valueString = Stream::ReplaceAll( valueString, "e-0", "e-" );
+      while( valueString.find( "e0" ) != std::string::npos ) valueString = Stream::ReplaceAll( valueString, "e0", "e" );
+      if( valueString.find( "e" ) != std::string::npos ) valueString = Stream::ReplaceAll( valueString, "e", "\\;10^{" )+"}";
 
       // print column
       if( column == 0 ) out << "$";
@@ -183,7 +184,7 @@ void Table::PrintLatex( std::ostream& out, int firstLine, int nLines ) const
       if( fColumns[column]->GetType() == ColumnBase::ERROR ) out << " \\pm ";
       if( fColumns[column]->GetType() == ColumnBase::ERROR_PLUS ) out << "^{+";
       if( fColumns[column]->GetType() == ColumnBase::ERROR_MINUS ) out << "_{-";
-      out << value_string;
+      out << valueString;
       if( fColumns[column]->GetType() == ColumnBase::ERROR_PLUS ) out << "}";
       if( fColumns[column]->GetType() == ColumnBase::ERROR_MINUS ) out << "}";
       if( fColumns[column]->GetType() == ColumnBase::INTERVAL_END ) out << "]";
@@ -228,13 +229,13 @@ void Table::PrintText( std::ostream& out, int firstLine, int nLines ) const
   {
     for( int column = 0; column < fColumns.size(); column++ )
     {
-      std::string value_string( fColumns[column]->GetString(line) );
+      std::string valueString( fColumns[column]->GetString(line) );
 
       // convert exp to latex format
-      while( value_string.find( "e-0" ) != std::string::npos ) value_string = Stream::ReplaceAll( value_string, "e-0", "e-" );
-      while( value_string.find( "e0" ) != std::string::npos ) value_string = Stream::ReplaceAll( value_string, "e0", "e" );
-      if( value_string.find( "e" ) != std::string::npos )
-        value_string = Stream::ReplaceAll( value_string, "e", " 10^" );
+      while( valueString.find( "e-0" ) != std::string::npos ) valueString = Stream::ReplaceAll( valueString, "e-0", "e-" );
+      while( valueString.find( "e0" ) != std::string::npos ) valueString = Stream::ReplaceAll( valueString, "e0", "e" );
+      if( valueString.find( "e" ) != std::string::npos )
+        valueString = Stream::ReplaceAll( valueString, "e", " 10^" );
 
       // print column
       else if( fColumns[column]->GetType() & ColumnBase::HAS_HEADER ) out << "   ";
@@ -243,7 +244,7 @@ void Table::PrintText( std::ostream& out, int firstLine, int nLines ) const
       if( fColumns[column]->GetType() == ColumnBase::ERROR ) out << " +/- ";
       if( fColumns[column]->GetType() == ColumnBase::ERROR_PLUS ) out << " +";
       if( fColumns[column]->GetType() == ColumnBase::ERROR_MINUS ) out << " -";
-      out << value_string;
+      out << valueString;
       if( fColumns[column]->GetType() == ColumnBase::INTERVAL_END ) out << "]";
 
     }
@@ -277,4 +278,72 @@ void Table::PrintC( std::ostream& out, int firstLine, int nLines ) const
       out << "}; " << std::endl;
     }
   }
+
+}
+
+
+//_________________________________________________________________
+void Table::PrintHep( std::ostream& out, int firstLine, int nLines ) const
+{
+
+  if( !(fFlags & SKIP_HEADER) )
+  { out << "*dataset:" << std::endl; }
+
+  // get min number of entries in the columns
+  int nLinesMax = (*std::min_element( fColumns.begin(), fColumns.end(), SizeLessFTor() ))->Size();
+  if( nLines ) nLinesMax = std::min( nLinesMax, nLines+firstLine );
+
+  // dump values
+  for( int line = firstLine; line < nLinesMax; line++ )
+  {
+
+    bool foundSyst( false );
+    bool hasSyst( false );
+    bool hasStat( false );
+    for( int column = 0; column < fColumns.size(); column++ )
+    {
+      std::string valueString( fColumns[column]->GetString(line) );
+
+      // formats
+      if( fColumns[column]->GetType() & ColumnBase::ERROR_SYST && !hasSyst )
+      {
+        foundSyst = true;
+        out << " (DSYS=";
+      }
+
+      if( fColumns[column]->GetType() & ColumnBase::ERROR_PLUS )
+      {
+        if( fColumns[column]->GetType() & ColumnBase::ERROR_SYST && hasSyst ) out << "; DSYS=";
+        out << " +";
+      }
+      else if( fColumns[column]->GetType() & ColumnBase::ERROR_MINUS ) out << " , -";
+      else if( fColumns[column]->GetType() & ColumnBase::ERROR )
+      {
+        if( fColumns[column]->GetType() & ColumnBase::ERROR_STAT ) out << " +- ";
+        else if( fColumns[column]->GetType() & ColumnBase::ERROR_SYST && hasSyst ) out << "; DSYS=";
+      }
+      else if( fColumns[column]->GetType() & ColumnBase::INTERVAL_END ) out << " TO ";
+      else if( column > 0 ) out << "; ";
+
+      // value
+      out << valueString;
+
+      // trailer
+      if( (fColumns[column]->GetType() & (ColumnBase::ERROR|ColumnBase::ERROR_MINUS) ) &&
+        ( fColumns[column]->GetType() & ColumnBase::ERROR_SYST ) &&
+        !fColumns[column]->GetName().IsNull() )
+      { out << ":" << fColumns[column]->GetName(); }
+
+      if( foundSyst ) hasSyst = true;
+
+    }
+
+    if( hasSyst ) out << ");" << std::endl;
+    else out << ";" << std::endl;
+
+  }
+
+  if( !(fFlags & SKIP_TRAILER) )
+  { out << "*dataend:" << std::endl << std::endl; }
+
 }

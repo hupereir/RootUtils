@@ -37,6 +37,8 @@ class ColumnBase
         ERROR_MINUS = 1<<3,
         INTERVAL_BEGIN = 1<<4,
         INTERVAL_END = 1<<5,
+        ERROR_STAT = 1<<6,
+        ERROR_SYST = 1<<7,
         HAS_HEADER = INTERVAL_BEGIN | NONE
     };
 
@@ -44,7 +46,7 @@ class ColumnBase
     ColumnBase(
         const char* name = "empty column",
         const char* format = "",
-        const ColumnType& type = NONE ):
+        int type = NONE ):
         fName( name ),
         fFormat( format ),
         fType( type ),
@@ -64,7 +66,7 @@ class ColumnBase
     { return fFormat; }
 
     //! column type
-    virtual const ColumnType& GetType( void ) const
+    virtual int GetType( void ) const
     { return fType; }
 
     //! alignment
@@ -80,7 +82,7 @@ class ColumnBase
     { fFormat = format; }
 
     //! column type
-    virtual void SetType( const ColumnType& type )
+    virtual void SetType( int type )
     { fType = type; }
 
     //! alignment
@@ -95,7 +97,7 @@ class ColumnBase
     }
 
     //! scale values (using double)
-    virtual void Scale( const double& value )
+    virtual void Scale( double value )
     {
         std::cout << "ColumnBase::scale - not implemented" << std::endl;
         return;
@@ -148,7 +150,7 @@ class ColumnBase
     TString fFormat;
 
     //! column type
-    ColumnType fType;
+    int fType;
 
     //! alignment
     TString fAlignment;
@@ -170,9 +172,9 @@ template<typename T> class Column: public ColumnBase
     Column(
         const char* name = "empty column",
         const TString* values = 0,
-        const int& size = 0,
+        int size = 0,
         const char* format = "",
-        const ColumnType& type = NONE ):
+        int type = NONE ):
         ColumnBase( name, format, type )
     { for( int i=0; i<size; i++ ) AddValue( values[i] ); }
 
@@ -259,9 +261,9 @@ class ColumnDouble: public Column<double>
     ColumnDouble(
         const char* name = "",
         const TString* values = 0,
-        const int& size = 0,
+        int size = 0,
         const char* format = "%f",
-        const ColumnType& type = NONE ):
+        int type = NONE ):
         Column<double>( name, values, size, format, type )
     {}
 
@@ -269,9 +271,9 @@ class ColumnDouble: public Column<double>
     ColumnDouble(
         const char* name,
         const double* values = 0,
-        const int& size = 0,
+        int size = 0,
         const char* format = "%f",
-        const ColumnType& type = NONE ):
+        int type = NONE ):
         Column<double>( name, 0, 0, format, type )
     {
         for( int i=0; i<size; i++ )
@@ -284,7 +286,7 @@ class ColumnDouble: public Column<double>
     {}
 
     //! scale all values
-    virtual void Scale( const double& value )
+    virtual void Scale( double value )
     {
         for( int i=0; i<fValues.size(); i++ )
         { fValues[i]*=value; }
@@ -314,9 +316,9 @@ class ColumnString: public Column<TString>
     ColumnString(
         const char* name = "",
         const TString* values = 0,
-        const int& size = 0,
+        int size = 0,
         const char* format = "%s",
-        const ColumnType& type = NONE ):
+        int type = NONE ):
         Column<TString>( name, values, size, format, type )
     {}
 
@@ -324,9 +326,9 @@ class ColumnString: public Column<TString>
     ColumnString(
         const char* name,
         const char* values[],
-        const int& size = 0,
+        int size = 0,
         const char* format = "%s",
-        const ColumnType& type = NONE ):
+        int type = NONE ):
         Column<TString>( name, 0, 0, format, type )
     {
         for( int i=0; i<size; i++ )
@@ -448,9 +450,9 @@ class Table: public TObject
     void AddColumn(
         const char* name,
         const double* values,
-        const int& size,
+        int size,
         const char* format = "%f",
-        const ColumnBase::ColumnType& type = ColumnBase::NONE )
+        int type = ColumnBase::NONE )
     { fColumns.push_back( new ColumnDouble( name, values, size, format, type ) ); }
 
 
@@ -458,16 +460,16 @@ class Table: public TObject
     void AddStringColumn(
         const char* name,
         const char* values[],
-        const int& size,
+        int size,
         const char* format = "%f",
-        const ColumnBase::ColumnType& type = ColumnBase::NONE )
+        int type = ColumnBase::NONE )
     { fColumns.push_back( new ColumnString( name, values, size, format, type ) ); }
 
     //! Add a column
     void AddErrorColumn(
         const char* name,
         const double* values,
-        const int& size,
+        int size,
         const char* format = "%f" )
     { fColumns.push_back( new ColumnDouble( name, values, size, format, ColumnBase::ERROR ) ); }
 
@@ -492,7 +494,7 @@ class Table: public TObject
     }
 
     //! set column type
-    void SetColumnType( int column, const ColumnBase::ColumnType& type )
+    void SetColumnType( int column, int type )
     {
         if( type && !CheckColumn( column ) ) return;
         fColumns[column]->SetType( type );
@@ -506,7 +508,7 @@ class Table: public TObject
     }
 
     //! scale column
-    void ScaleColumn( int column, const double& value )
+    void ScaleColumn( int column, double value )
     {
         if( !CheckColumn( column ) ) return;
         fColumns[column]->Scale( value );
@@ -518,6 +520,14 @@ class Table: public TObject
         if( !CheckColumn( column ) ) return;
         fColumns[column]->Scale( values );
     }
+
+    //! scale last column
+    void ScaleLastColumn( double value )
+    { ScaleColumn( fColumns.size()-1, value ); }
+
+    //! scale last column
+    void ScaleLastColumn( double* values )
+    { ScaleColumn( fColumns.size()-1, values ); }
 
     //! scale column (replace first by first x second)
     void MultiplyColumn( int first, int second )
@@ -574,6 +584,13 @@ class Table: public TObject
 
     //! print table in c format
     void PrintC( std::ostream& out, int firstLine = 0, int n_line = 0 ) const;
+
+    //! print tabe in hep format
+    void PrintHep( int firstLine = 0, int n_line = 0 ) const
+    { PrintHep( std::cout, firstLine, n_line ); }
+
+    //! print table in c format
+    void PrintHep( std::ostream& out, int firstLine = 0, int n_line = 0 ) const;
 
     //@}
 
