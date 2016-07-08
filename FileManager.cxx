@@ -58,17 +58,18 @@ void FileManager::AddDirectory( TString directory )
 }
 
 //_________________________________________________
-void FileManager::AddFiles( TString selection )
+bool FileManager::AddFiles( TString selection )
 {
-  if( !selection.Length() ) return;
+  if( !selection.Length() ) return false;
 
   TString filename( selection );
   if( filename.First( "alien://" ) == 0 )
   {
     fFiles.insert( filename );
-    return;
+    return true;
   }
 
+  bool added = false;
   TString command = TString("ls -1 ") + selection;
   FILE *tmp = popen( command.Data(), "r" );
   char line[512];
@@ -84,11 +85,14 @@ void FileManager::AddFiles( TString selection )
       continue;
     }
 
+    added = true;
     fFiles.insert( name_str );
     delete[] name;
 
   }
   pclose( tmp );
+
+  return added;
 
 }
 
@@ -415,7 +419,7 @@ TChain* FileManager::GetChain( TString key ) const
     // load tree
     TTree * tree = (TTree*) f->Get( key );
     if( !tree ) {
-      std::cout << "FileManager::GetChain - Unable to load chain \"" << key << "\".\n";
+      std::cout << "FileManager::GetChain - Unable to load chain \"" << key << "\" in \"" << *iter << "\".\n";
       delete f;
       continue;
     }
@@ -594,23 +598,24 @@ TH1* FileManager::GetTH1( TString key ) const
       continue;
     }
 
-    TObject* object( f->Get( key ) );
-    if( !( object && object->IsA()->InheritsFrom("TH1") ) )
+    TH1* h = dynamic_cast<TH1*>( f->Get( key ) );
+    if( !h )
     {
       std::cout << "FileManager::GetTH1 - load histogram from \"" << *iter << "\" failed.\n";
       delete f;
       continue;
     }
 
-    TH1* h = (TH1*) object;
-
     // dump file
     if( fVerbosity >= ALI_MACRO::SOME )
     { std::cout << "FileManager::GetTH1 - loading \"" << *iter << "\".\n"; }
 
-    if( !out ) {
+    if( !out )
+    {
+
       gROOT->cd();
       out = (TH1*)h->Clone();
+
     } else out->Add( h );
 
     delete f;
@@ -644,15 +649,13 @@ TH2* FileManager::GetTH2( TString key ) const
       continue;
     }
 
-    TObject* object( f->Get( key ) );
-    if( !( object && object->IsA()->InheritsFrom("TH2") ) )
+    TH2* h = dynamic_cast<TH2*>( f->Get( key ) );
+    if( !h )
     {
       std::cout << "FileManager::GetTH1 - load histogram from \"" << *iter << "\".\n";
       delete f;
       continue;
     }
-
-    TH2* h = (TH2*) object;
 
     // dump file
     if( fVerbosity >= ALI_MACRO::SOME )
@@ -664,6 +667,120 @@ TH2* FileManager::GetTH2( TString key ) const
       gROOT->cd();
       out = (TH2*) h->Clone();
 
+    } else out->Add( h );
+
+    delete f;
+
+  }
+
+  return out;
+
+}
+
+//_________________________________________________
+TH1* FileManager::GetTH1FromList( TString key, TString listKey ) const
+{
+
+  if( !(key && strlen( key ) ) ) return 0;
+  if( Empty() ) return 0;
+
+  // check if histogram with requested name exists
+  ALI_MACRO::Delete<TH1>( key );
+  TH1* out( 0 );
+
+  for( FileSet::iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
+  {
+
+    // open TFile
+    TFile* f = TFile::Open( iter->Data() );
+    if( !( f && f->IsOpen() ) )
+    {
+      std::cout << "FileManager::GetTH1FromList - troubles with TFile \"" << *iter << "\".\n";
+      delete f;
+      continue;
+    }
+
+    TList* list = dynamic_cast<TList*>( f->Get( listKey ) );
+    if( !list )
+    {
+      std::cout << "FileManager::GetTH1FromList - load list from \"" << *iter << "\" failed.\n";
+      delete f;
+      continue;
+    }
+
+    // list
+    TH1* h = dynamic_cast<TH1*>( list->FindObject( key ) );
+    if( !h )
+    {
+      std::cout << "FileManager::GetTH1FromList - load histogram from \"" << *iter << "\" failed.\n";
+      delete f;
+      continue;
+    }
+
+    // dump file
+    if( fVerbosity >= ALI_MACRO::SOME )
+    { std::cout << "FileManager::GetTH1 - loading \"" << *iter << "\".\n"; }
+
+    if( !out ) {
+      gROOT->cd();
+      out = (TH1*)h->Clone();
+    } else out->Add( h );
+
+    delete f;
+
+  }
+
+  return out;
+
+}
+
+//_________________________________________________
+TH2* FileManager::GetTH2FromList( TString key, TString listKey ) const
+{
+
+  if( !(key && strlen( key ) ) ) return 0;
+  if( Empty() ) return 0;
+
+  // check if histogram with requested name exists
+  ALI_MACRO::Delete<TH2>( key );
+  TH2* out( 0 );
+
+  for( FileSet::iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
+  {
+
+    // open TFile
+    TFile* f = TFile::Open( iter->Data() );
+    if( !( f && f->IsOpen() ) )
+    {
+      std::cout << "FileManager::GetTH2FromList - troubles with TFile \"" << *iter << "\".\n";
+      delete f;
+      continue;
+    }
+
+    TList* list = dynamic_cast<TList*>( f->Get( listKey ) );
+    if( !list )
+    {
+      std::cout << "FileManager::GetTH2FromList - load list from \"" << *iter << "\" failed.\n";
+      delete f;
+      continue;
+    }
+
+    // list
+    TH2* h = dynamic_cast<TH2*>( list->FindObject( key ) );
+    if( !h )
+    {
+      std::cout << "FileManager::GetTH2FromList - load histogram from \"" << *iter << "\" failed.\n";
+      delete f;
+      continue;
+    }
+
+    // dump file
+    if( fVerbosity >= ALI_MACRO::SOME )
+    { std::cout << "FileManager::GetTH2 - loading \"" << *iter << "\".\n"; }
+
+    if( !out ) {
+      gROOT->cd();
+      out = (TH2*)h->Clone();
     } else out->Add( h );
 
     delete f;

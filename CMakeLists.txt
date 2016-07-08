@@ -3,7 +3,11 @@ project(AliUtil CXX)
 
 ######################
 # module path
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
+
+######
+# GSL
+find_package(GSL REQUIRED)
 
 ######
 # ROOT
@@ -11,31 +15,19 @@ find_package(ROOT REQUIRED)
 
 ######################
 # include directories
-include_directories(SYSTEM ${PROJECT_SOURCE_DIR} ${ROOT_INCLUDE_DIR})
-
-############
-# postscript
-
-set( libpostscript_SOURCES
-  Postscript.cxx
-)
-
-add_root_dictionaries( libpostscript_SOURCES
-  PostscriptLinkDef.h
-)
-
-add_library( AliUtilPostscript SHARED ${libpostscript_SOURCES} )
-target_link_libraries( AliUtilPostscript ${ROOT_LIBRARIES})
+include_directories(SYSTEM ${PROJECT_SOURCE_DIR} ${ROOT_INCLUDE_DIR} )
 
 ############
 # base
 
 set( libbase_SOURCES
+  ChisquareFitter.cxx
   Color.cxx
   Debug.cxx
   Draw.cxx
   FileManager.cxx
   FitUtils.cxx
+  LikelihoodFitter.cxx
   Stream.cxx
   Table.cxx
   TH2Fit.cxx
@@ -57,7 +49,7 @@ add_root_dictionaries( libbase_SOURCES
 )
 
 add_library( AliUtilBase SHARED ${libbase_SOURCES} )
-target_link_libraries( AliUtilBase ${ROOT_LIBRARIES})
+target_link_libraries( AliUtilBase ${ROOT_LIBRARIES} ${GSL_LIBRARIES})
 
 ### install
-install( TARGETS AliUtilPostscript AliUtilBase DESTINATION ${CMAKE_install_PREFIX}/lib )
+install( TARGETS AliUtilBase DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )

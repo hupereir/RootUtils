@@ -1,18 +1,11 @@
-// $Id: FitUtils.h,v 1.1 2008/07/31 16:52:31 hpereira Exp $
 #ifndef FitUtils_h
 #define FitUtils_h
 
-/*!
-	\file	 Fit.h
-	\brief some usefull functions for fits
-	\author Hugo Pereira
-	\version $Revision: 1.1 $
-	\date	 $Date: 2008/07/31 16:52:31 $
-*/
-
-#include<TROOT.h>
-#include<TObject.h>
-#include<TH1.h>
+#include <TROOT.h>
+#include <TObject.h>
+#include <TH1.h>
+#include <TF1.h>
+#include <TFitResultPtr.h>
 
 /*!
 	\class   Fit
@@ -32,6 +25,9 @@ namespace UTILS
 
     //! embeded fit
     static void Fit( TH1*, const char* ffName, FitFunction, Double_t min, Double_t max, int n_par, Double_t *pars = 0 );
+
+    /// fit
+    static TFitResultPtr Fit( TH1*, TF1*, TString );
 
     //! normalized gauss
     static Double_t Gaus( Double_t x, Double_t mean, Double_t sigma );

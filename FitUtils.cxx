@@ -1,20 +1,16 @@
 // $Id: FitUtils.cxx,v 1.1 2008/07/31 16:52:30 hpereira Exp $
 
-/*!
-	\file Fit.cxx
-	\brief some usefull functions for fits
-	\author  Hugo Pereira
-	\version $Revision: 1.1 $
-	\date $Date: 2008/07/31 16:52:30 $
-*/
+#include "FitUtils.h"
+
+#include "ALI_MACRO.h"
+#include "ChisquareFitter.h"
+#include "LikelihoodFitter.h"
 
 #include <TROOT.h>
 #include <TMath.h>
 #include <TF1.h>
+#include <TVirtualFitter.h>
 #include <cmath>
-
-#include "FitUtils.h"
-#include "ALI_MACRO.h"
 
 using namespace UTILS;
 
@@ -36,6 +32,53 @@ void FitUtils::Fit( TH1* h, const char* ffName, FitUtils::FitFunction Fcn, Doubl
 
   return;
 }
+
+//_______________________________________________________________________________
+TFitResultPtr FitUtils::Fit( TH1* h, TF1* f, TString option )
+{
+
+  // setup virtual fitter
+  if( option.Contains( "U" ) )
+  {
+
+    if( option.Contains( "L" ) )
+    {
+
+      std::cout << "FitUtils::Fit - using local Likelihood fitter" << std::endl;
+      TVirtualFitter::Fitter(h)->SetFCN( LikelihoodFitter::Fcn );
+
+    } else {
+
+      std::cout << "FitUtils::Fit - using local chisquare fitter" << std::endl;
+      TVirtualFitter::Fitter(h)->SetFCN( ChisquareFitter::Fcn );
+
+    }
+
+  } else if( option.Contains( "L" ) ) {
+
+    std::cout << "FitUtils::Fit - using default Likelihood fitter" << std::endl;
+
+  } else {
+
+    std::cout << "FitUtils::Fit - using default chisquare fitter" << std::endl;
+
+  }
+
+  // fit
+  TFitResultPtr result =  h->Fit( f, option );
+
+  if( option.Contains( "U" ) )
+  {
+
+    std::cout << "FitUtils::Fit - calculating chisquare manually" << std::endl;
+    f->SetChisquare( ChisquareFitter::Chisquare( h, f ) );
+
+  }
+
+  return result;
+
+}
+
 
 //_______________________________________________________________________________
 Double_t FitUtils::Gaus( Double_t x, Double_t mean, Double_t sigma )
@@ -116,7 +159,6 @@ Double_t FitUtils::CrystallBall( Double_t x, Double_t mean, Double_t sigma, Doub
 
 }
 
-
 //____________________________________________
 Double_t FitUtils::CrystallBall2( Double_t *x, Double_t *par )
 {
@@ -160,7 +202,7 @@ Double_t FitUtils::CrystallBallIntegral( Double_t sigma, Double_t alpha, Double_
   alpha = fabs( alpha );
   return sigma*(
     n/(alpha*(n-1))*TMath::Exp( -ALI_MACRO::SQUARE( alpha )/2 ) +
-    TMath::Sqrt( TMath::Pi()/2 )*TMath::Erfc( -alpha/TMath::Sqrt(2) ));
+    TMath::Sqrt( TMath::Pi()/2 )*TMath::Erfc( -alpha/TMath::Sqrt(2) ) );
 
 }
 

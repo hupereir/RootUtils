@@ -25,48 +25,48 @@ class TH1;
 class TH2;
 class TDirectory;
 
-//! handles list of files for merging
+//* handles list of files for merging
 //class FileManager: virtual public TObject
 class FileManager: public TObject
 {
 
     public:
 
-    //! constructor
+    //* constructor
     FileManager( TString selection = TString() ):
         fVerbosity( ALI_MACRO::NONE )
     { AddFiles( selection ); }
 
-    //! clear selection
+    //* clear selection
     void Clear( void )
     { fFiles.clear(); }
 
-    //! load an entire directory
+    //* load an entire directory
     void AddDirectory( TString directory );
 
-    //! add files to existing list
-    void AddFiles( TString selection );
+    //* add files to existing list
+    bool AddFiles( TString selection );
 
-    //! add files from list
-    void AddList( TString file_list );
+    //* add files from list
+    void AddList( TString fileList );
 
-    //! remove files from existing list
+    //* remove files from existing list
     void RemoveFiles( TString selection );
 
-    //! remove files from existing list
+    //* remove files from existing list
     void RemoveList( TString file_list );
 
-    //! check if root files are valid
+    //* check if root files are valid
     /*! possibly dumps the bad fines in output */
     bool CheckFiles( void ) const;
 
-    //! check if tree is valid for each file. Dump its entries
+    //* check if tree is valid for each file. Dump its entries
     bool CheckTree( TString = TString(), Int_t = 0 ) const;
 
-    //!check all the trees in a file.
+    //*check all the trees in a file.
     bool CheckAllTrees( void ) const;
 
-    //! returns true if file list is empty
+    //* returns true if file list is empty
     bool Empty( void ) const
     {
         if( fFiles.size() ) return false;
@@ -83,87 +83,93 @@ class FileManager: public TObject
     */
     void MakeBackup( void ) const;
 
-    //! Merge TChain from files
+    //* Merge TChain from files
     TChain* GetChain( TString key ) const;
 
-    //! filter Tree
+    //* filter Tree
     //TTree* filter_tree( TString key, const TCut& cut );
 
-    //! project chain from files into histogram
+    //* project chain from files into histogram
     /*
     note this method do not Merge the trees but opens them one after the
     other, project the tree, sums the result. This leads to smaller memory
     consumption
     */
     TH1* TreeToHisto(
-        TString tree_name,
+        TString treeName,
         TString name,
         TString var,
         TCut cut ) const;
 
     #ifndef __CINT__
-    //! project chain from files into histograms define by projections
-    void TreeToHisto( const TString& tree_name, ProjectionList& projection_list ) const;
+    //* project chain from files into histograms define by projections
+    void TreeToHisto( const TString& treeName, ProjectionList& projection_list ) const;
     #endif
 
-    //! Merge TH1 from files
+    //* Merge TH1 from files
     TH1* GetTH1( TString key ) const;
 
-    //! Merge TH2 from files
+    //* Merge TH2 from files
     TH2* GetTH2( TString key ) const;
 
-    //!  Merge all trees/histograms found in file_selection into output_file
-    void Merge( TString output_file = "out.root", TString selection="", TString option = "" ) const;
+    //* Get TH2 from TList
+    TH1* GetTH1FromList( TString key, TString list ) const;
 
-    //! Merge all histograms found in file_selection into output file
+    //* Get TH2 from TList
+    TH2* GetTH2FromList( TString key, TString list ) const;
+
+    //*  Merge all trees/histograms found in file_selection into output_file
+    void Merge( TString = "out.root", TString selection="", TString option = "" ) const;
+
+    //* Merge all histograms found in file_selection into output file
     /*! keeps TDirectory structure of the input files into output file */
-    void MergeRecursive( TString output_file = "out.root", TString selection="" ) const;
+    void MergeRecursive( TString = "out.root", TString selection="" ) const;
 
-    //! write files
+    //* write files
     void DumpFiles( void ) const;
 
-    //! shortcut for set of files
+    //* shortcut for set of files
     typedef std::set< TString > FileSet;
     typedef std::vector< TString > FileList;
 
-    //! get number of files
+    //* get number of files
     unsigned int GetNFiles( void ) const
     { return fFiles.size(); }
 
-    //! get list of files
+    //* get list of files
     const FileSet& GetFiles( void ) const
     { return fFiles; }
 
-    //! verbosity
+    //* verbosity
     ALI_MACRO::Verbosity GetVerbosity( void ) const
     { return fVerbosity; }
 
-    //! verbosity
+    //* verbosity
     void SetVerbosity( ALI_MACRO::Verbosity value )
     { fVerbosity = value; }
 
-    //!@name utility functions
+    //*@name utility functions
     //@{
 
-    //! file size
+    //* file size
     static int FileSize( TString file );
 
     //@}
 
     protected:
 
-    //! recursive merging of TDirectories
+    //* recursive merging of TDirectories
     void MergeRecursive(TDirectory *root,TDirectory* node, const TString& selection) const;
 
     private:
 
-    //! list of input files
+    //* list of input files
     FileSet fFiles;
 
-    //! verbosity
+    //* verbosity
     ALI_MACRO::Verbosity fVerbosity;
 
-    //! root dictionary
+    //* root dictionary
     ClassDef( FileManager, 0 );
 
 };

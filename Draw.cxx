@@ -17,12 +17,13 @@
 #include "Draw.h"
 
 //__________________________________________________
-//! root dictionary
+// root dictionary
 ClassImp( Draw );
 
 //__________________________________________________
 // static members
 Bool_t Draw::fDrawErrLimit = true;
+Int_t Draw::fLineColor = 1;
 Int_t Draw::fLineWidth = 2;
 Int_t Draw::fBoxFillStyle = 2;
 Int_t Draw::fFont = 42;
@@ -102,11 +103,12 @@ void Draw::DivideCanvas( TCanvas* cv, Int_t n, Bool_t respect_ratio )
 }
 
 //______________________________________________________
-TLatex* Draw::PutText( Double_t x_ndc, Double_t y_ndc, const int& color, TString value)
+TLatex* Draw::PutText( Double_t x_ndc, Double_t y_ndc, Int_t color, TString value, Double_t fontSize )
 {
   TLatex* text = new TLatex();
   text->SetNDC( true );
   text->SetTextColor(color);
+  text->SetTextSize( fontSize );
   text->DrawLatex( x_ndc, y_ndc, value );
   return text;
 }
@@ -209,7 +211,7 @@ void Draw::UpdatePaveSize(
   if( (direction & UP) || (direction & DOWN) )
   {
 
-    Double_t lineHeight( pave->GetTextSize() );
+    Double_t lineHeight( pave->GetTextSize()*1.4 );
     if( lineHeight <= 0 ) return;
 
     if( direction & UP )
@@ -659,6 +661,26 @@ TGraphErrors* Draw::DrawMarkers( Int_t n, Double_t* x, Double_t* y, Double_t* xE
 }
 
 //__________________________________________________
+TGraphErrors* Draw::DrawMarkers( Int_t n, Double_t* x, Double_t* y, Double_t* yErr, Int_t symbol, Int_t color )
+{
+  TGraphErrors* tge = new TGraphErrors();
+    for( Int_t i=0; i<n; ++i )
+  {
+    tge->SetPoint( i, 0.5*(x[i]+x[i+1]), y[i] );
+    tge->SetPointError( i, 0.5*fabs(x[i+1]-x[i]), yErr[i]  );
+
+  }
+
+  tge->SetMarkerStyle( symbol );
+  tge->SetMarkerColor( color );
+  tge->SetLineWidth( fLineWidth );
+  tge->SetLineColor( color );
+  tge->Draw( "P" );
+  return tge;
+
+}
+
+//__________________________________________________
 TGraphErrors* Draw::DrawSystematics( Int_t n, Double_t* x, Double_t* y, Double_t* yErr, Int_t color )
 {
 
@@ -729,7 +751,8 @@ TLine* Draw::VerticalLine( TVirtualPad* pad, Double_t x )
 
   TLine *line = new TLine( x, yMin, x, yMax );
   line->SetLineStyle( 2 );
-  line->SetLineWidth( 2 );
+  line->SetLineWidth( fLineWidth );
+  line->SetLineColor( fLineColor );
   return line;
 
 }
@@ -749,7 +772,8 @@ TLine* Draw::HorizontalLine( TVirtualPad* pad, Double_t y )
 
   TLine *line = new TLine( xMin, y, xMax, y );
   line->SetLineStyle( 2 );
-  line->SetLineWidth( 2 );
+  line->SetLineWidth( fLineWidth );
+  line->SetLineColor( fLineColor );
   return line;
 
 }

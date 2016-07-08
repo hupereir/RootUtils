@@ -2,6 +2,7 @@
 
 #include "ALI_MACRO.h"
 #include "Debug.h"
+#include "Stream.h"
 #include "Utils.h"
 
 #include <TFile.h>
@@ -19,6 +20,7 @@
 #include <TGraphErrors.h>
 #include <TRandom.h>
 #include <TMarker.h>
+#include <TVirtualFitter.h>
 
 #include <iostream>
 #include <fstream>
@@ -29,9 +31,12 @@
 #include <unistd.h>
 #include <map>
 
+#include "GSLError.h"
+
 //__________________________________________________
 //! root dictionary
 ClassImp( Utils );
+
 
 //_____________________________________________________________________________
 Bool_t Utils::MatrixToAngles(const Double_t *rot, Double_t *angles)
@@ -43,7 +48,7 @@ Bool_t Utils::MatrixToAngles(const Double_t *rot, Double_t *angles)
   if(TMath::Abs(rot[0])<1e-7 || TMath::Abs(rot[8])<1e-7)
   { return kFALSE; }
 
-  Double_t raddeg = TMath::RadToDeg();
+  const Double_t raddeg = TMath::RadToDeg();
   angles[0]=raddeg*TMath::ATan2(-rot[5],rot[8]);
   angles[1]=raddeg*TMath::ASin(rot[2]);
   angles[2]=raddeg*TMath::ATan2(-rot[1],rot[0]);
@@ -526,7 +531,83 @@ TH1* Utils::TreeToHisto(
 }
 
 //____________________________________________________________
-TGraphErrors* Utils::HistoToTGraph( TH1* h, Bool_t zeroSup )
+TH1* Utils::TGraphToHistogram( TGraphErrors* tg )
+{
+
+  std::vector<Double_t> bins;
+
+  for( Int_t i = 0; i < tg->GetN(); ++i )
+  {
+    Double_t x(0);
+    Double_t y(0);
+    tg->GetPoint( i, x, y );
+
+    // error
+    const Double_t errorXLow( tg->GetErrorXlow( i ) );
+    const Double_t errorXHigh( tg->GetErrorXhigh( i ) );
+
+    if( bins.empty() ) bins.push_back( x+errorXLow );
+    else if( bins.back() !=  x+errorXLow )
+    {
+      std::cerr << "Utils::TGraphToHistogram - horizontal error bars are not adjacent for bin " << i << std::endl;
+      if( bins.back() > x+errorXLow ) std::cerr << "Utils::TGraphToHistogram - Bins at index " << i << "are overlapping. Ignoring." << std::endl;
+      else bins.push_back( x+errorXLow );
+    }
+
+    bins.push_back( x+errorXHigh );
+
+  }
+
+  return TGraphToHistogram( tg, bins.size(), &bins[0] );
+
+}
+
+//____________________________________________________________
+TH1* Utils::TGraphToHistogram( TGraphErrors* tg, Int_t nBins, const Double_t* bins )
+{
+
+  const TString name = tg->GetName() ? tg->GetName():"h";
+  const TString title = tg->GetTitle() ? tg->GetTitle():"";
+
+  TH1* h = new TH1F( name, title, nBins, bins );
+  for( Int_t i = 0; i < tg->GetN(); ++i )
+  {
+
+    // position
+    Double_t x(0);
+    Double_t y(0);
+    tg->GetPoint( i, x, y );
+
+    // error
+    const Double_t errorY( tg->GetErrorY( i ) );
+
+    // find matching bin in histogram
+    const Int_t iBin = h->FindBin( x );
+    if( h->GetBinContent( iBin ) != 0 )
+    { std::cout << "Utils::TGraphToHistogram - something is wrong: several points match bin number " << iBin << std::endl; }
+
+    h->SetBinContent( iBin, y );
+    h->SetBinError( iBin, errorY );
+
+  }
+
+}
+
+//____________________________________________________________
+void Utils::TGraphToC( TGraphErrors* tgraph, TString xLabel, TString yLabel )
+{
+
+  const Int_t nBins = tgraph->GetN();
+  Stream::PrintVector( xLabel, tgraph->GetX(), nBins, "%.3f" );
+  Stream::PrintVector( Form( "%sErr", xLabel.Data() ), tgraph->GetEX(), nBins, "%.3f" );
+
+  Stream::PrintVector( yLabel, tgraph->GetY(), nBins, "%.3g" );
+  Stream::PrintVector( Form( "%sErr", yLabel.Data() ), tgraph->GetEY(), nBins, "%.3g" );
+
+}
+
+//____________________________________________________________
+TGraphErrors* Utils::HistogramToTGraph( TH1* h, Bool_t zeroSup )
 {
   if( !h ) return 0;
 

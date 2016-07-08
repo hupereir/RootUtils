@@ -28,21 +28,22 @@ class TH3;
 class TText;
 class TGraphErrors;
 
-//! some root utilities to handle histograms safely
+/// some root utilities to handle histograms safely
 class Utils:public TObject
 {
 
   public:
 
-  //! constructor (doing nothing, needed for root)
+  /// constructor (doing nothing, needed for root)
   Utils( void ):
     TObject()
   {}
 
-  // get euler angles from rotation matrix
+  /// get euler angles from rotation matrix (in degrees)
+  /// copied from AliAlignObj::MatrixToAngles
   static Bool_t MatrixToAngles(const Double_t *rot, Double_t *angles);
 
-  //! get minimum value
+  /// get minimum value
   static Double_t MinElement( Double_t* values, Int_t n )
   {
     Double_t out(0);
@@ -51,7 +52,7 @@ class Utils:public TObject
     return out;
   }
 
-  //! get maximum value
+  /// get maximum value
   static Double_t MaxElement( Double_t* values, Int_t n )
   {
     Double_t out(0);
@@ -60,37 +61,37 @@ class Utils:public TObject
     return out;
   }
 
-  //! get average for a number measurements
+  /// get average for a number measurements
   static Double_t GetMean( Double_t*, Int_t );
 
-  //! get rms for a number measurements
+  /// get rms for a number measurements
   static Double_t GetRMS( Double_t*, Int_t );
 
-  //! get average for a number measurements
+  /// get average for a number measurements
   static Double_t GetMean( Double_t*, Double_t*, Int_t );
 
-  //! get rms for a number measurements
+  /// get rms for a number measurements
   static Double_t GetRMS( Double_t*, Double_t*, Int_t );
 
-  //! get average for a number measurements
+  /// get average for a number measurements
   static Double_t* GetRelativeDifference( Double_t*, Int_t );
 
-  //! get average for a number measurements
+  /// get average for a number measurements
   static Double_t* GetRelativeDifferenceError( Double_t*, Double_t*, Int_t );
 
-  //! get the efficiency (ratio) from two numbers
+  /// get the efficiency (ratio) from two numbers
   static Double_t GetEfficiency( Double_t reference, Double_t found );
 
-  //! get the efficiency (ratio) errir from two numbers
+  /// get the efficiency (ratio) errir from two numbers
   static Double_t GetEffError( Double_t reference, Double_t found );
 
-  //! delete object from name
+  /// delete object from name
   static void DeleteObject( TString );
 
-  //! dump histogram
+  /// dump histogram
   static void DumpHistogram( TH1 *h );
 
-  //! dump function parameters
+  /// dump function parameters
   static void DumpFunctionParameters( TF1 *f );
 
   /*! \brief
@@ -116,10 +117,10 @@ class Utils:public TObject
   */
   static Double_t GetRandom( TF1* f, Double_t xMin, Double_t xMax );
 
-  //! draw normalized histogram
+  /// draw normalized histogram
   static void DrawNormalized( TTree* tree, TString name, TString var, const TCut& cut="", TString opt = "" );
 
-  //! get ideal chisquare tree for a given number of freedoms
+  /// get ideal chisquare tree for a given number of freedoms
   static TTree* GetChisquareTree(
     Int_t ndf,
     Int_t nevents );
@@ -132,7 +133,7 @@ class Utils:public TObject
   */
   static Double_t GetChisquare( Int_t ndf );
 
-  //! fills histogram from tree return histogram
+  /// fills histogram from tree return histogram
   static TH1* TreeToHisto(
     TTree *tree,
     TString name,
@@ -140,16 +141,25 @@ class Utils:public TObject
     TCut cut="",
     Bool_t autoH = kTRUE );
 
-  //! Convert an histogram into a TGraph
-  static TGraphErrors* HistoToTGraph( TH1* h, Bool_t zeroSup = kFALSE );
+  /// Convert an histogram into a TGraph
+  static TH1* TGraphToHistogram( TGraphErrors* tgraph );
 
-  //! returns number of entries (debugged)
+  /// Convert an histogram into a TGraph
+  static TH1* TGraphToHistogram( TGraphErrors* tgraph, Int_t nBins, const Double_t* bins );
+
+  /// Convert an histogram into a TGraph
+  static void TGraphToC( TGraphErrors* tgraph, TString xLabel, TString yLabel );
+
+  /// Convert an histogram into a TGraph
+  static TGraphErrors* HistogramToTGraph( TH1* h, Bool_t zeroSup = kFALSE );
+
+  /// returns number of entries (debugged)
   static Double_t GetEntries( TH1* h );
 
-  //! scale histogram x axis
+  /// scale histogram x axis
   static TH1* ScaleAxis( TH1*h, Double_t scale );
 
-  //! returns Integrated histogram
+  /// returns Integrated histogram
   static TH1* Integrate( TH1* h, Bool_t normalize = kFALSE );
 
   /*!
@@ -158,12 +168,12 @@ class Utils:public TObject
   */
   static Double_t Integrate( TH1* h, Double_t xmin, Double_t xmax );
 
-  //! create a new histogram safely (delete histograms with same name before)
+  /// create a new histogram safely (delete histograms with same name before)
   static TCanvas* NewTCanvas(
     TString name, TString title,
     Int_t width, Int_t height );
 
-  //! create a new histogram safely (delete histograms with same name before)
+  /// create a new histogram safely (delete histograms with same name before)
   static TH1* NewTH1(
     TString name,
     TString title,
@@ -171,14 +181,14 @@ class Utils:public TObject
     Double_t min = 0,
     Double_t max = 1 );
 
-  //! create a new histogram safely (delete histograms with same name before)
+  /// create a new histogram safely (delete histograms with same name before)
   static TH1* NewTH1(
     TString name,
     TString title,
     Int_t bin,
     Double_t *x	);
 
-  //! create a new 2D histogram safely (delete histograms with same name before)
+  /// create a new 2D histogram safely (delete histograms with same name before)
   static TH2* NewTH2(
     TString name,
     TString title,
@@ -189,7 +199,7 @@ class Utils:public TObject
     Double_t miny = 0,
     Double_t maxy = 1 );
 
-  //! create a new 2D histogram safely (delete histograms with same name before)
+  /// create a new 2D histogram safely (delete histograms with same name before)
   static TH3* NewTH3(
     TString name,
     TString title,
@@ -203,35 +213,35 @@ class Utils:public TObject
     Double_t minz = 0,
     Double_t maxz = 1);
 
-  //! create a new clone histogram safely (delete histograms with same name before)
+  /// create a new clone histogram safely (delete histograms with same name before)
   static TH1* NewClone(
     TString name,
     TString title,
     TH1* parent )
   { return NewClone( name, title, parent, kFALSE ); }
 
-  //! create a new clone histogram safely (delete histograms with same name before)
+  /// create a new clone histogram safely (delete histograms with same name before)
   static TH1* NewClone(
     TString name,
     TString title,
     TH1* parent,
     Bool_t reset );
 
-  //! create a new clone histogram safely (delete histograms with same name before)
+  /// create a new clone histogram safely (delete histograms with same name before)
   static TH2* NewClone2D(
     TString name,
     TString title,
     TH2* parent )
   { return NewClone2D( name, title, parent, kFALSE ); }
 
-  //! create a new clone histogram safely (delete histograms with same name before)
+  /// create a new clone histogram safely (delete histograms with same name before)
   static TH2* NewClone2D(
     TString name,
     TString title,
     TH2* parent,
     Bool_t reset );
 
-  //! create TF1
+  /// create TF1
   /*! before creating the TF1, a matching TObject is looked after and deleted if found */
   static TF1* NewTF1(
     TString name,
@@ -239,29 +249,29 @@ class Utils:public TObject
     const Double_t& min, const Double_t& max,
     const int& n_par );
 
-  //! subtract 2 histograms bin/bin; stores the result in an third histo; returns diff of number of entries
+  /// subtract 2 histograms bin/bin; stores the result in an third histo; returns diff of number of entries
   static Int_t SubtractHistograms(TH1* h1, TH1* h2, TH1* h3);
 
-  //! subtract histogram and function bin/bin; stores the result in an third histo; returns diff of number of entries
+  /// subtract histogram and function bin/bin; stores the result in an third histo; returns diff of number of entries
   static Int_t SubtractHistograms(TH1* h1, TF1* f, TH1* h3, Double_t min, Double_t max);
 
-  //! divides 2 histograms bin/bin; stores the result in an third histo; returns ratio of the number of entries in the 2 histo
+  /// divides 2 histograms bin/bin; stores the result in an third histo; returns ratio of the number of entries in the 2 histo
   enum ErrorMode
   {
     EFF,
     STD
   };
 
-  //! divides 2 histograms bin/bin; stores the result in an third histo; returns ratio of the number of entries in the 2 histo
+  /// divides 2 histograms bin/bin; stores the result in an third histo; returns ratio of the number of entries in the 2 histo
   static Double_t DivideHistograms(TH1* hFound, TH1* hRef, TH1* h3, Int_t errorMode = EFF );
 
-  //! divides 2 histograms bin/bin; stores the result in an third histo; returns ratio of the number of entries in the 2 histo
+  /// divides 2 histograms bin/bin; stores the result in an third histo; returns ratio of the number of entries in the 2 histo
   static Double_t DivideHistograms2D(TH2* hFound, TH2* hRef, TH2* h3, Int_t errorMode = EFF);
 
-  //! divides 2 histograms bin/bin whith specified range; stores the result in an third histo; returns ratio of the number of entries in the 2 histo
+  /// divides 2 histograms bin/bin whith specified range; stores the result in an third histo; returns ratio of the number of entries in the 2 histo
   static Double_t DivideHistograms(TH1* hFound, TH1* hRef, TH1* h3, UInt_t i1, UInt_t i2, Int_t errorMode = EFF);
 
-  //! divides too TGraphs point/point; stores the result in 3 TGraph
+  /// divides too TGraphs point/point; stores the result in 3 TGraph
   static TGraphErrors* DivideTGraphs( TGraphErrors* tg_found, TGraphErrors* tg_ref );
 
   #ifndef __CINT__
@@ -272,7 +282,7 @@ class Utils:public TObject
   */
   static std::pair<Double_t,Double_t> GetRandom2D( TH2* h );
 
-  //! fill a string until its size reached required size
+  /// fill a string until its size reached required size
   static TString Fill( Int_t size, const TString& value )
   {
     return( value.Length()>=size) ?
@@ -286,7 +296,7 @@ class Utils:public TObject
 
   #ifndef __CINT__
 
-  //! merge all ntuples from a file into output
+  /// merge all ntuples from a file into output
   static void Merge( std::vector<TString> files, const TString& output_file, const TString& selection );
 
   #endif

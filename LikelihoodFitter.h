@@ -1,19 +1,19 @@
-#ifndef LikelyhoodFitter_h
-#define LikelyhoodFitter_h
+#ifndef LikelihoodFitter_h
+#define LikelihoodFitter_h
 
-//! log likelyhood fitter
+//! log likelihood fitter
 class LikelihoodFitter
 {
 
-    public:
+  public:
 
-    //! static function used as VirtualFitter
-    static void fcn(
-        int &npar,
-        double* gin,
-        double& out,
-        double* u,
-        int flag );
+  /// static function used as VirtualFitter
+  static void Fcn(
+    int &npar,
+    double* gin,
+    double& out,
+    double* u,
+    int flag );
 
 };
 

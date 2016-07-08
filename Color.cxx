@@ -10,7 +10,11 @@ using namespace std;
 ClassImp( Color )
 
 //_____________________________________
-int Color::Merge( int secondfIndex, double ratio )
+Color::Color( Int_t red, Int_t green, Int_t blue )
+{ fIndex = TColor::GetColor( Float_t(red)/255, Float_t(green)/255, Float_t(blue)/255 ); }
+
+//_____________________________________
+int Color::Merge( int secondfIndex, double ratio ) const
 {
 	if( ratio < 0 ) ratio = 0;
 	if( ratio > 1 ) ratio = 1;

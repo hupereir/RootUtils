@@ -267,9 +267,9 @@ void Table::PrintC( std::ostream& out, int firstLine, int nLines ) const
 
     if( nLinesMax == 1 )
     {
-      out << "double " << fColumns[column]->GetName() << " = " <<  fColumns[column]->GetString(firstLine) << ";" << std::endl;
+      out << "const Double_t " << fColumns[column]->GetName() << " = " <<  fColumns[column]->GetString(firstLine) << ";" << std::endl;
     } else {
-      out << "double " << fColumns[column]->GetName() << "[" << nLinesMax-firstLine << "] = {";
+      out << "const Double_t " << fColumns[column]->GetName() << "[" << nLinesMax-firstLine << "] = {";
       for( int line = firstLine; line < nLinesMax; line++ )
       {
         if( line != firstLine ) out << ", ";

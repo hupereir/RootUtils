@@ -24,113 +24,113 @@ class Stream:public TObject
 
     //! print vector
     static void PrintVector(
-        const char* name,
-        const double* values,
-        const int& size,
-        const char* format = "%f" )
+        TString name,
+        const Double_t* values,
+        Int_t size,
+        TString format = "%f" )
     { PrintVector( std::cout, name, values, size, format ); }
 
     //! print vector
     static void PrintVector(
         std::ostream& out,
-        const char* name,
-        const double* values,
-        const int& size,
-        const char* format = "%f" );
+        TString name,
+        const Double_t* values,
+        Int_t size,
+        TString format = "%f" );
 
     //! print vector
     static void PrintIntVector(
-        const char* name,
-        const int* values,
-        const int& size,
-        const char* format = "%i" )
+        TString name,
+        const Int_t* values,
+        Int_t size,
+        TString format = "%i" )
     { PrintIntVector( std::cout, name, values, size, format ); }
 
     //! print vector
     static void PrintIntVector(
         std::ostream& out,
-        const char* name,
-        const int* values,
-        const int& size,
-        const char* format = "%i" );
+        TString name,
+        const Int_t* values,
+        Int_t size,
+        TString format = "%i" );
 
     //! print vector
     static void PrintVector2D(
         std::ostream& out,
-        const char* name,
-        const double* values,
-        const int& size_1,
-        const int& size_2,
-        const char* format = "%f" );
+        TString name,
+        const Double_t* values,
+        Int_t size_1,
+        Int_t size_2,
+        TString format = "%f" );
 
     //! print vector
     static void PrintVector2D(
-        const char* name,
-        const double* values,
-        const int& size_1,
-        const int& size_2,
-        const char* format = "%f" )
+        TString name,
+        const Double_t* values,
+        Int_t size_1,
+        Int_t size_2,
+        TString format = "%f" )
     { PrintVector2D( std::cout, name, values, size_1, size_2, format ); }
 
     //! print vector
     static void PrintIntVector2D(
-        const char* name,
-        const int* values,
-        const int& size_1,
-        const int& size_2,
-        const char* format = "%i" )
+        TString name,
+        const Int_t* values,
+        Int_t size_1,
+        Int_t size_2,
+        TString format = "%i" )
     { PrintIntVector2D( std::cout, name, values, size_1, size_2, format ); }
 
     //! print vector
     static void PrintIntVector2D(
         std::ostream& out,
-        const char* name,
-        const int* values,
-        const int& size_1,
-        const int& size_2,
-        const char* format = "%i" );
+        TString name,
+        const Int_t* values,
+        Int_t size_1,
+        Int_t size_2,
+        TString format = "%i" );
 
     //! print vector
     static void PrintVector3D(
         std::ostream& out,
-        const char* name,
-        const double* values,
-        const int& size_1,
-        const int& size_2,
-        const int& size_3,
-        const char* format = "%f" );
+        TString name,
+        const Double_t* values,
+        Int_t size_1,
+        Int_t size_2,
+        Int_t size_3,
+        TString format = "%f" );
 
     //! print vector
     static void PrintVector3D(
-        const char* name,
-        const double* values,
-        const int& size_1,
-        const int& size_2,
-        const int& size_3,
-        const char* format = "%f" )
+        TString name,
+        const Double_t* values,
+        Int_t size_1,
+        Int_t size_2,
+        Int_t size_3,
+        TString format = "%f" )
     { PrintVector3D( std::cout, name, values, size_1, size_2, size_3, format ); }
 
     //! print vector
     static void PrintVector4D(
-        const char* name,
-        const double* values,
-        const int& size_1,
-        const int& size_2,
-        const int& size_3,
-        const int& size_4,
-        const char* format = "%f" )
+        TString name,
+        const Double_t* values,
+        Int_t size_1,
+        Int_t size_2,
+        Int_t size_3,
+        Int_t size_4,
+        TString format = "%f" )
     { PrintVector4D( std::cout, name, values, size_1, size_2, size_3, size_4, format ); }
 
     //! print vector
     static void PrintVector4D(
         std::ostream& out,
-        const char* name,
-        const double* values,
-        const int& size_1,
-        const int& size_2,
-        const int& size_3,
-        const int& size_4,
-        const char* format = "%f" );
+        TString name,
+        const Double_t* values,
+        Int_t size_1,
+        Int_t size_2,
+        Int_t size_3,
+        Int_t size_4,
+        TString format = "%f" );
 
     //! print cuts, formated
     static void PrintCuts( const TCut& cut );
@@ -143,17 +143,17 @@ class Stream:public TObject
     template<typename T>
         static void PrintVector(
         std::ostream& out,
-        const char* type,
-        const char* name,
+        TString type,
+        TString name,
         const T* values,
-        const int& size,
-        const char* format = "%f" )
+        Int_t size,
+        TString format = "%f" )
     {
-        out << type << " " << name << "[] = {";
+        out << type << " " << name << "["<<size<< "] = {";
         char value[20];
-        for( int i=0; i<size; i++ )
+        for( Int_t i=0; i<size; ++i )
         {
-            sprintf( value, format, values[i] );
+            sprintf( value, format.Data(), values[i] );
             out << value;
             if( i != size-1 ) out << ", ";
             else out << "};";
@@ -166,22 +166,22 @@ class Stream:public TObject
     template<typename T>
         static void PrintVector2D(
         std::ostream& out,
-        const char* type,
-        const char* name,
+        TString type,
+        TString name,
         const T* values,
-        const int& size_1,
-        const int& size_2,
-        const char* format = "%f" )
+        Int_t size_1,
+        Int_t size_2,
+        TString format = "%f" )
     {
         out << type << " " << name << "[" << size_1 << "][" << size_2 << "] = {";
         if( size_1 > 1 ) out << std::endl;
         char value[20];
-        for( int i=0; i<size_1; i++ )
+        for( Int_t i=0; i<size_1; ++i )
         {
             out << "  {";
-            for( int j=0; j<size_2; j++ )
+            for( Int_t j=0; j<size_2; j++ )
             {
-                sprintf( value, format, (double) values[i*size_2+j] );
+                sprintf( value, format.Data(), (Double_t) values[i*size_2+j] );
                 out << value;
                 if( j != size_2-1 ) out << ", ";
                 else out << "}";
@@ -197,25 +197,25 @@ class Stream:public TObject
     //! print vector 3D
     template<typename T> static void PrintVector3D(
         std::ostream& out,
-        const char* type,
-        const char* name,
+        TString type,
+        TString name,
         const T* values,
-        const int& size_1,
-        const int& size_2,
-        const int& size_3,
-        const char* format = "%f" )
+        Int_t size_1,
+        Int_t size_2,
+        Int_t size_3,
+        TString format = "%f" )
     {
         out << type << " " << name << "[" << size_1 << "][" << size_2 << "][" << size_3 << "] = {" << std::endl;
         char value[20];
-        for( int i=0; i<size_1; i++ )
+        for( Int_t i=0; i<size_1; ++i )
         {
             out << "  {";
-            for( int j=0; j<size_2; j++ )
+            for( Int_t j=0; j<size_2; j++ )
             {
                 out << "  {";
-                for( int k=0; k<size_3; k++ )
+                for( Int_t k=0; k<size_3; k++ )
                 {
-                    sprintf( value, format, (double) values[(i*size_2+j)*size_3+k] );
+                    sprintf( value, format.Data(), (Double_t) values[(i*size_2+j)*size_3+k] );
                     out << value;
                     if( k != size_3-1 ) out << ", ";
                     else out << "}";
@@ -234,29 +234,29 @@ class Stream:public TObject
     //! print vector 4D
     template<typename T> static void PrintVector4D(
         std::ostream& out,
-        const char* type,
-        const char* name,
+        TString type,
+        TString name,
         const T* values,
-        const int& size_1,
-        const int& size_2,
-        const int& size_3,
-        const int& size_4,
-        const char* format = "%f" )
+        Int_t size_1,
+        Int_t size_2,
+        Int_t size_3,
+        Int_t size_4,
+        TString format = "%f" )
     {
         out << type << " " << name << "[" << size_1 << "][" << size_2 << "][" << size_3 << "][" << size_4 << "] = {" << std::endl;
         char value[20];
-        for( int i=0; i<size_1; i++ )
+        for( Int_t i=0; i<size_1; ++i )
         {
             out << "  {" << std::endl;
-            for( int j=0; j<size_2; j++ )
+            for( Int_t j=0; j<size_2; j++ )
             {
                 out << "    { ";
-                for( int k=0; k<size_3; k++ )
+                for( Int_t k=0; k<size_3; k++ )
                 {
                     out << "{";
-                    for( int l=0; l<size_4; l++ )
+                    for( Int_t l=0; l<size_4; l++ )
                     {
-                        sprintf( value, format, (double) values[((i*size_2+j)*size_3+k)*size_4+l] );
+                        sprintf( value, format.Data(), (Double_t) values[((i*size_2+j)*size_3+k)*size_4+l] );
                         out << value;
                         if( l != size_4-1 ) out << ", ";
                         else out << " }";
