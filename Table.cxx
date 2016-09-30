@@ -135,12 +135,12 @@ void Table::PrintLatex( std::ostream& out, int firstLine, int nLines ) const
 {
 
   // dump begin of table
-  if( !(fFlags & SKIP_HEADER ) )
+  if( !(fFlags & SkipHeader ) )
   {
     out << "\\begin{tabular}{";
     for( int column = 0; column < fColumns.size(); column++ )
     {
-      if( fColumns[column]->GetType() & ColumnBase::HAS_HEADER )
+      if( fColumns[column]->GetType() & ColumnBase::HasHeader )
       {
         out << fColumns[column]->GetAlignment();
         if( column < fColumns.size()-1 ) out << "|";
@@ -151,8 +151,8 @@ void Table::PrintLatex( std::ostream& out, int firstLine, int nLines ) const
 
     for( int column = 0; column < fColumns.size(); column++ )
     {
-      if( column != 0 && (fColumns[column]->GetType() & ColumnBase::HAS_HEADER) ) out << " & " << fColumns[column]->GetName();
-      else if( column == 0 && (fColumns[column]->GetType() & ColumnBase::HAS_HEADER) ) out << fColumns[column]->GetName();
+      if( column != 0 && (fColumns[column]->GetType() & ColumnBase::HasHeader) ) out << " & " << fColumns[column]->GetName();
+      else if( column == 0 && (fColumns[column]->GetType() & ColumnBase::HasHeader) ) out << fColumns[column]->GetName();
     }
 
     out << "\\\\" << std::endl;
@@ -178,16 +178,16 @@ void Table::PrintLatex( std::ostream& out, int firstLine, int nLines ) const
 
       // print column
       if( column == 0 ) out << "$";
-      else if( fColumns[column]->GetType() & ColumnBase::HAS_HEADER ) out << "$ & $";
-      if( fColumns[column]->GetType() == ColumnBase::INTERVAL_BEGIN ) out << "[";
-      if( fColumns[column]->GetType() == ColumnBase::INTERVAL_END ) out << " , ";
-      if( fColumns[column]->GetType() == ColumnBase::ERROR ) out << " \\pm ";
-      if( fColumns[column]->GetType() == ColumnBase::ERROR_PLUS ) out << "^{+";
-      if( fColumns[column]->GetType() == ColumnBase::ERROR_MINUS ) out << "_{-";
+      else if( fColumns[column]->GetType() & ColumnBase::HasHeader ) out << "$ & $";
+      if( fColumns[column]->GetType() == ColumnBase::IntervalBegin ) out << "[";
+      if( fColumns[column]->GetType() == ColumnBase::IntervalEnd ) out << " , ";
+      if( fColumns[column]->GetType() == ColumnBase::Error ) out << " \\pm ";
+      if( fColumns[column]->GetType() == ColumnBase::ErrorPlus ) out << "^{+";
+      if( fColumns[column]->GetType() == ColumnBase::ErrorMinus ) out << "_{-";
       out << valueString;
-      if( fColumns[column]->GetType() == ColumnBase::ERROR_PLUS ) out << "}";
-      if( fColumns[column]->GetType() == ColumnBase::ERROR_MINUS ) out << "}";
-      if( fColumns[column]->GetType() == ColumnBase::INTERVAL_END ) out << "]";
+      if( fColumns[column]->GetType() == ColumnBase::ErrorPlus ) out << "}";
+      if( fColumns[column]->GetType() == ColumnBase::ErrorMinus ) out << "}";
+      if( fColumns[column]->GetType() == ColumnBase::IntervalEnd ) out << "]";
 
     }
     out << "$ \\\\" << std::endl;
@@ -197,7 +197,7 @@ void Table::PrintLatex( std::ostream& out, int firstLine, int nLines ) const
 
   }
 
-  if( !(fFlags & SKIP_TRAILER ) )
+  if( !(fFlags & SkipTrailer ) )
   {
     out << "\\end{tabular}" << std::endl;
     out << std::endl;
@@ -211,7 +211,7 @@ void Table::PrintText( std::ostream& out, int firstLine, int nLines ) const
 
 
   // dump header
-  if( !(fFlags & SKIP_HEADER) )
+  if( !(fFlags & SkipHeader) )
   {
     for( int column = 0; column < fColumns.size(); column++ )
       if( column != 0 ) out << "   " << fColumns[column]->GetName();
@@ -238,17 +238,17 @@ void Table::PrintText( std::ostream& out, int firstLine, int nLines ) const
         valueString = Stream::ReplaceAll( valueString, "e", " 10^" );
 
       // print column
-      else if( fColumns[column]->GetType() & ColumnBase::HAS_HEADER ) out << "   ";
-      if( fColumns[column]->GetType() == ColumnBase::INTERVAL_BEGIN ) out << "[";
-      if( fColumns[column]->GetType() == ColumnBase::INTERVAL_END ) out << " , ";
-      if( fColumns[column]->GetType() == ColumnBase::ERROR ) out << " +/- ";
-      if( fColumns[column]->GetType() == ColumnBase::ERROR_PLUS ) out << " +";
-      if( fColumns[column]->GetType() == ColumnBase::ERROR_MINUS ) out << " -";
+      else if( fColumns[column]->GetType() & ColumnBase::HasHeader ) out << "   ";
+      if( fColumns[column]->GetType() == ColumnBase::IntervalBegin ) out << "[";
+      if( fColumns[column]->GetType() == ColumnBase::IntervalEnd ) out << " , ";
+      if( fColumns[column]->GetType() == ColumnBase::Error ) out << " +/- ";
+      if( fColumns[column]->GetType() == ColumnBase::ErrorPlus ) out << " +";
+      if( fColumns[column]->GetType() == ColumnBase::ErrorMinus ) out << " -";
       out << valueString;
-      if( fColumns[column]->GetType() == ColumnBase::INTERVAL_END ) out << "]";
+      if( fColumns[column]->GetType() == ColumnBase::IntervalEnd ) out << "]";
 
     }
-    if( !( fFlags & SKIP_TRAILER ) ) { out << std::endl; }
+    if( !( fFlags & SkipTrailer ) ) { out << std::endl; }
   }
 
 }
@@ -286,7 +286,7 @@ void Table::PrintC( std::ostream& out, int firstLine, int nLines ) const
 void Table::PrintHep( std::ostream& out, int firstLine, int nLines ) const
 {
 
-  if( !(fFlags & SKIP_HEADER) )
+  if( !(fFlags & SkipHeader) )
   { out << "*dataset:" << std::endl; }
 
   // get min number of entries in the columns
@@ -305,32 +305,32 @@ void Table::PrintHep( std::ostream& out, int firstLine, int nLines ) const
       std::string valueString( fColumns[column]->GetString(line) );
 
       // formats
-      if( fColumns[column]->GetType() & ColumnBase::ERROR_SYST && !hasSyst )
+      if( fColumns[column]->GetType() & ColumnBase::ErrorSyst && !hasSyst )
       {
         foundSyst = true;
         out << " (DSYS=";
       }
 
-      if( fColumns[column]->GetType() & ColumnBase::ERROR_PLUS )
+      if( fColumns[column]->GetType() & ColumnBase::ErrorPlus )
       {
-        if( fColumns[column]->GetType() & ColumnBase::ERROR_SYST && hasSyst ) out << "; DSYS=";
+        if( fColumns[column]->GetType() & ColumnBase::ErrorSyst && hasSyst ) out << "; DSYS=";
         out << " +";
       }
-      else if( fColumns[column]->GetType() & ColumnBase::ERROR_MINUS ) out << " , -";
-      else if( fColumns[column]->GetType() & ColumnBase::ERROR )
+      else if( fColumns[column]->GetType() & ColumnBase::ErrorMinus ) out << " , -";
+      else if( fColumns[column]->GetType() & ColumnBase::Error )
       {
-        if( fColumns[column]->GetType() & ColumnBase::ERROR_STAT ) out << " +- ";
-        else if( fColumns[column]->GetType() & ColumnBase::ERROR_SYST && hasSyst ) out << "; DSYS=";
+        if( fColumns[column]->GetType() & ColumnBase::ErrorStat ) out << " +- ";
+        else if( fColumns[column]->GetType() & ColumnBase::ErrorSyst && hasSyst ) out << "; DSYS=";
       }
-      else if( fColumns[column]->GetType() & ColumnBase::INTERVAL_END ) out << " TO ";
+      else if( fColumns[column]->GetType() & ColumnBase::IntervalEnd ) out << " TO ";
       else if( column > 0 ) out << "; ";
 
       // value
       out << valueString;
 
       // trailer
-      if( (fColumns[column]->GetType() & (ColumnBase::ERROR|ColumnBase::ERROR_MINUS) ) &&
-        ( fColumns[column]->GetType() & ColumnBase::ERROR_SYST ) &&
+      if( (fColumns[column]->GetType() & (ColumnBase::Error|ColumnBase::ErrorMinus) ) &&
+        ( fColumns[column]->GetType() & ColumnBase::ErrorSyst ) &&
         !fColumns[column]->GetName().IsNull() )
       { out << ":" << fColumns[column]->GetName(); }
 
@@ -343,7 +343,7 @@ void Table::PrintHep( std::ostream& out, int firstLine, int nLines ) const
 
   }
 
-  if( !(fFlags & SKIP_TRAILER) )
+  if( !(fFlags & SkipTrailer) )
   { out << "*dataend:" << std::endl << std::endl; }
 
 }
