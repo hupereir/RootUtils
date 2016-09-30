@@ -7,7 +7,10 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
 
 ######
 # GSL
-find_package(GSL REQUIRED)
+include( FindPkgConfig )
+pkg_check_modules( GSL REQUIRED gsl )
+link_directories( ${GSL_LIBRARY_DIRS} )
+include_directories( ${GSL_INCLUDE_DIRS} )
 
 ######
 # ROOT
@@ -28,6 +31,7 @@ set( libbase_SOURCES
   FileManager.cxx
   FitUtils.cxx
   LikelihoodFitter.cxx
+  PdfDocument.cxx
   Stream.cxx
   Table.cxx
   TH2Fit.cxx
@@ -42,6 +46,7 @@ add_root_dictionaries( libbase_SOURCES
   DrawLinkDef.h
   FileManagerLinkDef.h
   FitUtilsLinkDef.h
+  PdfDocumentLinkDef.h
   StreamLinkDef.h
   TableLinkDef.h
   TH2FitLinkDef.h
