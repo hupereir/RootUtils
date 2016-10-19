@@ -395,16 +395,16 @@ TH1* Utils::ScaleAxis( TH1* h, Double_t scale )
   Double_t xMax = scale*axis->GetXmax();
   if( xMin > xMax ) std::swap( xMin, xMax );
 
-  TH1* h_out =	NewTH1( name.Data(), title.Data(), axis->GetNbins(), xMin, xMax );
+  TH1* hOut =	NewTH1( name.Data(), title.Data(), axis->GetNbins(), xMin, xMax );
   for( Int_t bin=0; bin < axis->GetNbins()+2; bin++ )
   {
     Double_t x = scale*axis->GetBinCenter( bin );
-    Int_t dest_bin = h_out->FindBin( x );
-    h_out->SetBinContent( dest_bin, h->GetBinContent( bin ) );
-    h_out->SetBinError( dest_bin, h->GetBinError( bin ) );
+    Int_t dest_bin = hOut->FindBin( x );
+    hOut->SetBinContent( dest_bin, h->GetBinContent( bin ) );
+    hOut->SetBinError( dest_bin, h->GetBinError( bin ) );
   }
-  h_out->SetEntries( h->GetEntries() );
-  return h_out;
+  hOut->SetEntries( h->GetEntries() );
+  return hOut;
 
 }
 
@@ -479,6 +479,31 @@ Double_t Utils::Integrate( TH1*h, Double_t xmin, Double_t xmax )
   return out - low_bin_correction - high_bin_correction;
 
 }
+
+//__________________________________________________
+Double_t Utils::GetEffectiveScale( TH1* h )
+{
+  const Int_t nBinsX = h->GetNbinsX();
+  const Int_t nBinsY = h->GetNbinsY();
+  const Int_t nBinsZ = h->GetNbinsZ();
+  std::cout << "Utils::GetEffectiveScale - bins: " << nBinsX << ", " << nBinsY << ", " << nBinsZ << std::endl;
+
+  Double_t sumEntries = 0;
+  Double_t sumErrorSquare = 0;
+  for( Int_t iX = 0; iX < nBinsX; ++iX )
+    for( Int_t iY = 0; iY < nBinsY; ++iY )
+    for( Int_t iZ = 0; iZ < nBinsZ; ++iZ )
+  {
+
+    const Int_t bin = h->GetBin( iX+1, iY+1, iZ+1 );
+    sumEntries += h->GetBinContent( bin );
+    sumErrorSquare += ALI_MACRO::SQUARE( h->GetBinError( bin ) );
+
+  }
+
+  return sumEntries/sumErrorSquare;
+}
+
 
 //__________________________________________________
 TH1* Utils::TreeToHisto(

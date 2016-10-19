@@ -94,24 +94,24 @@ class Utils:public TObject
   /// dump function parameters
   static void DumpFunctionParameters( TF1 *f );
 
-  /*! \brief
+  /** \brief
   generate a random number following probability distribution given by
   histogram
   */
   static Double_t GetRandom( TH1* h );
 
-  /*! \brief
+  /** \brief
   generate a flat random number between 0 and max
   */
   static Double_t GetRandom( Double_t max )
   { return GetRandom( 0, max ); }
 
-  /*! \brief
+  /** \brief
   generate a flat random number between min and max
   */
   static Double_t GetRandom( Double_t min, Double_t max );
 
-  /*! \brief
+  /** \brief
   generate a random number following probability distribution given by
   histogram
   */
@@ -126,7 +126,7 @@ class Utils:public TObject
     Int_t nevents );
 
 
-  /*!
+  /**
   get ideal chisquare for a given number of freedoms.
   Sums ndf+1 normalized gaussian distributions and get the chisquare
   corresponding to the average
@@ -162,11 +162,14 @@ class Utils:public TObject
   /// returns Integrated histogram
   static TH1* Integrate( TH1* h, Bool_t normalize = kFALSE );
 
-  /*!
+  /**
   returns histogram Integrate between to axis values
   linearly correct from bin effects
   */
   static Double_t Integrate( TH1* h, Double_t xmin, Double_t xmax );
+
+  /// calculate effective entries scale factor
+  static Double_t GetEffectiveScale( TH1* );
 
   /// create a new histogram safely (delete histograms with same name before)
   static TCanvas* NewTCanvas(
@@ -242,7 +245,7 @@ class Utils:public TObject
     Bool_t reset );
 
   /// create TF1
-  /*! before creating the TF1, a matching TObject is looked after and deleted if found */
+  /** before creating the TF1, a matching TObject is looked after and deleted if found */
   static TF1* NewTF1(
     TString name,
     Double_t (*function)(Double_t*, Double_t*),
@@ -276,7 +279,7 @@ class Utils:public TObject
 
   #ifndef __CINT__
 
-  /*! \brief
+  /** \brief
   generate two random numbers following probability distribution given by
   histogram
   */
