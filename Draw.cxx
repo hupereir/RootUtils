@@ -32,7 +32,6 @@ Double_t Draw::fSystShade = 0.4;
 Double_t Draw::fDeltaXLog = 0.03;
 Double_t Draw::fDeltaXLin = 0.012;
 
-
 //__________________________________________________________
 void Draw::SetStyle( Bool_t use_title )
 {
@@ -740,6 +739,8 @@ TGraphErrors* Draw::DrawBand( Int_t n, Double_t* x, Double_t* yMin, Double_t* yM
 TLine* Draw::VerticalLine( TVirtualPad* pad, Double_t x )
 {
 
+  pad->Update();
+
   Double_t yMin = pad->GetUymin();
   Double_t yMax = pad->GetUymax();
 
@@ -760,6 +761,8 @@ TLine* Draw::VerticalLine( TVirtualPad* pad, Double_t x )
 //__________________________________________________
 TLine* Draw::HorizontalLine( TVirtualPad* pad, Double_t y )
 {
+
+  pad->Update();
 
   Double_t xMin = pad->GetUxmin();
   Double_t xMax = pad->GetUxmax();
