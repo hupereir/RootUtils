@@ -5,6 +5,7 @@
 
 #include <TROOT.h>
 #include <TCut.h>
+#include <TH1.h>
 #include <TObject.h>
 
 #include <iostream>
@@ -15,14 +16,14 @@ class Stream:public TObject
 
     public:
 
-    //! constructor (doing nothing, needed for root)
+    //* constructor (doing nothing, needed for root)
     Stream():TObject()
     {}
 
-    //! string replacement
+    //* string replacement
     static std::string ReplaceAll( const std::string& in, const std::string& c0, const std::string& c1 );
 
-    //! print vector
+    //* print vector
     static void PrintVector(
         TString name,
         const Double_t* values,
@@ -30,7 +31,7 @@ class Stream:public TObject
         TString format = "%f" )
     { PrintVector( std::cout, name, values, size, format ); }
 
-    //! print vector
+    //* print vector
     static void PrintVector(
         std::ostream& out,
         TString name,
@@ -38,7 +39,7 @@ class Stream:public TObject
         Int_t size,
         TString format = "%f" );
 
-    //! print vector
+    //* print vector
     static void PrintIntVector(
         TString name,
         const Int_t* values,
@@ -46,7 +47,7 @@ class Stream:public TObject
         TString format = "%i" )
     { PrintIntVector( std::cout, name, values, size, format ); }
 
-    //! print vector
+    //* print vector
     static void PrintIntVector(
         std::ostream& out,
         TString name,
@@ -54,7 +55,7 @@ class Stream:public TObject
         Int_t size,
         TString format = "%i" );
 
-    //! print vector
+    //* print vector
     static void PrintVector2D(
         std::ostream& out,
         TString name,
@@ -63,7 +64,7 @@ class Stream:public TObject
         Int_t size_2,
         TString format = "%f" );
 
-    //! print vector
+    //* print vector
     static void PrintVector2D(
         TString name,
         const Double_t* values,
@@ -72,7 +73,7 @@ class Stream:public TObject
         TString format = "%f" )
     { PrintVector2D( std::cout, name, values, size_1, size_2, format ); }
 
-    //! print vector
+    //* print vector
     static void PrintIntVector2D(
         TString name,
         const Int_t* values,
@@ -81,7 +82,7 @@ class Stream:public TObject
         TString format = "%i" )
     { PrintIntVector2D( std::cout, name, values, size_1, size_2, format ); }
 
-    //! print vector
+    //* print vector
     static void PrintIntVector2D(
         std::ostream& out,
         TString name,
@@ -90,7 +91,7 @@ class Stream:public TObject
         Int_t size_2,
         TString format = "%i" );
 
-    //! print vector
+    //* print vector
     static void PrintVector3D(
         std::ostream& out,
         TString name,
@@ -100,7 +101,7 @@ class Stream:public TObject
         Int_t size_3,
         TString format = "%f" );
 
-    //! print vector
+    //* print vector
     static void PrintVector3D(
         TString name,
         const Double_t* values,
@@ -110,7 +111,7 @@ class Stream:public TObject
         TString format = "%f" )
     { PrintVector3D( std::cout, name, values, size_1, size_2, size_3, format ); }
 
-    //! print vector
+    //* print vector
     static void PrintVector4D(
         TString name,
         const Double_t* values,
@@ -121,7 +122,7 @@ class Stream:public TObject
         TString format = "%f" )
     { PrintVector4D( std::cout, name, values, size_1, size_2, size_3, size_4, format ); }
 
-    //! print vector
+    //* print vector
     static void PrintVector4D(
         std::ostream& out,
         TString name,
@@ -132,14 +133,20 @@ class Stream:public TObject
         Int_t size_4,
         TString format = "%f" );
 
-    //! print cuts, formated
+    //* print cuts, formated
     static void PrintCuts( const TCut& cut );
+
+//     //* print histogram content
+//     static void PrintContent( TH1* );
+
+    //* print histogram axis
+    static void PrintAxis( TH1* );
 
     protected:
 
     #ifndef __CINT__
 
-    //! print vector
+    //* print vector
     template<typename T>
         static void PrintVector(
         std::ostream& out,
@@ -162,7 +169,7 @@ class Stream:public TObject
         out << std::endl;
     }
 
-    //! print vector
+    //* print vector
     template<typename T>
         static void PrintVector2D(
         std::ostream& out,
@@ -194,7 +201,7 @@ class Stream:public TObject
     }
 
 
-    //! print vector 3D
+    //* print vector 3D
     template<typename T> static void PrintVector3D(
         std::ostream& out,
         TString type,
@@ -231,7 +238,7 @@ class Stream:public TObject
     }
 
 
-    //! print vector 4D
+    //* print vector 4D
     template<typename T> static void PrintVector4D(
         std::ostream& out,
         TString type,

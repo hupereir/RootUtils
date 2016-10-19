@@ -11,7 +11,7 @@
 #include "Stream.h"
 
 //__________________________________________________
-//! root dictionary
+//* root dictionary
 ClassImp( Stream );
 
 //________________________________________________________________________
@@ -64,5 +64,29 @@ void Stream::PrintCuts( const TCut& cut )
 
     std::cout << ReplaceAll( (const char*) cut, "&&", "&&\n" );
     std::cout << std::endl;
+
+}
+
+//________________________________________________________________________
+void Stream::PrintAxis( TH1* h )
+{
+  std::vector<TAxis*> axis;
+  axis.push_back( h->GetXaxis() );
+  axis.push_back( h->GetYaxis() );
+  axis.push_back( h->GetZaxis() );
+
+  const TString names[] = { "x", "y", "z" };
+
+  std::cout << "Histogram name: " << h->GetName() << std::endl;
+  for( Int_t i=0; i < 3; ++i )
+  {
+    if( !axis[i] ) continue;
+    std::cout
+      << "  Axis " << names[i] << " -"
+      << " nBins: " << axis[i]->GetNbins()
+      << " min: " << axis[i]->GetXmin()
+      << " max: " << axis[i]->GetXmax()
+      << std::endl;
+  }
 
 }
