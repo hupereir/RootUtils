@@ -342,7 +342,7 @@ std::pair<Double_t,Double_t> Utils::GetRandom2D( TH2* h )
     srand( time( 0 ) );
   }
 
-  if( !h ) return std::make_pair<Double_t,Double_t>( 0, 0 );
+  if( !h ) return std::make_pair( 0, 0 );
 
   while( kTRUE )
   {
@@ -360,11 +360,11 @@ std::pair<Double_t,Double_t> Utils::GetRandom2D( TH2* h )
 
     Double_t value( h->GetBinContent(bin_x, bin_y) );
     Double_t prob = Double_t( rand() )*max/RAND_MAX;
-    if( prob < value ) return std::make_pair<Double_t,Double_t>(out_x, out_y);
+    if( prob < value ) return std::make_pair(out_x, out_y);
   }
 
   //! not reached
-  return std::make_pair<Double_t,Double_t>( 0, 0 );
+  return std::make_pair( 0, 0 );
 
 }
 

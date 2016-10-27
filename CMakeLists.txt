@@ -4,6 +4,7 @@ project(AliUtil CXX)
 ######################
 # module path
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
 ######
 # GSL
@@ -30,6 +31,7 @@ set( libbase_SOURCES
   Draw.cxx
   FileManager.cxx
   FitUtils.cxx
+  Grid.cxx
   LikelihoodFitter.cxx
   PdfDocument.cxx
   Stream.cxx
@@ -46,6 +48,7 @@ add_root_dictionaries( libbase_SOURCES
   DrawLinkDef.h
   FileManagerLinkDef.h
   FitUtilsLinkDef.h
+  GridLinkDef.h
   PdfDocumentLinkDef.h
   StreamLinkDef.h
   TableLinkDef.h

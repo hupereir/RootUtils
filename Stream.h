@@ -1,5 +1,5 @@
-#ifndef Streamer_h
-#define Streamer_h
+#ifndef Stream_h
+#define Stream_h
 
 // $Id: Streamer.h,v 1.47 2010/09/15 02:27:25 hpereira Exp $
 
