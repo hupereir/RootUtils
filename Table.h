@@ -33,6 +33,7 @@ class ColumnBase
         IntervalEnd = 1<<5,
         ErrorStat = 1<<6,
         ErrorSyst = 1<<7,
+        ErrorRel = 1<<8,
         HasHeader = IntervalBegin | None
     };
 

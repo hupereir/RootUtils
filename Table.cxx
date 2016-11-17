@@ -138,12 +138,15 @@ void Table::PrintLatex( std::ostream& out, int firstLine, int nLines ) const
   if( !(fFlags & SkipHeader ) )
   {
     out << "\\begin{tabular}{";
+
+    Bool_t first = kTRUE;
     for( int column = 0; column < fColumns.size(); column++ )
     {
       if( fColumns[column]->GetType() & ColumnBase::HasHeader )
       {
+        if(!first ) out << "|";
+        first = kFALSE;
         out << fColumns[column]->GetAlignment();
-        if( column < fColumns.size()-1 ) out << "|";
       }
     }
 
@@ -184,10 +187,12 @@ void Table::PrintLatex( std::ostream& out, int firstLine, int nLines ) const
       if( fColumns[column]->GetType() == ColumnBase::Error ) out << " \\pm ";
       if( fColumns[column]->GetType() == ColumnBase::ErrorPlus ) out << "^{+";
       if( fColumns[column]->GetType() == ColumnBase::ErrorMinus ) out << "_{-";
+      if( fColumns[column]->GetType() == ColumnBase::ErrorRel ) out << "\\;(";
       out << valueString;
       if( fColumns[column]->GetType() == ColumnBase::ErrorPlus ) out << "}";
       if( fColumns[column]->GetType() == ColumnBase::ErrorMinus ) out << "}";
       if( fColumns[column]->GetType() == ColumnBase::IntervalEnd ) out << "]";
+      if( fColumns[column]->GetType() == ColumnBase::ErrorRel ) out << "\\%)";
 
     }
     out << "$ \\\\" << std::endl;
