@@ -83,6 +83,12 @@ namespace UTILS
     //* variable width gaussian
     static Double_t VWG( Double_t x, Double_t mean, Double_t sigma, Double_t slope );
 
+    //* variable width gaussian
+    static Double_t VWG2( Double_t* x, Double_t* par );
+
+    //* variable width gaussian
+    static Double_t VWG2( Double_t x, Double_t mean, Double_t sigma, Double_t slope, Double_t slopeQuad );
+
     //* Na60 function
     static Double_t Na60Old( Double_t*, Double_t* par );
 

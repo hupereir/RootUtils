@@ -232,6 +232,17 @@ Double_t FitUtils::VWG( Double_t x, Double_t mean, Double_t sigma, Double_t slop
 }
 
 //____________________________________________
+Double_t FitUtils::VWG2( Double_t* x, Double_t* par )
+{ return par[0]*VWG2( x[0], par[1], par[2], par[3], par[4] ); }
+
+//____________________________________________
+Double_t FitUtils::VWG2( Double_t x, Double_t mean, Double_t sigma, Double_t slope, Double_t slopeQuad )
+{
+  const Double_t sigmaTmp = sigma+slope*((x-mean)/mean) + slopeQuad*ALI_MACRO::SQUARE((x-mean)/mean);
+  return TMath::Exp( -0.5*ALI_MACRO::SQUARE( (x-mean)/sigmaTmp ) );
+}
+
+//____________________________________________
 Double_t FitUtils::Na60Old( Double_t* x, Double_t* par )
 {
   Double_t tail1[3] = { par[3], par[4], par[5] };
