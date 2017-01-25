@@ -14,6 +14,9 @@ class Grid:public TObject
   /// check whether a file exists
   static Bool_t FileExists( TString, TString = TString() );
 
+  /// check whether a file exists
+  static Bool_t IsDirectory( TString, TString = TString() );
+
   /// remove a file if exists
   static Bool_t RemoveFile( TString, TString = TString() );
 

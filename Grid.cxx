@@ -20,7 +20,6 @@ Bool_t Grid::FileExists( TString file, TString directory )
 {
 
   if( !( directory.IsNull() || gGrid->Cd( directory ) ) ) return kFALSE;
-  { return kFALSE; }
 
   std::unique_ptr<TGridResult> res( gGrid->Ls(file) );
   if (!res) return kFALSE;
@@ -32,6 +31,16 @@ Bool_t Grid::FileExists( TString file, TString directory )
   if (!objs || !objs->GetString().Length()) return kFALSE;
   return kTRUE;
 
+}
+
+//______________________________________________________________________________
+Bool_t Grid::IsDirectory( TString file, TString directory )
+{
+  if( !FileExists( file, directory ) ) return kFALSE;
+
+  if( !( directory.IsNull() || gGrid->Cd( directory ) ) ) return kFALSE;
+  if( file.IsNull() ) return kFALSE;
+  return gGrid->Cd( file );
 }
 
 //_________________________________________________
