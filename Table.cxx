@@ -68,12 +68,12 @@ void Table::Load( const char* filename )
     if( strncmp( line_buffer, "//", 2 ) == 0 ) continue;
 
     // add conversions
-    std::string line_str( line_buffer );
+    std::string lineStream( line_buffer );
     for( std::list< ConversionPair >::const_iterator iter = fConversions.begin(); iter != fConversions.end(); iter++ )
-    { line_str = Stream::ReplaceAll( line_str, iter->first.Data(), iter->second.Data() ); }
+    { lineStream = Stream::ReplaceAll( lineStream, iter->first.Data(), iter->second.Data() ); }
 
     Line line;
-    line.Parse( line_str.c_str() );
+    line.Parse( lineStream.c_str() );
     if( !line.empty() ) lines.push_back( line );
 
   }
