@@ -9,6 +9,7 @@
 #include <TObject.h>
 
 #include <iostream>
+#include <vector>
 #include <string>
 
 class Stream:public TObject
@@ -22,6 +23,17 @@ class Stream:public TObject
 
     //* string replacement
     static std::string ReplaceAll( const std::string& in, const std::string& c0, const std::string& c1 );
+
+
+    //* print vector
+    static void PrintVector(
+        TString name,
+        const std::vector<Double_t> values,
+        TString format = "%f" )
+    {
+      if( !values.empty() )
+      { PrintVector( std::cout, name, &values[0], values.size(), format ); }
+    }
 
     //* print vector
     static void PrintVector(
