@@ -288,7 +288,7 @@ void Draw::ResizeAxis( TH1* h, Double_t size, Int_t flag, Bool_t update )
 
 
 //__________________________________________________________
-TMarker* Draw::DrawPoint(
+TMarker* Draw::DrawMarker(
   Double_t x, Double_t y,
   Double_t xErr, Double_t yErr,
   Int_t symbol, Int_t color,
@@ -402,7 +402,7 @@ TMarker* Draw::DrawPoint(
 }
 
 //__________________________________________________________
-void Draw::DrawPoint( TGraphErrors *graph, Int_t flag )
+void Draw::DrawMarkers( TGraphErrors *graph, Int_t flag )
 {
 
   Int_t symbol( graph->GetMarkerStyle() );
@@ -413,7 +413,7 @@ void Draw::DrawPoint( TGraphErrors *graph, Int_t flag )
     graph->GetPoint( i, x, y  );
     Double_t xErr = graph->GetErrorX(i);
     Double_t yErr = graph->GetErrorY(i);
-    DrawPoint( x, y, xErr, yErr, symbol, color, flag );
+    DrawMarker( x, y, xErr, yErr, symbol, color, flag );
   }
 }
 
@@ -646,8 +646,9 @@ TGraphErrors* Draw::DrawMarkers( Int_t n, Double_t* x, Double_t* y, Double_t* xE
   for( Int_t i=0; i<n; ++i )
   {
     tge->SetPoint( i, x[i], y[i] );
-    tge->SetPointError( i, xErr[i], yErr[i]  );
-
+    if( xErr && yErr ) tge->SetPointError( i, xErr[i], yErr[i]  );
+    else if( xErr ) tge->SetPointError( i, xErr[i], 0  );
+    else if( yErr ) tge->SetPointError( i, 0, yErr[i]  );
   }
 
   tge->SetMarkerStyle( symbol );
@@ -663,10 +664,12 @@ TGraphErrors* Draw::DrawMarkers( Int_t n, Double_t* x, Double_t* y, Double_t* xE
 TGraphErrors* Draw::DrawMarkers( Int_t n, Double_t* x, Double_t* y, Double_t* yErr, Int_t symbol, Int_t color )
 {
   TGraphErrors* tge = new TGraphErrors();
-    for( Int_t i=0; i<n; ++i )
+  for( Int_t i=0; i<n; ++i )
   {
     tge->SetPoint( i, 0.5*(x[i]+x[i+1]), y[i] );
-    tge->SetPointError( i, 0.5*fabs(x[i+1]-x[i]), yErr[i]  );
+
+    if( yErr )
+    { tge->SetPointError( i, 0.5*fabs(x[i+1]-x[i]), yErr[i]  ); }
 
   }
 

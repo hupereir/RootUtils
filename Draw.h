@@ -109,13 +109,13 @@ class Draw:public TObject
   { fSystShade = value; }
 
   //* draw symbol and error bar at given point
-  static TMarker* DrawPoint(
+  static TMarker* DrawMarker(
     Double_t x, Double_t y,
     Double_t x_err, Double_t y_err,
     Int_t symbol = 20, Int_t color = 1, Int_t flag = 0 );
 
   //* draw symbol and error bar at TGraph points
-  static void DrawPoint( TGraphErrors *graph, Int_t flag = 0 );
+  static void DrawMarkers( TGraphErrors *graph, Int_t flag = 0 );
 
   //* draw systematic error at given point, using brackets
   static void DrawSystBracket(
