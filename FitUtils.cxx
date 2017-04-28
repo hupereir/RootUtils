@@ -19,21 +19,6 @@ using namespace UTILS;
 ClassImp(FitUtils);
 
 //_______________________________________________________________________________
-void FitUtils::Fit( TH1* h, const char* ffName, FitUtils::FitFunction Fcn, Double_t min, Double_t max, int n_par, Double_t *par )
-{
-  TF1* f = new TF1( ffName, Fcn, min, max, n_par );
-  if( par )
-  {
-    for( int i=0; i<n_par; i++ )
-    { f->SetParameter( i, par[i] ); }
-  }
-
-  h->Fit( f, "0Q" );
-
-  return;
-}
-
-//_______________________________________________________________________________
 TFitResultPtr FitUtils::Fit( TH1* h, TF1* f, TString option )
 {
 

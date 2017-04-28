@@ -20,12 +20,6 @@ namespace UTILS
 
     public:
 
-    //* shortcut for fit function
-    typedef Double_t (*FitFunction) (Double_t*, Double_t*);
-
-    //* embeded fit
-    static void Fit( TH1*, const char* ffName, FitFunction, Double_t min, Double_t max, int n_par, Double_t *pars = 0 );
-
     /// fit
     static TFitResultPtr Fit( TH1*, TF1*, TString );
 

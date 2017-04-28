@@ -47,8 +47,21 @@ class Draw:public TObject
     ALL = LABEL|TITLE|X|Y
   };
 
+  // file format
+  enum FileFormat
+  {
+    FormatPNG = 1,
+    FormatPDF = 1<<1,
+    FormatEPS = 1<<2,
+    FormatJPG = 1<<3,
+    FormatGIF = 1<<4
+  };
+
   // divide canvas following dimensions ratio to have at least N panels
   static void SetStyle( Bool_t );
+
+  // save canvas using multiple formats
+  static void SaveCanvas( TCanvas*, TString, Int_t = FormatPDF|FormatEPS );
 
   // divide canvas following dimensions ratio to have at least N panels
   static void DivideCanvas( TCanvas*, int, Bool_t respectRatio = true );

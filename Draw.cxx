@@ -85,6 +85,22 @@ void Draw::SetStyle( Bool_t use_title )
 }
 
 //______________________________________________________
+void Draw::SaveCanvas( TCanvas* canvas, TString name, Int_t format )
+{
+
+  // truncate name
+  Int_t position = name.Last( '.' );
+  if( position != kNPOS ) name = name( 0, position );
+
+  if( format & FormatPDF ) canvas->SaveAs( Form( "%s.pdf", name.Data() ) );
+  if( format & FormatPNG ) canvas->SaveAs( Form( "%s.png", name.Data() ) );
+  if( format & FormatEPS ) canvas->SaveAs( Form( "%s.eps", name.Data() ) );
+  if( format & FormatJPG ) canvas->SaveAs( Form( "%s.jpg", name.Data() ) );
+  if( format & FormatGIF ) canvas->SaveAs( Form( "%s.gif", name.Data() ) );
+
+}
+
+//______________________________________________________
 void Draw::DivideCanvas( TCanvas* cv, Int_t n, Bool_t respect_ratio )
 {
 

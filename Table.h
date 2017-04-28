@@ -106,7 +106,7 @@ class ColumnBase
     }
 
     //* reduce column size
-    virtual void Shrink( int new_size )
+    virtual void Shrink( int newSize )
     {
         std::cout << "ColumnBase::shrink - not implemented" << std::endl;
         return;
@@ -114,7 +114,7 @@ class ColumnBase
 
 
     //* expand column size
-    virtual void Expand( int new_size )
+    virtual void Expand( int newSize )
     {
         std::cout << "ColumnBase::expand - not implemented" << std::endl;
         return;
@@ -222,19 +222,19 @@ template<typename T> class Column: public ColumnBase
     { return fValues.size(); }
 
     //* shrink column size
-    virtual void Shrink( int new_size )
+    virtual void Shrink( int newSize )
     {
-        while( fValues.size() > new_size )
+        while( fValues.size() > newSize )
             fValues.pop_back();
         return;
     }
 
     //* expand column size
-    virtual void Expand( int new_size )
+    virtual void Expand( int newSize )
     {
         T value;
         if( !fValues.empty() ) value = fValues.back();
-        for( int i= fValues.size(); i<new_size; i++ )
+        for( int i= fValues.size(); i<newSize; i++ )
             fValues.push_back( value );
         return;
     }
@@ -533,11 +533,11 @@ class Table: public TObject
         fColumns[first]->Scale( value );
     }
 
-    //* expand column with its last value so that its size is the new_size
-    void ExpandColumn( int column, int new_size )
+    //* expand column with its last value so that its size is the newSize
+    void ExpandColumn( int column, int newSize )
     {
         if( !CheckColumn( column ) ) return;
-        fColumns[column]->Expand( new_size );
+        fColumns[column]->Expand( newSize );
     }
     //@}
 
@@ -560,32 +560,32 @@ class Table: public TObject
     double* GetDoubleArray( int column, int firstLine = 0, int nLines = 0 ) const;
 
     //* print table in latex format
-    void PrintLatex( int firstLine = 0, int n_line = 0 ) const
-    { PrintLatex( std::cout, firstLine, n_line ); }
+    void PrintLatex( int firstLine = 0, int nLines = 0 ) const
+    { PrintLatex( std::cout, firstLine, nLines ); }
 
     //* print table in latex format
-    void PrintLatex( std::ostream& out, int firstLine = 0, int n_line = 0 ) const;
+    void PrintLatex( std::ostream& out, int firstLine = 0, int nLines = 0 ) const;
 
     //* print table in text format
-    void PrintText( int firstLine = 0, int n_line = 0 ) const
-    { PrintText( std::cout, firstLine, n_line ); }
+    void PrintText( int firstLine = 0, int nLines = 0 ) const
+    { PrintText( std::cout, firstLine, nLines ); }
 
     //* print table in text format
-    void PrintText( std::ostream& out, int firstLine = 0, int n_line = 0 ) const;
+    void PrintText( std::ostream& out, int firstLine = 0, int nLines = 0 ) const;
 
     //* print table in c format
-    void PrintC( int firstLine = 0, int n_line = 0 ) const
-    { PrintC( std::cout, firstLine, n_line ); }
+    void PrintC( int firstLine = 0, int nLines = 0 ) const
+    { PrintC( std::cout, firstLine, nLines ); }
 
     //* print table in c format
-    void PrintC( std::ostream& out, int firstLine = 0, int n_line = 0 ) const;
+    void PrintC( std::ostream& out, int firstLine = 0, int nLines = 0 ) const;
 
     //* print tabe in hep format
-    void PrintHep( int firstLine = 0, int n_line = 0 ) const
-    { PrintHep( std::cout, firstLine, n_line ); }
+    void PrintHep( int firstLine = 0, int nLines = 0 ) const
+    { PrintHep( std::cout, firstLine, nLines ); }
 
     //* print table in c format
-    void PrintHep( std::ostream& out, int firstLine = 0, int n_line = 0 ) const;
+    void PrintHep( std::ostream& out, int firstLine = 0, int nLines = 0 ) const;
 
     //@}
 
