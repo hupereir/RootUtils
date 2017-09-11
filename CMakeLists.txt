@@ -21,9 +21,8 @@ find_package(ROOT REQUIRED)
 # include directories
 include_directories(SYSTEM ${PROJECT_SOURCE_DIR} ${ROOT_INCLUDE_DIR} )
 
-############
+######################
 # base
-
 set( libbase_SOURCES
   ChisquareFitter.cxx
   Color.cxx
@@ -58,6 +57,18 @@ add_root_dictionaries( libbase_SOURCES
 
 add_library( AliUtilBase SHARED ${libbase_SOURCES} )
 target_link_libraries( AliUtilBase ${ROOT_LIBRARIES} ${GSL_LIBRARIES})
+install( TARGETS AliUtilBase DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
+
+######################
+# ranlib
+set( librandlib_SOURCES RandLib.cxx )
+
+add_root_dictionaries( librandlib_SOURCES
+  RandLibLinkDef.h
+)
+
+add_library( RandLib SHARED ${librandlib_SOURCES} )
+target_link_libraries( RandLib ${ROOT_LIBRARIES})
 
 ### install
-install( TARGETS AliUtilBase DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
+install( TARGETS RandLib DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
