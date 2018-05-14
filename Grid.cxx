@@ -49,6 +49,7 @@ Bool_t Grid::RemoveFile( TString file, TString directory )
   if( !FileExists( file, directory ) ) return kFALSE;
   if( !( directory.IsNull() || gGrid->Cd( directory ) ) ) return kFALSE;
   gGrid->Rm( file );
+  return kTRUE;
 }
 
 //______________________________________
