@@ -61,7 +61,7 @@ class Draw:public TObject
   static void SetStyle( Bool_t );
 
   // save canvas using multiple formats
-  static void SaveCanvas( TCanvas*, TString, Int_t = FormatPDF|FormatEPS );
+  static void SaveCanvas( TCanvas*, TString, Int_t = FormatPDF );
 
   // divide canvas following dimensions ratio to have at least N panels
   static void DivideCanvas( TCanvas*, int, Bool_t respectRatio = true );
