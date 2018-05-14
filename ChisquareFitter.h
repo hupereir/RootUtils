@@ -8,18 +8,18 @@
 class ChisquareFitter
 {
 
-  public:
+    public:
 
-  /// static function used as VirtualFitter
-  static void Fcn(
-    int &npar,
-    double* gin,
-    double& out,
-    double* u,
-    int flag );
+    /// static function used as VirtualFitter
+    static void Fcn(
+        int &npar,
+        double* gin,
+        double& out,
+        double* u,
+        int flag );
 
-  /// chisquare
-  static double Chisquare( TH1*, TF1* );
+    /// chisquare
+    static double Chisquare( TH1*, TF1* );
 
 };
 
