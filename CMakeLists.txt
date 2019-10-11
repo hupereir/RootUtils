@@ -9,9 +9,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 ######
 # GSL
 include( FindPkgConfig )
-pkg_check_modules( GSL REQUIRED gsl )
-link_directories( ${GSL_LIBRARY_DIRS} )
-include_directories( ${GSL_INCLUDE_DIRS} )
+pkg_check_modules( GSL gsl )
+
+if( ${GSL_FOUND} )
+  link_directories( ${GSL_LIBRARY_DIRS} )
+  include_directories( ${GSL_INCLUDE_DIRS} )
+  add_definitions(-DWITH_GSL=1)
+else()
+  add_definitions(-DWITH_GSL=0)
+endif()
 
 ######
 # ROOT

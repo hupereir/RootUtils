@@ -2,6 +2,11 @@
 
 #include "ROOT_MACRO.h"
 #include "Debug.h"
+
+#if WITH_GSL
+#include "GSLError.h"
+#endif
+
 #include "Stream.h"
 #include "Utils.h"
 
@@ -31,8 +36,6 @@
 #include <cmath>
 #include <unistd.h>
 #include <map>
-
-#include "GSLError.h"
 
 //__________________________________________________
 //! root dictionary
