@@ -16,6 +16,7 @@
 #include <TFile.h>
 #include <TH1.h>
 #include <TH2.h>
+#include <THnBase.h>
 #include <TKey.h>
 #include <TTree.h>
 #include <TDirectory.h>
@@ -102,26 +103,28 @@ void FileManager::AddList( TString selection )
     if( !(selection && strlen( selection ) ) ) return;
 
     ifstream in( selection );
-    if( !in ) {
+    if( !in )
+    {
         std::cout << "FileManager::AddList - invalid file " << selection << std::endl;
         return;
     }
 
-    char line[512];
     while( !(in.rdstate()&std::ios::failbit ) )
     {
 
-        in.getline( line, 512, '\n' );
-        if( !strlen(line) ) continue;
-        if( strncmp( line, "//", 2 ) == 0 ) {
+        std::string line;
+        std::getline( in, line );
+        if( line.empty() ) continue;
+        if( line.substr(0,2) == "//" )
+        {
             std::cout << "FileManager::AddList skipping " << line << std::endl;
             continue;
         }
 
-        std::istringstream line_stream( line );
+        std::istringstream lineStream( line.c_str() );
         TString file;
-        line_stream >> file;
-        if( line_stream.rdstate() & std::ios::failbit ) continue;
+        lineStream >> file;
+        if( lineStream.rdstate() & std::ios::failbit ) continue;
         fFiles.insert( file );
     }
     return;
@@ -172,10 +175,10 @@ void FileManager::RemoveList( TString selection )
         if( !strlen(line) ) continue;
         if( strncmp( line, "//", 2 ) == 0 ) continue;
 
-        std::istringstream line_stream( line );
+        std::istringstream lineStream( line );
         TString file;
-        line_stream >> file;
-        if( line_stream.rdstate() & std::ios::failbit ) continue;
+        lineStream >> file;
+        if( lineStream.rdstate() & std::ios::failbit ) continue;
 
         if( fFiles.find( file ) != fFiles.end() ) {
             std::cout << "FileManager::RemoveList - removing " << file << std::endl;
@@ -397,8 +400,8 @@ void FileManager::MakeBackup( void ) const
 TChain* FileManager::GetChain( TString key ) const
 {
 
-    if( !(key && strlen( key ) ) ) return 0;
-    if( Empty() ) return 0;
+    if( !(key && strlen( key ) ) ) return nullptr;
+    if( Empty() ) return nullptr;
 
     // check files
     TChain *out = 0;
@@ -453,17 +456,17 @@ TH1* FileManager::TreeToHisto(
     TCut cut ) const
 {
     // check tree name
-    if( !(treeName && strlen( treeName ) ) ) return 0;
+    if( !(treeName && strlen( treeName ) ) ) return nullptr;
 
 
     // check files (do nothing so far)
-    if( Empty() ) return 0;
+    if( Empty() ) return nullptr;
 
     // check if histogram with requested name exists
     TH1* h = (TH1*) gROOT->FindObject(hName);
     if( !h ) {
         std::cout << "FileManager::TreeToHisto - fatal: cannot find predefined histogram \"" << hName << "\" .\n";
-        return 0;
+        return nullptr;
     }
 
     // clone histogram into template
@@ -576,11 +579,96 @@ void FileManager::TreeToHisto( const TString& treeName, ProjectionList& projecti
 }
 
 //_________________________________________________
-TH1* FileManager::GetTH1( TString key ) const
+TList* FileManager::GetList( TString key ) const
 {
 
-    if( !(key && strlen( key ) ) ) return 0;
-    if( Empty() ) return 0;
+    // create output list
+    TList* outputList = new TList();
+    outputList->SetName( key );
+
+    for( FileSet::iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
+    {
+
+        // open TFile
+        TFile* f = TFile::Open( iter->Data() );
+        if( !( f && f->IsOpen() ) )
+        {
+            std::cout << "FileManager::GetList - troubles with TFile \"" << *iter << "\".\n";
+            delete f;
+            continue;
+        }
+
+        TObject* object = f->Get( key );
+        TList* inputList = dynamic_cast<TList*>( object );
+        if( !inputList )
+        {
+            std::cout << "FileManager::GetList - load list from \"" << *iter << "\" failed.\n";
+            delete f;
+            continue;
+        }
+
+        inputList->SetOwner();
+
+        // iterate
+        TIter inputIter( inputList );
+        TObject* inputObject = 0x0;
+        while( (inputObject = inputIter.Next() ) )
+        {
+
+            // try cast to histogram
+            TH1* inputHistogram = dynamic_cast<TH1*>( inputObject );
+            if( inputHistogram )
+            {
+                // check if already in output list
+                TH1* outputHistogram = (TH1*) outputList->FindObject( inputHistogram->GetName() );
+                if( outputHistogram ) outputHistogram->Add( inputHistogram );
+                else {
+
+                    std::cout << "FileManager::GetList - adding histogram " << inputHistogram->GetName() << " to list " << key << std::endl;
+                    gROOT->cd();
+                    outputList->Add( inputHistogram->Clone() );
+
+                }
+                continue;
+
+            }
+
+            // try cast to THnBase
+            THnBase* inputThn = dynamic_cast<THnBase*>( inputObject );
+            if( inputThn )
+            {
+                // check if already in output list
+                THnBase* outputThn = (THnBase*) outputList->FindObject( inputThn->GetName() );
+                if( outputThn ) outputThn->Add( inputThn );
+                else {
+
+                    std::cout << "FileManager::GetList - adding THn " << inputThn->GetName() << " to list " << key << std::endl;
+                    gROOT->cd();
+                    outputList->Add( inputThn->Clone() );
+
+                }
+
+            }
+
+        }
+
+        // cleanup
+        delete inputList;
+
+        // delete TFile
+        delete f;
+
+    }
+
+    return outputList;
+}
+
+//_________________________________________________
+TH1* FileManager::GetHistogram( TString key ) const
+{
+
+    if( !(key && strlen( key ) ) ) return nullptr;
+    if( Empty() ) return nullptr;
 
     // check if histogram with requested name exists
     ALI_MACRO::Delete<TH1>( key );
@@ -593,7 +681,7 @@ TH1* FileManager::GetTH1( TString key ) const
         TFile* f = TFile::Open( iter->Data() );
         if( !( f && f->IsOpen() ) )
         {
-            std::cout << "FileManager::GetTH1 - troubles with TFile \"" << *iter << "\".\n";
+            std::cout << "FileManager::GetHistogram - troubles with TFile \"" << *iter << "\".\n";
             delete f;
             continue;
         }
@@ -601,14 +689,14 @@ TH1* FileManager::GetTH1( TString key ) const
         TH1* h = dynamic_cast<TH1*>( f->Get( key ) );
         if( !h )
         {
-            std::cout << "FileManager::GetTH1 - load histogram from \"" << *iter << "\" failed.\n";
+            std::cout << "FileManager::GetHistogram - load histogram from \"" << *iter << "\" failed.\n";
             delete f;
             continue;
         }
 
         // dump file
         if( fVerbosity >= ALI_MACRO::SOME )
-        { std::cout << "FileManager::GetTH1 - loading \"" << *iter << "\".\n"; }
+        { std::cout << "FileManager::GetHistogram - loading \"" << *iter << "\".\n"; }
 
         if( !out )
         {
@@ -627,61 +715,10 @@ TH1* FileManager::GetTH1( TString key ) const
 }
 
 //_________________________________________________
-TH2* FileManager::GetTH2( TString key ) const
+TH1* FileManager::GetHistogramFromList( TString key, TString listKey ) const
 {
 
-    if( !(key && strlen( key ) ) ) return 0;
-    if( Empty() ) return 0;
-
-    // check if histogram with requested name exists
-    ALI_MACRO::Delete<TH2>( key );
-    TH2* out( 0 );
-
-    for( FileSet::iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
-    {
-
-        // open TFile
-        TFile* f = TFile::Open( iter->Data() );
-        if( !( f && f->IsOpen() ) )
-        {
-            std::cout << "FileManager::GetTH2 - troubles with TFile \"" << *iter << "\".\n";
-            delete f;
-            continue;
-        }
-
-        TH2* h = dynamic_cast<TH2*>( f->Get( key ) );
-        if( !h )
-        {
-            std::cout << "FileManager::GetTH1 - load histogram from \"" << *iter << "\".\n";
-            delete f;
-            continue;
-        }
-
-        // dump file
-        if( fVerbosity >= ALI_MACRO::SOME )
-        { std::cout << "FileManager::GetTH2 - loading \"" << *iter << "\".\n"; }
-
-        // this probably does not work. may need a clone.
-        if( !out )
-        {
-            gROOT->cd();
-            out = (TH2*) h->Clone();
-
-        } else out->Add( h );
-
-        delete f;
-
-    }
-
-    return out;
-
-}
-
-//_________________________________________________
-TH1* FileManager::GetTH1FromList( TString key, TString listKey ) const
-{
-
-    if( !(key && strlen( key ) ) ) return 0;
+    if( !(key && strlen( key ) ) ) return nullptr;
     if( Empty() ) return nullptr;
 
     // check if histogram with requested name exists
@@ -694,7 +731,7 @@ TH1* FileManager::GetTH1FromList( TString key, TString listKey ) const
         TFile* f = TFile::Open( iter->Data() );
         if( !( f && f->IsOpen() ) )
         {
-            std::cout << "FileManager::GetTH1FromList - troubles with TFile \"" << *iter << "\".\n";
+            std::cout << "FileManager::GetHistogramFromList - troubles with TFile \"" << *iter << "\".\n";
             delete f;
             continue;
         }
@@ -703,90 +740,34 @@ TH1* FileManager::GetTH1FromList( TString key, TString listKey ) const
         TList* list = dynamic_cast<TList*>( object );
         if( !list )
         {
-            std::cout << "FileManager::GetTH1FromList - load list from \"" << *iter << "\" failed.\n";
+            std::cout << "FileManager::GetHistogramFromList - load list from \"" << *iter << "\" failed.\n";
             delete f;
             continue;
         }
 
-        // list
+        list->SetOwner();
+
+        // histogram
         TH1* h = dynamic_cast<TH1*>( list->FindObject( key ) );
         if( !h )
         {
-            std::cout << "FileManager::GetTH1FromList - load histogram from \"" << *iter << "\" failed.\n";
+            std::cout << "FileManager::GetHistogramFromList - load histogram from \"" << *iter << "\" failed.\n";
             delete f;
             continue;
         }
 
         // dump file
-        if( fVerbosity >= ALI_MACRO::SOME )
-        { std::cout << "FileManager::GetTH1 - loading \"" << *iter << "\".\n"; }
+        // if( fVerbosity >= ALI_MACRO::SOME )
+        { std::cout << "FileManager::GetHistogram - loading \"" << *iter << "\".\n"; }
 
         if( !out ) {
             gROOT->cd();
             out = (TH1*)h->Clone();
         } else out->Add( h );
 
-        std::cout << "Cleaning up" << std::endl;
-        delete h;
-        delete object;
+        // delete h;
+        delete list;
         f->Close();
-        delete f;
-
-    }
-
-    return out;
-
-}
-
-//_________________________________________________
-TH2* FileManager::GetTH2FromList( TString key, TString listKey ) const
-{
-
-    if( !(key && strlen( key ) ) ) return 0;
-    if( Empty() ) return 0;
-
-    // check if histogram with requested name exists
-    ALI_MACRO::Delete<TH2>( key );
-    TH2* out( 0 );
-
-    for( FileSet::iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
-    {
-
-        // open TFile
-        TFile* f = TFile::Open( iter->Data() );
-        if( !( f && f->IsOpen() ) )
-        {
-            std::cout << "FileManager::GetTH2FromList - troubles with TFile \"" << *iter << "\".\n";
-            delete f;
-            continue;
-        }
-
-        TList* list = dynamic_cast<TList*>( f->Get( listKey ) );
-        if( !list )
-        {
-            std::cout << "FileManager::GetTH2FromList - load list from \"" << *iter << "\" failed.\n";
-            delete f;
-            continue;
-        }
-
-        // list
-        TH2* h = dynamic_cast<TH2*>( list->FindObject( key ) );
-        if( !h )
-        {
-            std::cout << "FileManager::GetTH2FromList - load histogram from \"" << *iter << "\" failed.\n";
-            delete f;
-            continue;
-        }
-
-        // dump file
-        if( fVerbosity >= ALI_MACRO::SOME )
-        { std::cout << "FileManager::GetTH2 - loading \"" << *iter << "\".\n"; }
-
-        if( !out ) {
-            gROOT->cd();
-            out = (TH2*)h->Clone();
-        } else out->Add( h );
-
         delete f;
 
     }
@@ -884,7 +865,7 @@ void FileManager::Merge( TString output, TString selection, TString option ) con
     for( std::set<TString>::iterator iter = hNames.begin(); iter!= hNames.end(); iter++  )
     {
 
-        TH1* h( GetTH1( iter->Data() ) );
+        TH1* h( GetHistogram( iter->Data() ) );
         if( !h ) continue;
 
         std::cout << "FileManager::Merge - writing "  <<  *iter << std::endl;

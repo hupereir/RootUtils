@@ -17,6 +17,7 @@
 #include <TText.h>
 #include <TPad.h>
 #include <TPaveStats.h>
+#include <TProfile.h>
 #include <TGraphErrors.h>
 #include <TRandom.h>
 #include <TMarker.h>
@@ -504,7 +505,6 @@ Double_t Utils::GetEffectiveScale( TH1* h )
     return sumEntries/sumErrorSquare;
 }
 
-
 //__________________________________________________
 TH1* Utils::TreeToHisto(
     TTree *tree,
@@ -521,7 +521,7 @@ TH1* Utils::TreeToHisto(
     }
 
     // check if histogram with requested name exists
-    TH1* h = (TH1*) gROOT->FindObject(name);
+    TH1* h = static_cast<TH1*>( gROOT->FindObject(name) );
 
     // if histogram autoformat requested, delete found histogram if any, give error message otherwise
     if( autoH && h ) { SafeDelete( h ); }
@@ -536,7 +536,7 @@ TH1* Utils::TreeToHisto(
 
         // create/fill autoformated histogram if requested
         tree->Draw( Form( "%s >> %s", var.Data(), name.Data() ), cut, "goff" );
-        h= (TH1*) gROOT->FindObject(name);
+        h = static_cast<TH1*>( gROOT->FindObject(name) );
 
     } else {
 
@@ -550,6 +550,38 @@ TH1* Utils::TreeToHisto(
         h->SetLineWidth( 2 );
         h->SetTitle( Form( "%s {%s}", var.Data(), ((TString) cut).Data() ) );
     }
+
+    return h;
+
+}
+
+//__________________________________________________
+TProfile* Utils::TreeToTProfile(
+    TTree *tree,
+    TString name,
+    TString var,
+    TCut cut )
+{
+    // check tree
+    if( !tree )
+    {
+        std::cout << "Utils::TreeToHisto - tree is NULL .\n";
+        return 0;
+    }
+
+    // check if histogram with requested name exists
+    TProfile* h = static_cast<TProfile*>( gROOT->FindObject(name) );
+
+    // if histogram autoformat requested, delete found histogram if any, give error message otherwise
+    if( !h )
+    {
+        std::cout << "Utils::TreeToHisto - fatal: cannot find predefined histogram \"" << name << "\" .\n";
+        return 0;
+    }
+
+    // create/fill autoformated histogram if requested
+    tree->Draw( Form( "%s >> %s", var.Data(), name.Data() ), cut, "goff" );
+    h= static_cast<TProfile*>( gROOT->FindObject(name) );
 
     return h;
 
@@ -766,7 +798,7 @@ TH1* Utils::NewClone(
 
     // check if histogram with requested name exists
     ALI_MACRO::Delete<th1>( name );
-    TH1* h = (TH1*) parent->Clone( name );
+    TH1* h = static_cast<TH1*>( parent->Clone( name ) );
     if( reset ) h->Reset();
     h->SetName(name);
     h->SetTitle(title);

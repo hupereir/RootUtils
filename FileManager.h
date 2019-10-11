@@ -106,17 +106,14 @@ class FileManager: public TObject
     void TreeToHisto( const TString& treeName, ProjectionList& projection_list ) const;
     #endif
 
-    //* Merge TH1 from files
-    TH1* GetTH1( TString key ) const;
+    //* Merge histogram from files
+    TH1* GetHistogram( TString key ) const;
 
-    //* Merge TH2 from files
-    TH2* GetTH2( TString key ) const;
+    //* list
+    TList* GetList( TString key ) const;
 
-    //* Get TH2 from TList
-    TH1* GetTH1FromList( TString key, TString list ) const;
-
-    //* Get TH2 from TList
-    TH2* GetTH2FromList( TString key, TString list ) const;
+    //* Get histogram from TList
+    TH1* GetHistogramFromList( TString key, TString list ) const;
 
     //*  Merge all trees/histograms found in file_selection into output_file
     void Merge( TString = "out.root", TString selection="", TString option = "" ) const;

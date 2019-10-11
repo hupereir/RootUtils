@@ -27,7 +27,7 @@ class TH2;
 class TH3;
 class TText;
 class TGraphErrors;
-
+class TProfile;
 /// some root utilities to handle histograms safely
 class Utils:public TObject
 {
@@ -140,6 +140,14 @@ class Utils:public TObject
     TString var,
     TCut cut="",
     Bool_t autoH = kTRUE );
+
+
+  /// fills histogram from tree return histogram
+  static TProfile* TreeToTProfile(
+    TTree *tree,
+    TString name,
+    TString var,
+    TCut cut = TCut() );
 
   /// Convert an histogram into a TGraph
   static TH1* TGraphToHistogram( TGraphErrors* tgraph );
