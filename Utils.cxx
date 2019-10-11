@@ -373,7 +373,7 @@ std::pair<Double_t,Double_t> Utils::GetRandom2D( TH2* h )
 }
 
 //_________________________________________________
-void UtilsForm( ostream &out, TString format, ... )
+void UtilsForm( std::ostream &out, TString format, ... )
 {
     char* text = new char[2048];
     va_list p;

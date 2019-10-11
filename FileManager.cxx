@@ -1,16 +1,8 @@
 // $Id: FileManager.cxx,v 1.29 2011/07/01 15:15:05 hpereira Exp $
 
-/*!
-\file FileManager.cxx
-\brief handles list of files for merging
-*/
-
-#include <cstdio>
-#include <cstdlib>
-#include <fstream>
-#include <sstream>
-#include <unistd.h>
-#include <sys/stat.h>
+#include "Debug.h"
+#include "FileManager.h"
+#include "Utils.h"
 
 #include <TChain.h>
 #include <TFile.h>
@@ -22,9 +14,12 @@
 #include <TDirectory.h>
 #include <TKey.h>
 
-#include "Debug.h"
-#include "FileManager.h"
-#include "Utils.h"
+#include <cstdio>
+#include <cstdlib>
+#include <fstream>
+#include <sstream>
+#include <unistd.h>
+#include <sys/stat.h>
 
 //_________________________________________________
 //! root dictionary
@@ -102,7 +97,7 @@ void FileManager::AddList( TString selection )
 {
     if( !(selection && strlen( selection ) ) ) return;
 
-    ifstream in( selection );
+    std::ifstream in( selection );
     if( !in )
     {
         std::cout << "FileManager::AddList - invalid file " << selection << std::endl;
@@ -161,7 +156,7 @@ void FileManager::RemoveList( TString selection )
 {
     if( !(selection && strlen( selection ) ) ) return;
 
-    ifstream in( selection );
+    std::ifstream in( selection );
     if( !in ) {
         std::cout << "FileManager::AddList - invalid file " << selection << std::endl;
         return;

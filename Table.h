@@ -374,7 +374,7 @@ class Line: public std::vector<TString>
     {
         T out;
         if( i>= size() ) return out;
-        std::istringstream in( (*this)[i] );
+        std::istringstream in( (*this)[i].Data() );
         in >> out;
         return out;
     }
