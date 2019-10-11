@@ -3,7 +3,7 @@
 #define FileManager_h
 
 
-#include "ALI_MACRO.h"
+#include "ROOT_MACRO.h"
 #include <iostream>
 #include <set>
 #include <vector>
@@ -34,7 +34,7 @@ class FileManager: public TObject
 
     //* constructor
     FileManager( TString selection = TString() ):
-        fVerbosity( ALI_MACRO::NONE )
+        fVerbosity( ROOT_MACRO::NONE )
     { AddFiles( selection ); }
 
     //* clear selection
@@ -138,11 +138,11 @@ class FileManager: public TObject
     { return fFiles; }
 
     //* verbosity
-    ALI_MACRO::Verbosity GetVerbosity( void ) const
+    ROOT_MACRO::Verbosity GetVerbosity( void ) const
     { return fVerbosity; }
 
     //* verbosity
-    void SetVerbosity( ALI_MACRO::Verbosity value )
+    void SetVerbosity( ROOT_MACRO::Verbosity value )
     { fVerbosity = value; }
 
     //*@name utility functions
@@ -164,7 +164,7 @@ class FileManager: public TObject
     FileSet fFiles;
 
     //* verbosity
-    ALI_MACRO::Verbosity fVerbosity;
+    ROOT_MACRO::Verbosity fVerbosity;
 
     //* root dictionary
     ClassDef( FileManager, 0 );

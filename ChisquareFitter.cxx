@@ -1,6 +1,6 @@
 #include "ChisquareFitter.h"
 
-#include "ALI_MACRO.h"
+#include "ROOT_MACRO.h"
 
 #include <TH1.h>
 #include <TF1.h>
@@ -68,7 +68,7 @@ int flag )
 
         // increment fit points and chisquare
         nFitPoints++;
-        out += ALI_MACRO::SQUARE( (measured-predicted)/error );
+        out += ROOT_MACRO::SQUARE( (measured-predicted)/error );
 
     }
 
@@ -107,7 +107,7 @@ double ChisquareFitter::Chisquare( TH1* histogram, TF1* function )
         if( error <= 0 ) continue;
 
         // increment chisquare
-        out += ALI_MACRO::SQUARE( (measured-predicted)/error );
+        out += ROOT_MACRO::SQUARE( (measured-predicted)/error );
 
     }
 

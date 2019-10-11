@@ -1,6 +1,6 @@
 // $Id: Utils.cxx,v 1.56 2010/09/15 02:27:25 hpereira Exp $
 
-#include "ALI_MACRO.h"
+#include "ROOT_MACRO.h"
 #include "Debug.h"
 #include "Stream.h"
 #include "Utils.h"
@@ -59,7 +59,7 @@ Bool_t Utils::MatrixToAngles(const Double_t *rot, Double_t *angles)
 
 //________________________________________________________________________
 void Utils::DeleteObject( TString name )
-{ return ALI_MACRO::Delete<TObject>( name ); }
+{ return ROOT_MACRO::Delete<TObject>( name ); }
 
 //________________________________________________________________________
 Double_t Utils::GetMean( Double_t* values, Int_t n )
@@ -76,7 +76,7 @@ Double_t Utils::GetRMS( Double_t* values, Int_t n  )
     Double_t out(0);
     const Double_t mean( GetMean( values, n ) );
     for( Int_t i = 0; i < n; ++i )
-    { out+=ALI_MACRO::SQUARE(values[i] - mean ); }
+    { out+=ROOT_MACRO::SQUARE(values[i] - mean ); }
 
     return TMath::Sqrt(out/n);
 }
@@ -90,8 +90,8 @@ Double_t Utils::GetMean( Double_t* values, Double_t* errors, Int_t n )
     {
         if( errors[i] > 0 )
         {
-            out += values[i]/ALI_MACRO::SQUARE( errors[i] );
-            weight += 1.0/ALI_MACRO::SQUARE( errors[i] );
+            out += values[i]/ROOT_MACRO::SQUARE( errors[i] );
+            weight += 1.0/ROOT_MACRO::SQUARE( errors[i] );
         }
     }
 
@@ -109,8 +109,8 @@ Double_t Utils::GetRMS( Double_t* values, Double_t* errors, Int_t n )
 
         if( errors[i] > 0 )
         {
-            out += ALI_MACRO::SQUARE( values[i] - mean )/ALI_MACRO::SQUARE( errors[i] );
-            weight += 1.0/ALI_MACRO::SQUARE( errors[i] );
+            out += ROOT_MACRO::SQUARE( values[i] - mean )/ROOT_MACRO::SQUARE( errors[i] );
+            weight += 1.0/ROOT_MACRO::SQUARE( errors[i] );
         }
 
     }
@@ -144,7 +144,7 @@ Double_t* Utils::GetRelativeDifferenceError( Double_t* values, Double_t* errors,
         else if( values[i] > 0 ) {
 
             Double_t ratio = values[i]/values[0];
-            out[i] = ratio * TMath::Sqrt( ALI_MACRO::SQUARE( errors[i]/values[i] ) + ALI_MACRO::SQUARE( errors[0]/values[0] ) );
+            out[i] = ratio * TMath::Sqrt( ROOT_MACRO::SQUARE( errors[i]/values[i] ) + ROOT_MACRO::SQUARE( errors[0]/values[0] ) );
 
         } else out[i] = 0;
     }
@@ -180,7 +180,7 @@ void Utils::DumpHistogram( TH1* h )
     for( Int_t i=0; i<h->GetNbinsX(); i++ )
     {
         sum += h->GetBinContent(i);
-        sum_error += ALI_MACRO::SQUARE( h->GetBinError(i) );
+        sum_error += ROOT_MACRO::SQUARE( h->GetBinError(i) );
         printf( "%5i %10f %10f %10f %10f %10f\n",
             i,
             h->GetBinCenter(i),
@@ -222,7 +222,7 @@ void Utils::DrawNormalized( TTree* tree, TString name, TString var, const TCut& 
 TTree *Utils::GetChisquareTree( Int_t ndf, Int_t nevents )
 {
 
-    ALI_MACRO::Delete<TTree>( "chisquare" );
+    ROOT_MACRO::Delete<TTree>( "chisquare" );
     TTree *tree = new TTree( "chisquare", "chisquare" );
     static Double_t chi_square(0);
 
@@ -249,11 +249,11 @@ Double_t Utils::GetChisquare( Int_t ndf )
     for( Int_t i=0; i<ndf+1; i++ )
     {
         Double_t value(random.Gaus());
-        chi_square += ALI_MACRO::SQUARE( value );
+        chi_square += ROOT_MACRO::SQUARE( value );
         average+=value;
     }
 
-    chi_square -= ALI_MACRO::SQUARE( average )/(ndf+1);
+    chi_square -= ROOT_MACRO::SQUARE( average )/(ndf+1);
     return chi_square;
 
 }
@@ -498,7 +498,7 @@ Double_t Utils::GetEffectiveScale( TH1* h )
 
         const Int_t bin = h->GetBin( iX+1, iY+1, iZ+1 );
         sumEntries += h->GetBinContent( bin );
-        sumErrorSquare += ALI_MACRO::SQUARE( h->GetBinError( bin ) );
+        sumErrorSquare += ROOT_MACRO::SQUARE( h->GetBinError( bin ) );
 
     }
 
@@ -714,7 +714,7 @@ TCanvas* Utils::NewTCanvas(
     TString name, TString title,
     Int_t width, Int_t height )
 {
-    ALI_MACRO::Delete<TCanvas>( name );
+    ROOT_MACRO::Delete<TCanvas>( name );
     return new TCanvas( name, title, width, height );
 }
 
@@ -727,7 +727,7 @@ TH1* Utils::NewTH1(
     Double_t max
     )
 {
-    ALI_MACRO::Delete<TH1>( name );
+    ROOT_MACRO::Delete<TH1>( name );
     return new th1( name, title, bin, min, max );
 }
 
@@ -739,7 +739,7 @@ TH1* Utils::NewTH1(
     Double_t *x
     )
 {
-    ALI_MACRO::Delete<TH1>( name );
+    ROOT_MACRO::Delete<TH1>( name );
     return Utils::NewTH1( name, title, bin, x );
 }
 
@@ -754,7 +754,7 @@ TH2* Utils::NewTH2(
     Double_t miny,
     Double_t maxy )
 {
-    ALI_MACRO::Delete<TH1>( name );
+    ROOT_MACRO::Delete<TH1>( name );
     return new TH2F( name, title, binx, minx, maxx, biny, miny, maxy );
 }
 
@@ -772,7 +772,7 @@ TH3* Utils::NewTH3(
     Double_t minz,
     Double_t maxz )
 {
-    ALI_MACRO::Delete<TH1>( name );
+    ROOT_MACRO::Delete<TH1>( name );
     return new TH3F( name, title,
         binx, minx, maxx,
         biny, miny, maxy,
@@ -797,7 +797,7 @@ TH1* Utils::NewClone(
     }
 
     // check if histogram with requested name exists
-    ALI_MACRO::Delete<th1>( name );
+    ROOT_MACRO::Delete<th1>( name );
     TH1* h = static_cast<TH1*>( parent->Clone( name ) );
     if( reset ) h->Reset();
     h->SetName(name);
@@ -820,7 +820,7 @@ TH2* Utils::NewClone2D(
     }
 
     // check if histogram with requested name exists
-    ALI_MACRO::Delete<TH2>( name );
+    ROOT_MACRO::Delete<TH2>( name );
     TH2* h = (TH2*) parent->Clone();
     if( reset ) h->Reset();
     h->SetName(name);
@@ -835,7 +835,7 @@ TF1* Utils::NewTF1( TString name,
     const int& n_par )
 {
 
-    ALI_MACRO::Delete<TF1>( name );
+    ROOT_MACRO::Delete<TF1>( name );
     return new TF1( name, function, min, max, n_par );
 
 }
@@ -872,8 +872,8 @@ Int_t Utils::SubtractHistograms(TH1* h1, TH1* h2, TH1* h3)
         Double_t b2= h2->GetBinContent(i); sum2 += b2;
         h3->SetBinContent(i,b1-b2);
 
-        Double_t e1= ALI_MACRO::SQUARE(h1->GetBinError(i));
-        Double_t e2= ALI_MACRO::SQUARE(h2->GetBinError(i));
+        Double_t e1= ROOT_MACRO::SQUARE(h1->GetBinError(i));
+        Double_t e2= ROOT_MACRO::SQUARE(h2->GetBinError(i));
 
         h3->SetBinError( i, TMath::Sqrt( e1+e2 ) );
 
@@ -967,8 +967,8 @@ Double_t Utils::DivideHistograms(TH1* h1, TH1* h2, TH1* h3, UInt_t i1, UInt_t i2
 
             } else {
 
-                if( b1 != 0 ) e3 += ALI_MACRO::SQUARE( 1.0/TMath::Sqrt(b1) );
-                if( b2 != 0 ) e3 += ALI_MACRO::SQUARE( 1.0/TMath::Sqrt(b2) );
+                if( b1 != 0 ) e3 += ROOT_MACRO::SQUARE( 1.0/TMath::Sqrt(b1) );
+                if( b2 != 0 ) e3 += ROOT_MACRO::SQUARE( 1.0/TMath::Sqrt(b2) );
                 e3 = b3*TMath::Sqrt(e3);
                 if( e3 == 0 ) e3 = 0.00001;
             }
@@ -1017,9 +1017,9 @@ TGraphErrors* Utils::DivideTGraphs(TGraphErrors* tg1, TGraphErrors* tg2 )
         Double_t err1( tg1->GetErrorY( i ) );
         Double_t err2( tg2->GetErrorY( i ) );
         Double_t err( TMath::Sqrt(
-            ALI_MACRO::SQUARE((1-eff)*err1)+
-            ALI_MACRO::SQUARE(eff)*(
-            ALI_MACRO::SQUARE(err2)-ALI_MACRO::SQUARE(err1)))/y2 );
+            ROOT_MACRO::SQUARE((1-eff)*err1)+
+            ROOT_MACRO::SQUARE(eff)*(
+            ROOT_MACRO::SQUARE(err2)-ROOT_MACRO::SQUARE(err1)))/y2 );
 
         tg_out->SetPoint( point, x1, eff );
         tg_out->SetPointError( point, 0, err );
@@ -1082,8 +1082,8 @@ Double_t Utils::DivideHistograms2D(TH2* h1, TH2* h2, TH2* h3, Int_t errorMode )
             } else {
 
                 e3 = b3*TMath::Sqrt(
-                    ALI_MACRO::SQUARE( 1.0/TMath::Sqrt(b1) )
-                    + ALI_MACRO::SQUARE( 1.0/TMath::Sqrt(b2) )
+                    ROOT_MACRO::SQUARE( 1.0/TMath::Sqrt(b1) )
+                    + ROOT_MACRO::SQUARE( 1.0/TMath::Sqrt(b2) )
                     );
             }
 

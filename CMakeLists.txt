@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.4 FATAL_ERROR)
-project(AliUtil CXX)
+project(RootUtil CXX)
 
 ######################
 # module path
@@ -41,7 +41,7 @@ set( libbase_SOURCES
 
 
 add_root_dictionaries( libbase_SOURCES
-  ALI_MACROLinkDef.h
+  ROOT_MACROLinkDef.h
   ColorLinkDef.h
   DebugLinkDef.h
   DrawLinkDef.h
@@ -55,9 +55,9 @@ add_root_dictionaries( libbase_SOURCES
   UtilsLinkDef.h
 )
 
-add_library( AliUtilBase SHARED ${libbase_SOURCES} )
-target_link_libraries( AliUtilBase ${ROOT_LIBRARIES} ${GSL_LIBRARIES})
-install( TARGETS AliUtilBase DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
+add_library( RootUtilBase SHARED ${libbase_SOURCES} )
+target_link_libraries( RootUtilBase ${ROOT_LIBRARIES} ${GSL_LIBRARIES})
+install( TARGETS RootUtilBase DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
 
 ######################
 # ranlib

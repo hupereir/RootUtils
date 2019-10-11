@@ -436,7 +436,7 @@ TChain* FileManager::GetChain( TString key ) const
         }
 
         // dump file
-        if( fVerbosity >= ALI_MACRO::SOME )
+        if( fVerbosity >= ROOT_MACRO::SOME )
         { std::cout << "FileManager::GetChain - loading \"" << *iter << "\".\n"; }
 
         // add TFile to chain
@@ -479,7 +479,7 @@ TH1* FileManager::TreeToHisto(
     {
 
         // dump file
-        if( fVerbosity >= ALI_MACRO::NONE )
+        if( fVerbosity >= ROOT_MACRO::NONE )
             std::cout << "FileManager::TreeToHisto - loading \"" << *iter << "\" (" << ++count << "/" << total << ").\n";
 
         // open TFile
@@ -558,7 +558,7 @@ void FileManager::TreeToHisto( const TString& treeName, ProjectionList& projecti
         }
 
         // dump file
-        if( fVerbosity >= ALI_MACRO::NONE )
+        if( fVerbosity >= ROOT_MACRO::NONE )
         { std::cout << "FileManager::TreeToHisto - loading \"" << *iter << "\" (" << ++count << "/" << total << ").\n"; }
 
         // project tree to histogram
@@ -671,7 +671,7 @@ TH1* FileManager::GetHistogram( TString key ) const
     if( Empty() ) return nullptr;
 
     // check if histogram with requested name exists
-    ALI_MACRO::Delete<TH1>( key );
+    ROOT_MACRO::Delete<TH1>( key );
     TH1* out( 0 );
 
     for( FileSet::iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
@@ -695,7 +695,7 @@ TH1* FileManager::GetHistogram( TString key ) const
         }
 
         // dump file
-        if( fVerbosity >= ALI_MACRO::SOME )
+        if( fVerbosity >= ROOT_MACRO::SOME )
         { std::cout << "FileManager::GetHistogram - loading \"" << *iter << "\".\n"; }
 
         if( !out )
@@ -722,7 +722,7 @@ TH1* FileManager::GetHistogramFromList( TString key, TString listKey ) const
     if( Empty() ) return nullptr;
 
     // check if histogram with requested name exists
-    ALI_MACRO::Delete<TH1>( key );
+    ROOT_MACRO::Delete<TH1>( key );
     TH1* out( nullptr );
     for( FileSet::iterator iter = fFiles.begin(); iter!= fFiles.end(); iter++ )
     {
@@ -757,7 +757,7 @@ TH1* FileManager::GetHistogramFromList( TString key, TString listKey ) const
         }
 
         // dump file
-        // if( fVerbosity >= ALI_MACRO::SOME )
+        // if( fVerbosity >= ROOT_MACRO::SOME )
         { std::cout << "FileManager::GetHistogram - loading \"" << *iter << "\".\n"; }
 
         if( !out ) {
@@ -903,7 +903,7 @@ void FileManager::MergeRecursive( TString output, TString selection ) const
     out->Write();
     delete in;
     delete out;
-    if( fVerbosity >= ALI_MACRO::SOME ) std::cout << "FileManager::MergeRecursive - done" << std::endl;
+    if( fVerbosity >= ROOT_MACRO::SOME ) std::cout << "FileManager::MergeRecursive - done" << std::endl;
 
 }
 
@@ -934,7 +934,7 @@ void FileManager::MergeRecursive(
     TDirectory *output, const TString& selection ) const
 {
 
-    if( fVerbosity >= ALI_MACRO::MAX )
+    if( fVerbosity >= ROOT_MACRO::MAX )
     {
         std::cout << std::endl;
         std::cout << "FileManager::MergeRecursive - input:" << std::endl;

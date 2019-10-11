@@ -1,9 +1,9 @@
-// $Id: ALI_MACRO.h,v 1.7 2006/12/27 14:31:34 hugo Exp $
-#ifndef ALI_MACRO_H
-#define ALI_MACRO_H
+// $Id: ROOT_MACRO.h,v 1.7 2006/12/27 14:31:34 hugo Exp $
+#ifndef ROOT_MACRO_H
+#define ROOT_MACRO_H
 
 /*!
-  \file ALI_MACRO.h
+  \file ROOT_MACRO.h
   \brief typedefs and enumerations
 */
 
@@ -12,7 +12,7 @@
 #include <TROOT.h>
 
 //! typedefs and enumerations
-class ALI_MACRO
+class ROOT_MACRO
 {
 
   public:
