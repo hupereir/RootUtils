@@ -49,6 +49,7 @@ set( libbase_SOURCES
 ######################
 # base
 set( libbase_HEADERS
+  ROOT_MACRO.h
   ChisquareFitter.h
   Color.h
   Debug.h
@@ -58,6 +59,7 @@ set( libbase_HEADERS
   Grid.h
   LikelihoodFitter.h
   PdfDocument.h
+  Projection.h
   Stream.h
   Table.h
   TH2Fit.h
