@@ -46,6 +46,24 @@ set( libbase_SOURCES
  )
 
 
+######################
+# base
+set( libbase_HEADERS
+  ChisquareFitter.h
+  Color.h
+  Debug.h
+  Draw.h
+  FileManager.h
+  FitUtils.h
+  Grid.h
+  LikelihoodFitter.h
+  PdfDocument.h
+  Stream.h
+  Table.h
+  TH2Fit.h
+  Utils.h
+ )
+
 add_root_dictionaries( libbase_SOURCES
   ROOT_MACROLinkDef.h
   ColorLinkDef.h
@@ -64,10 +82,12 @@ add_root_dictionaries( libbase_SOURCES
 add_library( RootUtilBase SHARED ${libbase_SOURCES} )
 target_link_libraries( RootUtilBase ${ROOT_LIBRARIES} ${GSL_LIBRARIES})
 install( TARGETS RootUtilBase DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
+install( FILES ${libbase_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/RootUtil )
 
 ######################
 # ranlib
 set( librandlib_SOURCES RandLib.cxx )
+set( librandlib_HEADERS RandLib.h )
 
 add_root_dictionaries( librandlib_SOURCES
   RandLibLinkDef.h
@@ -78,3 +98,4 @@ target_link_libraries( RandLib ${ROOT_LIBRARIES})
 
 ### install
 install( TARGETS RandLib DESTINATION ${CMAKE_INSTALL_PREFIX}/lib )
+install( FILES ${librandlib_HEADERS} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/RandLib )
