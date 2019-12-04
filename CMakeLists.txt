@@ -3,7 +3,7 @@ project(RootUtil CXX)
 
 ######################
 # module path
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 ######
 # GSL
