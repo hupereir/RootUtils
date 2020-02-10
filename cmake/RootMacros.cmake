@@ -1,0 +1,7 @@
+macro(add_root_dictionaries sources)
+  foreach( dictionary ${ARGN} )
+    string( REGEX REPLACE "_?LinkDef.h" "" class ${dictionary} )
+    root_generate_dictionary(G__${class} ${class}.h LINKDEF ${class}LinkDef.h)
+    list(APPEND ${sources} G__${class}.cxx)
+  endforeach()
+endmacro()
