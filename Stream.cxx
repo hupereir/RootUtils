@@ -42,22 +42,6 @@ void Stream::PrintVector( std::ostream& out, TString name, const Double_t* value
 void Stream::PrintIntVector( std::ostream& out, TString name, const Int_t* values, Int_t size, TString format )
 { PrintVector<int>( out, "const Int_t", name, values, size, format ); }
 
-//_________________________________
-void Stream::PrintVector2D( std::ostream& out, TString name, const Double_t* values, Int_t size_1, Int_t size_2, TString format )
-{ PrintVector2D<Double_t>( out, "const Double_t", name, values, size_1, size_2, format ); }
-
-//_________________________________
-void Stream::PrintIntVector2D( std::ostream& out, TString name, const Int_t* values, Int_t size_1, Int_t size_2, TString format )
-{ PrintVector2D<int>( out, "const Int_t", name, values, size_1, size_2, format ); }
-
-//_________________________________
-void Stream::PrintVector3D( std::ostream& out, TString name, const Double_t* values, Int_t size_1, Int_t size_2, Int_t size_3,TString format )
-{ PrintVector3D<Double_t>( out, "const Double_t", name, values, size_1, size_2, size_3, format ); }
-
-//_________________________________
-void Stream::PrintVector4D( std::ostream& out, TString name, const Double_t* values, Int_t size_1, Int_t size_2, Int_t size_3,Int_t size_4, TString format )
-{ PrintVector4D<Double_t>( out, "const Double_t", name, values, size_1, size_2, size_3, size_4, format ); }
-
 //________________________________________________________________________
 void Stream::PrintCuts( const TCut& cut )
 {
