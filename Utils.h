@@ -303,15 +303,6 @@ class Utils:public TObject
 
   #endif
 
-  protected:
-
-  #ifndef __CINT__
-
-  /// merge all ntuples from a file into output
-  static void Merge( std::vector<TString> files, const TString& output_file, const TString& selection );
-
-  #endif
-
   ClassDef(Utils,0)
 
 };

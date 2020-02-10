@@ -14,6 +14,18 @@
 //* root dictionary
 ClassImp( Stream );
 
+//___________________________________________________________________
+/* explicit specialization */
+template<>
+void Stream::PrintVector( std::ostream& out, const std::string& name, const std::vector<int>& values, const std::string& format )
+{PrintVector( std::cout, "int", name, values, format ); }
+
+//___________________________________________________________________
+/* explicit specialization */
+template<>
+void Stream::PrintVector( std::ostream& out, const std::string& name, const std::vector<double>& values, const std::string& format )
+{PrintVector( std::cout, "double", name, values, format ); }
+
 //________________________________________________________________________
 std::string Stream::ReplaceAll( const std::string& in, const std::string& c1, const std::string& c2 )
 {
@@ -33,14 +45,6 @@ std::string Stream::ReplaceAll( const std::string& in, const std::string& c1, co
     return out;
 
 }
-
-//________________________________________________________________________
-void Stream::PrintVector( std::ostream& out, TString name, const Double_t* values, Int_t size, TString format )
-{ PrintVector<Double_t>( out, "const Double_t", name, values, size, format ); }
-
-//________________________________________________________________________
-void Stream::PrintIntVector( std::ostream& out, TString name, const Int_t* values, Int_t size, TString format )
-{ PrintVector<int>( out, "const Int_t", name, values, size, format ); }
 
 //________________________________________________________________________
 void Stream::PrintCuts( const TCut& cut )
