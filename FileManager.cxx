@@ -17,6 +17,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
+#include <memory>
 #include <sstream>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -398,6 +399,8 @@ TChain* FileManager::GetChain( TString key ) const
     if( !(key && strlen( key ) ) ) return nullptr;
     if( Empty() ) return nullptr;
 
+    int valid_files = 0;
+
     // check files
     TChain *out = 0;
 
@@ -405,12 +408,11 @@ TChain* FileManager::GetChain( TString key ) const
     {
 
         // open TFile
-        TFile* f = TFile::Open( iter->Data() );
+        std::unique_ptr<TFile> f( TFile::Open( iter->Data() ) );
 
         if( !( f && f->IsOpen() ) )
         {
             std::cout << "FileManager::GetChain - troubles with TFile \"" << *iter << "\".\n";
-            delete f;
             continue;
         }
 
@@ -418,7 +420,6 @@ TChain* FileManager::GetChain( TString key ) const
         TTree * tree = (TTree*) f->Get( key );
         if( !tree ) {
             std::cout << "FileManager::GetChain - Unable to load chain \"" << key << "\" in \"" << *iter << "\".\n";
-            delete f;
             continue;
         }
 
@@ -427,7 +428,6 @@ TChain* FileManager::GetChain( TString key ) const
             // create tree
             TString title(tree->GetTitle());
             out = new TChain( key, title.Data() );
-
         }
 
         // dump file
@@ -436,9 +436,11 @@ TChain* FileManager::GetChain( TString key ) const
 
         // add TFile to chain
         out->Add( iter->Data() );
-        delete f;
+        ++valid_files;
 
     }
+
+    std::cout << "FileManager::GetChain - valid files: " << valid_files << std::endl;
 
     return out;
 }
