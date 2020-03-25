@@ -26,6 +26,7 @@ class TH1;
 class TH2;
 class TH3;
 class TText;
+class TGraph;
 class TGraphErrors;
 class TProfile;
 /// some root utilities to handle histograms safely
@@ -39,9 +40,12 @@ class Utils:public TObject
     TObject()
   {}
 
+  static double GetMaximum( TGraph* );
+  static double GetMaximumError( TGraphErrors* );
+
   /// get euler angles from rotation matrix (in degrees)
   /// copied from AliAlignObj::MatrixToAngles
-  static Bool_t MatrixToAngles(const Double_t *rot, Double_t *angles);
+  static bool MatrixToAngles(const Double_t *rot, Double_t *angles);
 
   /// get minimum value
   static Double_t MinElement( Double_t* values, Int_t n )
@@ -139,7 +143,7 @@ class Utils:public TObject
     TString name,
     TString var,
     TCut cut="",
-    Bool_t autoH = kTRUE );
+    bool autoH = kTRUE );
 
 
   /// fills histogram from tree return histogram
@@ -159,7 +163,7 @@ class Utils:public TObject
   static void TGraphToC( TGraphErrors* tgraph, TString xLabel, TString yLabel );
 
   /// Convert an histogram into a TGraph
-  static TGraphErrors* HistogramToTGraph( TH1* h, Bool_t zeroSup = kFALSE );
+  static TGraphErrors* HistogramToTGraph( TH1* h, bool zeroSup = kFALSE );
 
   /// returns number of entries (debugged)
   static Double_t GetEntries( TH1* h );
@@ -168,7 +172,7 @@ class Utils:public TObject
   static TH1* ScaleAxis( TH1*h, Double_t scale );
 
   /// returns Integrated histogram
-  static TH1* Integrate( TH1* h, Bool_t normalize = kFALSE );
+  static TH1* Integrate( TH1* h, bool normalize = kFALSE );
 
   /**
   returns histogram Integrate between to axis values
@@ -236,7 +240,7 @@ class Utils:public TObject
     TString name,
     TString title,
     TH1* parent,
-    Bool_t reset );
+    bool reset );
 
   /// create a new clone histogram safely (delete histograms with same name before)
   static TH2* NewClone2D(
@@ -250,7 +254,7 @@ class Utils:public TObject
     TString name,
     TString title,
     TH2* parent,
-    Bool_t reset );
+    bool reset );
 
   /// create TF1
   /** before creating the TF1, a matching TObject is looked after and deleted if found */

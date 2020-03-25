@@ -42,8 +42,45 @@
 ClassImp( Utils );
 
 
+//____________________________________________________________________________
+double Utils::GetMaximum( TGraph* tg )
+{
+  bool first;
+  double maximum = 0;
+  for( int i=0; i < tg->GetN(); ++i )
+  {
+    double x, y;
+    tg->GetPoint( i, x, y );
+    if( first || y > maximum ) maximum = y;
+    first = false;
+  }
+
+  return maximum;
+}
+
+//____________________________________________________________________________
+double Utils::GetMaximumError( TGraphErrors* tg )
+{
+  bool first;
+  double maximum = 0;
+  double maximumError = 0;
+  for( int i=0; i < tg->GetN(); ++i )
+  {
+    double x, y;
+    tg->GetPoint( i, x, y );
+    if( first || y > maximum )
+    {
+      maximum = y;
+      maximumError = tg->GetErrorY(i);
+    }
+    first = false;
+  }
+
+  return maximumError;
+}
+
 //_____________________________________________________________________________
-Bool_t Utils::MatrixToAngles(const Double_t *rot, Double_t *angles)
+bool Utils::MatrixToAngles(const Double_t *rot, Double_t *angles)
 {
   // Calculates the Euler angles in "x y z" notation
   // using the rotation matrix
@@ -265,7 +302,7 @@ Double_t Utils::GetChisquare( Int_t ndf )
 Double_t Utils::GetRandom( TH1* h )
 {
   // initialize
-  static Bool_t first( kTRUE );
+  static bool first( kTRUE );
   if( first ) {
     first = kFALSE;
     srand( time( 0 ) );
@@ -298,7 +335,7 @@ Double_t Utils::GetRandom( TH1* h )
 Double_t Utils::GetRandom( TF1* f, Double_t xMin, Double_t xMax )
 {
   // initialize
-  static Bool_t first( kTRUE );
+  static bool first( kTRUE );
   if( first ) {
     first = kFALSE;
     srand( time( 0 ) );
@@ -327,7 +364,7 @@ Double_t Utils::GetRandom( TF1* f, Double_t xMin, Double_t xMax )
 Double_t Utils::GetRandom( Double_t min, Double_t max )
 {
   // initialize
-  static Bool_t first( kTRUE );
+  static bool first( kTRUE );
   if( first ) {
     first = kFALSE;
     srand( time( 0 ) );
@@ -340,7 +377,7 @@ Double_t Utils::GetRandom( Double_t min, Double_t max )
 std::pair<Double_t,Double_t> Utils::GetRandom2D( TH2* h )
 {
   // initialize
-  static Bool_t first( kTRUE );
+  static bool first( kTRUE );
   if( first ) {
     first = kFALSE;
     srand( time( 0 ) );
@@ -413,7 +450,7 @@ TH1* Utils::ScaleAxis( TH1* h, Double_t scale )
 }
 
 //__________________________________________________
-TH1* Utils::Integrate( TH1* h, Bool_t normalize )
+TH1* Utils::Integrate( TH1* h, bool normalize )
 {
   TString name( h->GetName() );
   name += "_Integrated";
@@ -514,7 +551,7 @@ TH1* Utils::TreeToHisto(
   TString name,
   TString var,
   TCut cut,
-  Bool_t autoH )
+  bool autoH )
 {
   // check tree
   if( !tree )
@@ -675,7 +712,7 @@ void Utils::TGraphToC( TGraphErrors* tgraph, TString xLabel, TString yLabel )
 }
 
 //____________________________________________________________
-TGraphErrors* Utils::HistogramToTGraph( TH1* h, Bool_t zeroSup )
+TGraphErrors* Utils::HistogramToTGraph( TH1* h, bool zeroSup )
 {
   if( !h ) return 0;
 
@@ -793,7 +830,7 @@ TH1* Utils::NewClone(
   TString name,
   TString title,
   TH1* parent,
-  Bool_t reset
+  bool reset
   )
 {
 
@@ -819,7 +856,7 @@ TH2* Utils::NewClone2D(
   TString name,
   TString title,
   TH2* parent,
-  Bool_t reset
+  bool reset
   )
 {
   // check parent histogram

@@ -58,7 +58,7 @@ template<class T>
 void Stream::PrintVector( std::ostream& out, const std::string& type, const std::string& name, const std::vector<T>& values, const std::string& format )
 {
   const auto size( values.size() );
-  out << "const std::array<" << type << "," << size << ">" << " " << name << " = {";
+  out << "constexpr std::array<" << type << "," << size << ">" << " " << name << " = {{";
 
   char value[20];
   for( Int_t i=0; i<size; ++i )
@@ -66,7 +66,7 @@ void Stream::PrintVector( std::ostream& out, const std::string& type, const std:
     sprintf( value, format.c_str(), values[i] );
     out << value;
     if( i != size-1 ) out << ", ";
-    else out << "};";
+    else out << "}};";
   }
 
   out << std::endl;
