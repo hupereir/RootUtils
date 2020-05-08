@@ -57,7 +57,7 @@ class Draw:public TObject
     FormatGIF = 1<<4
   };
 
-  // divide canvas following dimensions ratio to have at least N panels
+  // style
   static void SetStyle( Bool_t );
 
   // save canvas using multiple formats
