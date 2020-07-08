@@ -10,7 +10,7 @@ class PdfDocument
   public:
 
   //* constructor
-  PdfDocument( TString );
+  PdfDocument( TString = TString() );
 
   //* destructor
   virtual ~PdfDocument( void );
