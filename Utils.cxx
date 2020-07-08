@@ -41,6 +41,20 @@
 //! root dictionary
 ClassImp( Utils );
 
+//____________________________________________________________________________
+std::vector<double> Utils::LogAxis( int n, double x_min, double x_max )
+{
+  std::vector<double> out;
+  if( x_min <= 0 || x_max <= 0 || n < 1 ) return out;
+  const double logx_min = std::log( x_min );
+  const double logx_max = std::log( x_max );
+  for( int i = 0; i < n+1; ++i )
+  {
+    const double logx = logx_min + i*(logx_max - logx_min)/n;
+    out.push_back( std::exp( logx ) );
+  } 
+  return out;
+}
 
 //____________________________________________________________________________
 double Utils::GetMaximum( TGraph* tg )

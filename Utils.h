@@ -43,27 +43,12 @@ class Utils:public TObject
   static double GetMaximum( TGraph* );
   static double GetMaximumError( TGraphErrors* );
 
+  // get axis bins with evenly space bins in log scale
+  static std::vector<double> LogAxis( int n, double x_min, double x_max );
+  
   /// get euler angles from rotation matrix (in degrees)
   /// copied from AliAlignObj::MatrixToAngles
   static bool MatrixToAngles(const Double_t *rot, Double_t *angles);
-
-  /// get minimum value
-  static Double_t MinElement( Double_t* values, Int_t n )
-  {
-    Double_t out(0);
-    for( Int_t i=0; i<n; ++i )
-    { if( i==0 || values[i] < out ) out = values[i]; }
-    return out;
-  }
-
-  /// get maximum value
-  static Double_t MaxElement( Double_t* values, Int_t n )
-  {
-    Double_t out(0);
-    for( Int_t i=0; i<n; ++i )
-    { if( i==0 || values[i] > out ) out = values[i]; }
-    return out;
-  }
 
   /// get average for a number measurements
   static Double_t GetMean( Double_t*, Int_t );
