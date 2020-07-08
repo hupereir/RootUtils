@@ -299,13 +299,22 @@ bool FileManager::CheckTree( TString key, Int_t refEntries) const
 
     }
 
-    std::cout << "FileManager::CheckTree - " << fFiles.size() << " files, total: " << totalEntries << " entries.\n";
+    std::cout << std::endl;
+    for( const auto& pair:goodfFiles )
+    { std::cout << pair.first << ": " << pair.second << " entries" << std::endl; }
+    
+    if( !goodfFiles.empty() ) std::cout << std::endl;    
+    for( const auto& file:badFiles )
+    { std::cout << file << " is corrupted" << std::endl; }
 
-    for( FileMap::const_iterator iter = goodfFiles.begin(); iter != goodfFiles.end(); iter++ )
-    { std::cout << iter->first << ": " << iter->second << " entries" << std::endl; }
-
-    for( FileSet::const_iterator iter = badFiles.begin(); iter!= badFiles.end(); iter++ )
-    { std::cout << *iter << " is corrupted" << std::endl; }
+    std::cout << std::endl;
+    std::cout 
+      << "FileManager::CheckTree -"
+      << " total files: " << fFiles.size()
+      << " valid files: " << goodfFiles.size()
+      << " invalid files: " << badFiles.size()
+      << " total entries: " << totalEntries
+      << std::endl;
 
     return badFiles.empty();
 
