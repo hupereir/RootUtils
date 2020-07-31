@@ -243,16 +243,16 @@ bool FileManager::CheckFiles( bool remove_invalid ) const
     for(const auto& filename:fFiles)
     {
       ++current;
+      // std::unique_ptr<TFile> f(TFile::Open(filename));
       std::unique_ptr<TFile> f(TFile::Open(filename));
       if( !( f && f->IsOpen() && f->GetSeekKeys() > 0 ) || f->IsZombie() )
       {
-        
         std::cout
           << "FileManager::CheckTree - "
           << current << "/" << total
           << " " << filename << " looks corrupted" << std::endl;
         badFiles.insert( filename );
-        
+        continue;
       }
       
       // try retrieve tree
