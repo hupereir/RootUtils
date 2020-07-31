@@ -56,12 +56,20 @@ class FileManager: public TObject
     //* remove files from existing list
     void RemoveList( TString file_list );
 
+    //* remove invalid files from list
+    bool RemoveInvalidFiles() const
+    { return CheckFiles( true ); }
+    
+    //* remove invalid files from list
+    bool RemoveInvalidFiles( const TString& name, int entries) const
+    { return CheckTree( name, entries, true ); }
+
     //* check if root files are valid
     /*! possibly dumps the bad fines in output */
-    bool CheckFiles( void ) const;
+    bool CheckFiles( bool remove_invalid = false ) const;
 
     //* check if tree is valid for each file. Dump its entries
-    bool CheckTree( TString = TString(), Int_t = 0 ) const;
+    bool CheckTree( const TString&, int = 0, bool remove_invalid = false ) const;
 
     //*check all the trees in a file.
     bool CheckAllTrees( void ) const;
@@ -96,14 +104,14 @@ class FileManager: public TObject
     consumption
     */
     TH1* TreeToHisto(
-        TString treeName,
+        TString treename,
         TString name,
         TString var,
         TCut cut ) const;
 
     #ifndef __CINT__
     //* project chain from files into histograms define by projections
-    void TreeToHisto( const TString& treeName, ProjectionList& projection_list ) const;
+    void TreeToHisto( const TString& treename, ProjectionList& projection_list ) const;
     #endif
 
     //* Merge histogram from files
