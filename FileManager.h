@@ -2,8 +2,8 @@
 #ifndef FileManager_h
 #define FileManager_h
 
-
 #include "ROOT_MACRO.h"
+
 #include <iostream>
 #include <set>
 #include <vector>
@@ -59,7 +59,7 @@ class FileManager: public TObject
     //* remove invalid files from list
     bool RemoveInvalidFiles() const
     { return CheckFiles( true ); }
-    
+
     //* remove invalid files from list
     bool RemoveInvalidFiles( const TString& name, int entries) const
     { return CheckTree( name, entries, true ); }
@@ -123,12 +123,9 @@ class FileManager: public TObject
     //* Get histogram from TList
     TH1* GetHistogramFromList( TString key, TString list ) const;
 
-    //*  Merge all trees/histograms found in file_selection into output_file
-    void Merge( TString = "out.root", TString selection="", TString option = "" ) const;
-
     //* Merge all histograms found in file_selection into output file
     /*! keeps TDirectory structure of the input files into output file */
-    void MergeRecursive( TString = "out.root", TString selection="" ) const;
+    void Merge( TString = "out.root", TString selection="" ) const;
 
     //* write files
     void DumpFiles( void ) const;
