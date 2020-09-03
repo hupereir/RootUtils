@@ -41,6 +41,7 @@ set( libbase_SOURCES
   Grid.cxx
   LikelihoodFitter.cxx
   PdfDocument.cxx
+  RootFile.cxx
   Stream.cxx
   Table.cxx
   TH2Fit.cxx
@@ -61,6 +62,7 @@ set( libbase_HEADERS
   Grid.h
   LikelihoodFitter.h
   PdfDocument.h
+  RootFile.h
   Projection.h
   Stream.h
   Table.h
@@ -77,6 +79,7 @@ add_root_dictionaries( libbase_SOURCES
   FitUtilsLinkDef.h
   GridLinkDef.h
   PdfDocumentLinkDef.h
+  RootFileLinkDef.h
   StreamLinkDef.h
   TableLinkDef.h
   TH2FitLinkDef.h
