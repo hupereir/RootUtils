@@ -58,17 +58,19 @@ void FileManager::AddDirectory( TString directory )
 //_________________________________________________
 bool FileManager::AddFiles( TString selection )
 {
+  std::cout << "FileManager::AddFiles - selection: " << selection << std::endl;
   if( !selection.Length() ) return false;
 
-  TString filename( selection );
-  if( filename.First( "alien://" ) == 0 )
+  // check if alien files
+  if( std::string( selection.Data() ).rfind( "alien://", 0 ) == 0 )
   {
-    fFiles.insert( filename );
+    fFiles.insert( selection );
     return true;
   }
 
   bool added = false;
   TString command = TString("ls -1 ") + selection;
+  
   FILE *tmp = popen( command.Data(), "r" );
   char line[512];
   while( fgets( line, 512, tmp ) )
