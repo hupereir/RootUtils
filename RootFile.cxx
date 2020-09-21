@@ -22,7 +22,7 @@ void RootFile::Close()
   std::unique_ptr<TFile> tfile( TFile::Open( fFilename, "RECREATE" ) );
   if( !tfile ) return;
   
-  std::cout << "RootFile::~RootFile - writing objects to " << fFilename << std::endl;
+  std::cout << "RootFile::Close - writing objects to " << fFilename << std::endl;
   
   tfile->cd();
   for( auto&& o:fObjects ) { o->Write(); }
