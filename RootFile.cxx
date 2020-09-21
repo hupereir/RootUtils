@@ -11,7 +11,12 @@ RootFile::RootFile( TString filename ):
 
 //________________________________________________________
 RootFile::~RootFile( void )
+{ Close(); }
+
+void RootFile::Close()
 {
+  if( fClosed ) return;
+  
   if( fObjects.empty() ) return;
   if( fFilename.IsNull() ) return;
   std::unique_ptr<TFile> tfile( TFile::Open( fFilename, "RECREATE" ) );
@@ -22,6 +27,9 @@ RootFile::~RootFile( void )
   tfile->cd();
   for( auto&& o:fObjects ) { o->Write(); }
   tfile->Close();
+ 
+  fObjects.clear();
+  fClosed == true;
 }
 
 //________________________________________________________

@@ -18,6 +18,9 @@ class RootFile
   //* add pad
   void Add( TObject* );
 
+  //* close
+  void Close();
+  
   private:
 
   //* filename
@@ -25,6 +28,9 @@ class RootFile
 
   //* object list
   std::vector<TObject*> fObjects;
+
+  //* true if closed
+  bool fClosed = false;
   
   //* root dictionary
   ClassDef( RootFile, 0 );
