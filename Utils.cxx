@@ -444,7 +444,6 @@ TH1* Utils::ScaleAxis( TH1* h, Double_t scale )
   TString name( h->GetName() );
   name += "_scale";
 
-
   TAxis* axis = h->GetXaxis();
   Double_t xMin = scale*axis->GetXmin();
   Double_t xMax = scale*axis->GetXmax();
@@ -461,6 +460,20 @@ TH1* Utils::ScaleAxis( TH1* h, Double_t scale )
   hOut->SetEntries( h->GetEntries() );
   return hOut;
 
+}
+
+//__________________________________________________
+void Utils::PrintAxis( TH1* h )
+{
+  std::cout << "Utils::PrintAxis - histogram: " << h->GetName() << std::endl;
+  for( const auto axis:{h->GetXaxis(), h->GetYaxis(), h->GetZaxis()} )
+  {
+    if( axis ) std::cout << "Utils::PrintAxis -"
+      << "  " << axis->GetName() << " " << axis->GetTitle() 
+      << " bins: " << axis->GetNbins() 
+      << " range: (" << axis->GetXmin() << "," << axis->GetXmax() << ")" 
+      << std::endl;
+  }
 }
 
 //__________________________________________________

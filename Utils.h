@@ -156,6 +156,9 @@ class Utils:public TObject
   /// scale histogram x axis
   static TH1* ScaleAxis( TH1*h, Double_t scale );
 
+  /// print histogram axis
+  static void PrintAxis( TH1* h );
+  
   /// returns Integrated histogram
   static TH1* Integrate( TH1* h, bool normalize = kFALSE );
 
