@@ -25,7 +25,7 @@ void RootFile::Close()
   std::cout << "RootFile::Close - writing objects to " << fFilename << std::endl;
   
   tfile->cd();
-  for( auto&& o:fObjects ) { o->Write(); }
+  for( auto&& o:fObjects ) { if(o) o->Write(); }
   tfile->Close();
  
   fObjects.clear();
