@@ -10,7 +10,7 @@ class RootFile
   public:
 
   //* constructor
-  RootFile( TString = TString() );
+  RootFile( const TString& = TString(), const TString& option = "RECREATE" );
 
   //* destructor
   virtual ~RootFile( void );
@@ -20,18 +20,21 @@ class RootFile
 
   //* close
   void Close();
-  
+
   private:
 
   //* filename
   TString fFilename;
+
+  //* option
+  TString fOption;
 
   //* object list
   std::vector<TObject*> fObjects;
 
   //* true if closed
   bool fClosed = false;
-  
+
   //* root dictionary
   ClassDef( RootFile, 0 );
 
