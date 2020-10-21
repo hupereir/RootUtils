@@ -52,7 +52,7 @@ std::vector<double> Utils::LogAxis( int n, double x_min, double x_max )
   {
     const double logx = logx_min + i*(logx_max - logx_min)/n;
     out.push_back( std::exp( logx ) );
-  } 
+  }
   return out;
 }
 
@@ -468,11 +468,27 @@ void Utils::PrintAxis( TH1* h )
   std::cout << "Utils::PrintAxis - histogram: " << h->GetName() << std::endl;
   for( const auto axis:{h->GetXaxis(), h->GetYaxis(), h->GetZaxis()} )
   {
-    if( axis ) std::cout << "Utils::PrintAxis -"
-      << "  " << axis->GetName() << " " << axis->GetTitle() 
-      << " bins: " << axis->GetNbins() 
-      << " range: (" << axis->GetXmin() << "," << axis->GetXmax() << ")" 
+    if( !axis ) continue;
+
+    std::cout << "Utils::PrintAxis -"
+      << "  " << axis->GetName() << " " << axis->GetTitle()
+      << " bins: " << axis->GetNbins()
+      << " range: (" << axis->GetXmin() << "," << axis->GetXmax() << ")"
       << std::endl;
+
+    if( false )
+    {
+      for( int i = 0; i < axis->GetNbins(); ++i )
+      {
+        std::cout << "Utils::PrintAxis -"
+          << " bin: " << i+1
+          << " range: (" << axis->GetBinLowEdge( i+1 ) << "," << axis->GetBinUpEdge(i+1) << ")"
+          << std::endl;
+      }
+
+      std::cout << std::endl;
+
+    }
   }
 }
 
