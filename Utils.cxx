@@ -628,11 +628,8 @@ TH1* Utils::TreeToHisto(
 
   }
 
-  if( h )
-  {
-    h->SetLineWidth( 2 );
-    h->SetTitle( Form( "%s {%s}", var.Data(), ((TString) cut).Data() ) );
-  }
+  if( h &&  autoH )
+  { h->SetTitle( Form( "%s {%s}", var.Data(), ((TString) cut).Data() ) ); }
 
   return h;
 
@@ -903,7 +900,8 @@ TH2* Utils::NewClone2D(
   )
 {
   // check parent histogram
-  if( !parent ) {
+  if( !parent )
+  {
     std::cout << "Utils::NewClone - null parent.\n";
     return 0;
   }
@@ -923,10 +921,8 @@ TF1* Utils::NewTF1( TString name,
   const Double_t& min, const Double_t& max,
   const int& n_par )
 {
-
   ROOT_MACRO::Delete<TF1>( name );
   return new TF1( name, function, min, max, n_par );
-
 }
 
 //______________________________________________________
@@ -936,7 +932,6 @@ Double_t Utils::GetEntries(TH1* h)
   for(Int_t i = 1; i < h->GetNbinsX(); i++)
     out += h->GetBinContent(i);
   return out;
-
 }
 
 //______________________________________________________
@@ -1154,10 +1149,8 @@ Double_t Utils::DivideHistograms2D(TH2* h1, TH2* h2, TH2* h3, Int_t errorMode )
 
   for(UInt_t i = 1; i < nx1+1; i++)
   {
-
     for(UInt_t j = 1; j < ny1+1; j++)
     {
-
       Int_t bin = h1->GetBin( i, j );
       Double_t b1 = h1->GetBinContent(bin);
       Double_t b2 = h2->GetBinContent(bin);
@@ -1169,20 +1162,40 @@ Double_t Utils::DivideHistograms2D(TH2* h1, TH2* h2, TH2* h3, Int_t errorMode )
         e3 = (b2 != 0 ) ? TMath::Sqrt( b3*(1-b3)/b2 ):0;
         if( b1 == b2 && b1 ) e3 =	0.00001;
       } else {
-
         e3 = b3*TMath::Sqrt(
           ROOT_MACRO::SQUARE( 1.0/TMath::Sqrt(b1) )
           + ROOT_MACRO::SQUARE( 1.0/TMath::Sqrt(b2) )
           );
       }
-
       h3->SetBinContent(bin,b3);
       h3->SetBinError	(bin,e3);
-
     }
 
   }
 
   return ( (Double_t) h1->Integral() / (Double_t) h2->Integral() );
 
+}
+
+//___________________________________________________________________
+TH1* Utils::GetIntegralHistogram( TH1* source, bool inverse, bool include_overflow )
+{
+  TH1* out = static_cast<TH1*>( source->Clone(Form( "%s_int", source->GetName() ) ) );
+  out->SetTitle( Form( "%s, integrated", source->GetTitle() ) );
+  out->Reset();
+
+  auto underflow = include_overflow ? source->GetBinContent(0):0;
+  auto overflow = include_overflow ? source->GetBinContent(source->GetNbinsX()+1):0;
+
+  for( int ibin = 0; ibin < source->GetNbinsX(); ++ibin )
+  {
+    double error = 0;
+    if( inverse ) out->SetBinContent( ibin+1, source->IntegralAndError( ibin+1, source->GetNbinsX(), error ) + overflow );
+    else out->SetBinContent( ibin+1, source->IntegralAndError( 1, ibin+1, error ) + underflow );
+    out->SetBinError( ibin+1, error );
+  }
+
+  out->Scale( 1./(source->Integral() + underflow + overflow) );
+
+  return out;
 }

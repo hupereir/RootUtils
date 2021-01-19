@@ -45,7 +45,7 @@ class Utils:public TObject
 
   // get axis bins with evenly space bins in log scale
   static std::vector<double> LogAxis( int n, double x_min, double x_max );
-  
+
   /// get euler angles from rotation matrix (in degrees)
   /// copied from AliAlignObj::MatrixToAngles
   static bool MatrixToAngles(const Double_t *rot, Double_t *angles);
@@ -158,7 +158,7 @@ class Utils:public TObject
 
   /// print histogram axis
   static void PrintAxis( TH1* h );
-  
+
   /// returns Integrated histogram
   static TH1* Integrate( TH1* h, bool normalize = kFALSE );
 
@@ -276,6 +276,9 @@ class Utils:public TObject
 
   /// divides too TGraphs point/point; stores the result in 3 TGraph
   static TGraphErrors* DivideTGraphs( TGraphErrors* tg_found, TGraphErrors* tg_ref );
+
+  /// get integral distribution of a given histogram
+  static TH1* GetIntegralHistogram( TH1*, bool inverse = true, bool include_overflow = true );
 
   #ifndef __CINT__
 
