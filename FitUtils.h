@@ -56,6 +56,9 @@ namespace UTILS
     //* Crystal ball integral
     static double CrystalBallIntegral( double sigma, double alpha, double n );
 
+    //* Crystal ball integral
+    static std::array<double,2> CrystalBallFractions( double alpha, double n );
+
     //* Crystal ball (with tails on both sides), using integral for first parameter
     static double CrystalBall2( double *x, double *par );
 

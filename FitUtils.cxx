@@ -192,6 +192,17 @@ double FitUtils::CrystalBallIntegral( double sigma, double alpha, double n )
 }
 
 //____________________________________________
+std::array<double,2> FitUtils::CrystalBallFractions( double alpha, double n )
+{
+  // get corresponding integral
+  alpha = fabs( alpha );
+  const double left = n/(alpha*(n-1))*TMath::Exp( -ROOT_MACRO::SQUARE( alpha )/2 );
+  const double core = TMath::Sqrt( TMath::Pi()/2 )*TMath::Erfc( -alpha/TMath::Sqrt(2) );
+  const double sum = left + core;
+  return {{ left/sum, core/sum }};
+}
+
+//____________________________________________
 double FitUtils::CrystalBall2Integral( double sigma, double alpha1, double n1, double alpha2, double n2 )
 {
   // get corresponding integral
@@ -211,7 +222,7 @@ std::array<double, 3> FitUtils::CrystalBall2Fractions(double alpha1, double n1, 
   // get corresponding integral
   alpha1 = fabs( alpha1 );
   alpha2 = fabs( alpha2 );
-
+  
   const double left = n1/(alpha1*(n1-1))*TMath::Exp( -ROOT_MACRO::SQUARE( alpha1 )/2 );
   const double right = n2/(alpha2*(n2-1))*TMath::Exp( -ROOT_MACRO::SQUARE( alpha2 )/2 );
   const double core = TMath::Sqrt( TMath::Pi()/2)*TMath::Erfc( -alpha1/TMath::Sqrt(2) ) - TMath::Sqrt( TMath::Pi()/2)*TMath::Erfc( alpha2/TMath::Sqrt(2) );
