@@ -24,89 +24,92 @@ namespace UTILS
     static TFitResultPtr Fit( TH1*, TF1*, TString );
 
     //* normalized gauss
-    static Double_t Gaus( Double_t x, Double_t mean, Double_t sigma );
+    static double Gaus( double x, double mean, double sigma );
 
     //* normalized gauss
-    static Double_t GausIntegrated( Double_t x, Double_t mean, Double_t sigma );
+    static double GausIntegrated( double x, double mean, double sigma );
 
     //* gaussian, using integral for first parameter
-    static Double_t GausIntegrated( Double_t *x, Double_t *par );
+    static double GausIntegrated( double *x, double *par );
 
     //* 1 gaussian, using integral for first parameter + exp
-    static Double_t GausIntegratedExp( Double_t *x, Double_t *par );
+    static double GausIntegratedExp( double *x, double *par );
 
     //* 2 parameters exponential
-    static Double_t Exp( Double_t *x, Double_t *par );
+    static double Exp( double *x, double *par );
 
     //* 2 gaussian, using integral for first parameter + exp
-    static Double_t GausGausIntegratedExp( Double_t *x, Double_t *par );
+    static double GausGausIntegratedExp( double *x, double *par );
 
     //* 2 gaussian (integ,ave,sigma)+exp
-    static Double_t GausGausIntegrated( Double_t *x, Double_t *par );
+    static double GausGausIntegrated( double *x, double *par );
 
     //* Crystall ball fit, using Amplitude for first parameter
-    static Double_t CrystallBall0( Double_t *x, Double_t *par );
+    static double CrystalBall0( double *x, double *par );
 
     //* Crystal ball, using integral for first parameter
-    static Double_t CrystallBall( Double_t *x, Double_t *par );
+    static double CrystalBall( double *x, double *par );
 
     //* Crystal ball
-    static Double_t CrystallBall( Double_t x, Double_t mean, Double_t sigma, Double_t alpha, Double_t n );
+    static double CrystalBall( double x, double mean, double sigma, double alpha, double n );
 
     //* Crystal ball integral
-    static Double_t CrystallBallIntegral( Double_t sigma, Double_t alpha, Double_t n );
+    static double CrystalBallIntegral( double sigma, double alpha, double n );
 
     //* Crystal ball (with tails on both sides), using integral for first parameter
-    static Double_t CrystallBall2( Double_t *x, Double_t *par );
+    static double CrystalBall2( double *x, double *par );
 
     //* Crystal ball
-    static Double_t CrystallBall2(
-      Double_t x, Double_t mean, Double_t sigma,
-      Double_t alpha, Double_t n,
-      Double_t alpha2, Double_t n2 );
+    static double CrystalBall2(
+      double x, double mean, double sigma,
+      double alpha, double n,
+      double alpha2, double n2 );
 
     //* Crystal ball
-    static Double_t CrystallBall2Integral(
-      Double_t sigma,
-      Double_t alpha, Double_t n,
-      Double_t alpha2, Double_t n2 );
+    static double CrystalBall2Integral(
+      double sigma,
+      double alpha, double n,
+      double alpha2, double n2 );
+
+    //* Crystal ball
+    static std::array<double,3> CrystalBall2Fractions(double alpha, double n, double alpha2, double n2 );
 
     //* variable width gaussian
-    static Double_t VWG( Double_t* x, Double_t* par );
+    static double VWG( double* x, double* par );
 
     //* variable width gaussian
-    static Double_t VWG( Double_t x, Double_t mean, Double_t sigma, Double_t slope );
+    static double VWG( double x, double mean, double sigma, double slope );
 
     //* variable width gaussian
-    static Double_t VWG2( Double_t* x, Double_t* par );
+    static double VWG2( double* x, double* par );
 
     //* variable width gaussian
-    static Double_t VWG2( Double_t x, Double_t mean, Double_t sigma, Double_t slope, Double_t slopeQuad );
+    static double VWG2( double x, double mean, double sigma, double slope, double slopeQuad );
 
     //* Na60 function
-    static Double_t Na60Old( Double_t*, Double_t* par );
+    static double Na60Old( double*, double* par );
 
     //* Na60 fit function
     //* tails have 3 parameters each
-    static Double_t Na60Old(
-      Double_t mass,
-      Double_t mean, Double_t sigma,
-      Double_t* tail1,
-      Double_t* tail2,
-      Double_t massRatio1, Double_t massRatio2
+    static double Na60Old(
+      double mass,
+      double mean, double sigma,
+      double* tail1,
+      double* tail2,
+      double massRatio1, double massRatio2
       );
 
     //* Na60 function
-    static Double_t Na60New( Double_t*, Double_t* par );
+    static double Na60New( double*, double* par );
 
     //* Na60 fit function
     //* tails have 3 parameters each
-    static Double_t Na60New(
-      Double_t mass,
-      Double_t mean, Double_t sigma,
-      Double_t* tail1,
-      Double_t* tail2,
-      Double_t alpha1, Double_t alpha2
+    static double Na60New(
+      double mass,
+      double mean, double sigma,
+      double* tail1,
+      double* tail2,
+      double alpha1, double alpha2
       );
 
     ClassDef(FitUtils,0)

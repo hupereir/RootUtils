@@ -66,59 +66,59 @@ TFitResultPtr FitUtils::Fit( TH1* h, TF1* f, TString option )
 
 
 //_______________________________________________________________________________
-Double_t FitUtils::Gaus( Double_t x, Double_t mean, Double_t sigma )
+double FitUtils::Gaus( double x, double mean, double sigma )
 { return TMath::Exp( -0.5*ROOT_MACRO::SQUARE( (x-mean)/sigma ) ); }
 
 //_______________________________________________________________________________
-Double_t FitUtils::GausIntegrated( Double_t x, Double_t mean, Double_t sigma )
+double FitUtils::GausIntegrated( double x, double mean, double sigma )
 { return 1/(sigma*TMath::Sqrt(2.0*TMath::Pi()))*TMath::Exp( -0.5*ROOT_MACRO::SQUARE( (x-mean)/sigma ) ); }
 
 //_______________________________________________________________________________
-Double_t FitUtils::GausIntegrated( Double_t *x, Double_t *par)
+double FitUtils::GausIntegrated( double *x, double *par)
 { return par[0]*GausIntegrated( x[0], par[1], par[2] ); }
 
 //_______________________________________________________________________________
-Double_t FitUtils::GausIntegratedExp( Double_t *x, Double_t *par)
+double FitUtils::GausIntegratedExp( double *x, double *par)
 {
-  Double_t g = par[0]*GausIntegrated( x[0], par[1], par[2] );
-  Double_t e = par[3]*TMath::Exp( -(x[0]-par[1])/par[4] );
+  double g = par[0]*GausIntegrated( x[0], par[1], par[2] );
+  double e = par[3]*TMath::Exp( -(x[0]-par[1])/par[4] );
   return g+e;
 }
 
 //_______________________________________________________________________________
-Double_t FitUtils::GausGausIntegratedExp( Double_t *x, Double_t *par)
+double FitUtils::GausGausIntegratedExp( double *x, double *par)
 {
-  Double_t g1 = par[0]*GausIntegrated( x[0], par[1], par[2] );
-  Double_t g2 = par[3]*GausIntegrated( x[0], par[4], par[5] );
-  Double_t e = par[6]*TMath::Exp( -1*(x[0])/par[7] );
+  double g1 = par[0]*GausIntegrated( x[0], par[1], par[2] );
+  double g2 = par[3]*GausIntegrated( x[0], par[4], par[5] );
+  double e = par[6]*TMath::Exp( -1*(x[0])/par[7] );
   return g1+g2+e;
 }
 
 //_______________________________________________________________________________
-Double_t FitUtils::GausGausIntegrated( Double_t *x, Double_t *par)
+double FitUtils::GausGausIntegrated( double *x, double *par)
 {
-  Double_t g1 = par[0]*GausIntegrated( x[0], par[1], par[2] );
-  Double_t g2 = par[3]*GausIntegrated( x[0], par[4], par[5] );
+  double g1 = par[0]*GausIntegrated( x[0], par[1], par[2] );
+  double g2 = par[3]*GausIntegrated( x[0], par[4], par[5] );
   return g1+g2;
 }
 
 //_______________________________________________________________________________
-Double_t FitUtils::Exp( Double_t *x, Double_t *par)
+double FitUtils::Exp( double *x, double *par)
 { return par[0]*TMath::Exp( -par[1]*x[0] ); }
 
 //____________________________________________
-Double_t FitUtils::CrystallBall0( Double_t *x, Double_t *par )
-{ return par[0]*CrystallBall( x[0], par[1], par[2], par[3], par[4] ); }
+double FitUtils::CrystalBall0( double *x, double *par )
+{ return par[0]*CrystalBall( x[0], par[1], par[2], par[3], par[4] ); }
 
 //____________________________________________
-Double_t FitUtils::CrystallBall( Double_t *x, Double_t *par )
+double FitUtils::CrystalBall( double *x, double *par )
 {
 
   // get normalized Crystal ball
-  Double_t result = CrystallBall( x[0], par[1], par[2], par[3], par[4] );
+  double result = CrystalBall( x[0], par[1], par[2], par[3], par[4] );
 
   // get integral
-  Double_t integral = CrystallBallIntegral( par[2], par[3], par[4] );
+  double integral = CrystalBallIntegral( par[2], par[3], par[4] );
 
   // return scaled Crystalball so that par[0] corresponds to integral
   return par[0] * result / integral;
@@ -126,18 +126,18 @@ Double_t FitUtils::CrystallBall( Double_t *x, Double_t *par )
 }
 
 //____________________________________________
-Double_t FitUtils::CrystallBall( Double_t x, Double_t mean, Double_t sigma, Double_t alpha, Double_t n )
+double FitUtils::CrystalBall( double x, double mean, double sigma, double alpha, double n )
 {
 
-  Double_t t = (x-mean)/sigma;
+  double t = (x-mean)/sigma;
   if( alpha < 0 ) t *= -1.0;
 
   alpha = fabs( alpha );
   if( t >= -alpha ) return TMath::Exp( -ROOT_MACRO::SQUARE( t )/2 );
   else {
 
-    Double_t a = TMath::Power( n/alpha, n )*TMath::Exp( -ROOT_MACRO::SQUARE( alpha )/2 );
-    Double_t b = n/alpha - alpha;
+    double a = TMath::Power( n/alpha, n )*TMath::Exp( -ROOT_MACRO::SQUARE( alpha )/2 );
+    double b = n/alpha - alpha;
     return a/TMath::Power( b - t, n );
 
   }
@@ -145,14 +145,14 @@ Double_t FitUtils::CrystallBall( Double_t x, Double_t mean, Double_t sigma, Doub
 }
 
 //____________________________________________
-Double_t FitUtils::CrystallBall2( Double_t *x, Double_t *par )
+double FitUtils::CrystalBall2( double *x, double *par )
 {
 
   // get normalized Crystal ball
-  Double_t result = CrystallBall2( x[0], par[1], par[2], par[3], par[4], par[5], par[6] );
+  double result = CrystalBall2( x[0], par[1], par[2], par[3], par[4], par[5], par[6] );
 
   // get integral
-  Double_t integral = CrystallBall2Integral( par[2], par[3], par[4], par[5], par[6] );
+  double integral = CrystalBall2Integral( par[2], par[3], par[4], par[5], par[6] );
 
   // return scaled Crystalball so that par[0] corresponds to integral
   return par[0] * result/integral;
@@ -160,20 +160,20 @@ Double_t FitUtils::CrystallBall2( Double_t *x, Double_t *par )
 }
 
 //____________________________________________
-Double_t FitUtils::CrystallBall2( Double_t x, Double_t mean, Double_t sigma, Double_t alpha1, Double_t n1, Double_t alpha2, Double_t n2 )
+double FitUtils::CrystalBall2( double x, double mean, double sigma, double alpha1, double n1, double alpha2, double n2 )
 {
 
-  Double_t t = (x-mean)/sigma;
+  double t = (x-mean)/sigma;
   if( t < -alpha1 )
   {
-    Double_t a = TMath::Power( n1/alpha1, n1 )*TMath::Exp( -ROOT_MACRO::SQUARE( alpha1 )/2 );
-    Double_t b = n1/alpha1 - alpha1;
+    double a = TMath::Power( n1/alpha1, n1 )*TMath::Exp( -ROOT_MACRO::SQUARE( alpha1 )/2 );
+    double b = n1/alpha1 - alpha1;
     return a/TMath::Power( b - t, n1 );
 
   } else if( t > alpha2 ) {
 
-    Double_t a = TMath::Power( n2/alpha2, n2 )*TMath::Exp( -ROOT_MACRO::SQUARE( alpha2 )/2 );
-    Double_t b = n2/alpha2 - alpha2;
+    double a = TMath::Power( n2/alpha2, n2 )*TMath::Exp( -ROOT_MACRO::SQUARE( alpha2 )/2 );
+    double b = n2/alpha2 - alpha2;
     return a/TMath::Power( b + t, n2 );
 
   } else return TMath::Exp( -ROOT_MACRO::SQUARE( t )/2 );
@@ -181,7 +181,7 @@ Double_t FitUtils::CrystallBall2( Double_t x, Double_t mean, Double_t sigma, Dou
 }
 
 //____________________________________________
-Double_t FitUtils::CrystallBallIntegral( Double_t sigma, Double_t alpha, Double_t n )
+double FitUtils::CrystalBallIntegral( double sigma, double alpha, double n )
 {
   // get corresponding integral
   alpha = fabs( alpha );
@@ -192,7 +192,7 @@ Double_t FitUtils::CrystallBallIntegral( Double_t sigma, Double_t alpha, Double_
 }
 
 //____________________________________________
-Double_t FitUtils::CrystallBall2Integral( Double_t sigma, Double_t alpha1, Double_t n1, Double_t alpha2, Double_t n2 )
+double FitUtils::CrystalBall2Integral( double sigma, double alpha1, double n1, double alpha2, double n2 )
 {
   // get corresponding integral
   alpha1 = fabs( alpha1 );
@@ -206,49 +206,64 @@ Double_t FitUtils::CrystallBall2Integral( Double_t sigma, Double_t alpha1, Doubl
 }
 
 //____________________________________________
-Double_t FitUtils::VWG( Double_t* x, Double_t* par )
+std::array<double, 3> FitUtils::CrystalBall2Fractions(double alpha1, double n1, double alpha2, double n2 )
+{
+  // get corresponding integral
+  alpha1 = fabs( alpha1 );
+  alpha2 = fabs( alpha2 );
+
+  const double left = n1/(alpha1*(n1-1))*TMath::Exp( -ROOT_MACRO::SQUARE( alpha1 )/2 );
+  const double right = n2/(alpha2*(n2-1))*TMath::Exp( -ROOT_MACRO::SQUARE( alpha2 )/2 );
+  const double core = TMath::Sqrt( TMath::Pi()/2)*TMath::Erfc( -alpha1/TMath::Sqrt(2) ) - TMath::Sqrt( TMath::Pi()/2)*TMath::Erfc( alpha2/TMath::Sqrt(2) );
+  const double sum = left + right + core;
+  return {{ left/sum, core/sum, right/sum }};
+  
+}
+
+//____________________________________________
+double FitUtils::VWG( double* x, double* par )
 { return par[0]*VWG( x[0], par[1], par[2], par[3] ); }
 
 //____________________________________________
-Double_t FitUtils::VWG( Double_t x, Double_t mean, Double_t sigma, Double_t slope )
+double FitUtils::VWG( double x, double mean, double sigma, double slope )
 {
-  const Double_t sigmaTmp = sigma+slope*((x-mean)/mean);
+  const double sigmaTmp = sigma+slope*((x-mean)/mean);
   return TMath::Exp( -0.5*ROOT_MACRO::SQUARE( (x-mean)/sigmaTmp ) );
 }
 
 //____________________________________________
-Double_t FitUtils::VWG2( Double_t* x, Double_t* par )
+double FitUtils::VWG2( double* x, double* par )
 { return par[0]*VWG2( x[0], par[1], par[2], par[3], par[4] ); }
 
 //____________________________________________
-Double_t FitUtils::VWG2( Double_t x, Double_t mean, Double_t sigma, Double_t slope, Double_t slopeQuad )
+double FitUtils::VWG2( double x, double mean, double sigma, double slope, double slopeQuad )
 {
-  const Double_t sigmaTmp = sigma+slope*((x-mean)/mean) + slopeQuad*ROOT_MACRO::SQUARE((x-mean)/mean);
+  const double sigmaTmp = sigma+slope*((x-mean)/mean) + slopeQuad*ROOT_MACRO::SQUARE((x-mean)/mean);
   return TMath::Exp( -0.5*ROOT_MACRO::SQUARE( (x-mean)/sigmaTmp ) );
 }
 
 //____________________________________________
-Double_t FitUtils::Na60Old( Double_t* x, Double_t* par )
+double FitUtils::Na60Old( double* x, double* par )
 {
-  Double_t tail1[3] = { par[3], par[4], par[5] };
-  Double_t tail2[3] = { par[6], par[7], par[8] };
+  double tail1[3] = { par[3], par[4], par[5] };
+  double tail2[3] = { par[6], par[7], par[8] };
   return par[0]*Na60Old( x[0], par[1], par[2], tail1, tail2, par[9], par[10] );
 }
 
 //____________________________________________
 // there are 3 parameters for each tail
-Double_t FitUtils::Na60Old(
-  Double_t mass,
-  Double_t mean, Double_t sigma,
-  Double_t* tail1,
-  Double_t* tail2,
-  Double_t massRatio1, Double_t massRatio2
+double FitUtils::Na60Old(
+  double mass,
+  double mean, double sigma,
+  double* tail1,
+  double* tail2,
+  double massRatio1, double massRatio2
   )
 {
-  const Double_t mass1 = massRatio1*mean;
-  const Double_t mass2 = massRatio2*mean;
+  const double mass1 = massRatio1*mean;
+  const double mass2 = massRatio2*mean;
 
-  Double_t sigmaTmp;
+  double sigmaTmp;
   if( mass < mass1 ) sigmaTmp = sigma*( 1.0 + TMath::Power( tail1[0]*(mass1-mass), tail1[1]-tail1[2]*TMath::Sqrt(mass1-mass)));
   else if( mass >= mass1 && mass < mass2 ) sigmaTmp = sigma;
   else if( mass >= mass2 ) sigmaTmp = sigma*( 1.0 + TMath::Power( tail2[0]*(mass-mass2), tail2[1]-tail2[2]*TMath::Sqrt(mass-mass2)));
@@ -257,27 +272,27 @@ Double_t FitUtils::Na60Old(
 }
 
 //____________________________________________
-Double_t FitUtils::Na60New( Double_t* x, Double_t* par )
+double FitUtils::Na60New( double* x, double* par )
 {
-  Double_t tail1[3] = { par[3], par[4], par[5] };
-  Double_t tail2[3] = { par[6], par[7], par[8] };
+  double tail1[3] = { par[3], par[4], par[5] };
+  double tail2[3] = { par[6], par[7], par[8] };
   return par[0]*Na60New( x[0], par[1], par[2], tail1, tail2, par[9], par[10] );
 }
 
 //____________________________________________
 // there are 3 parameters for each tail
-Double_t FitUtils::Na60New(
-  Double_t mass,
-  Double_t mean, Double_t sigma,
-  Double_t* tail1,
-  Double_t* tail2,
-  Double_t alpha1, Double_t alpha2
+double FitUtils::Na60New(
+  double mass,
+  double mean, double sigma,
+  double* tail1,
+  double* tail2,
+  double alpha1, double alpha2
   )
 {
 
-  const Double_t t = (mass-mean)/sigma;
+  const double t = (mass-mean)/sigma;
 
-  Double_t sigmaRatio;
+  double sigmaRatio;
   if( t < alpha1 ) sigmaRatio = ( 1.0 + TMath::Power( tail1[0]*(alpha1-t), tail1[1]-tail1[2]*TMath::Sqrt(alpha1 - t) ) );
   else if( t >= alpha1 && t < alpha2 ) sigmaRatio = 1;
   else if( t >= alpha2 ) sigmaRatio = ( 1.0 + TMath::Power( tail2[0]*(t-alpha2), tail2[1]-tail2[2]*TMath::Sqrt(t - alpha2) ) );
