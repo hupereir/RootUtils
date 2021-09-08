@@ -493,7 +493,7 @@ void Utils::PrintAxis( TH1* h )
 }
 
 //__________________________________________________
-TH1* Utils::Integrate( TH1* h, bool normalize )
+TH1* Utils::Integrate( TH1* h, bool normalize, bool inverse )
 {
   TString name( h->GetName() );
   name += "_Integrated";
@@ -509,12 +509,16 @@ TH1* Utils::Integrate( TH1* h, bool normalize )
   for( Int_t bin=0; bin < n_bins; bin++ ) {
 
     //retrieve Integrate
-    Double_t y( h->Integral( 1, bin+1 ) );
-    Double_t error = TMath::Sqrt( y*(1.0-(y/entries)) );
+    auto y = inverse ?
+      h->Integral( bin+1, n_bins+1 ):
+      h->Integral( 1, bin+1 );
+    auto error = std::sqrt( y*(1.0-(y/entries)) );
+
     if( normalize ) {
       y /= entries;
       error /= entries;
     }
+
     hInt->SetBinContent( bin+1, y );
     hInt->SetBinError( bin+1, error );
 

@@ -160,7 +160,7 @@ class Utils:public TObject
   static void PrintAxis( TH1* h );
 
   /// returns Integrated histogram
-  static TH1* Integrate( TH1* h, bool normalize = kFALSE );
+  static TH1* Integrate( TH1* h, bool normalize = kFALSE, bool inverse = kFALSE );
 
   /**
   returns histogram Integrate between to axis values
