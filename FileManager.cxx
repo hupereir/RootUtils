@@ -661,7 +661,7 @@ TH1* FileManager::GetHistogram( TString key ) const
     auto h = dynamic_cast<TH1*>( f->Get( key ) );
     if( !h )
     {
-      std::cout << "FileManager::GetHistogram - load histogram from \"" << filename << "\" failed." << std::endl;
+      std::cout << "FileManager::GetHistogram - load histogram " << key << " from \"" << filename << "\" failed." << std::endl;
       continue;
     }
 
