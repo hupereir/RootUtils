@@ -501,9 +501,10 @@ TH1* Utils::Integrate( TH1* h, bool normalize, bool inverse )
   TString title( h->GetTitle() );
   title += " [Integrated]";
 
-  Double_t entries( h->GetEntries() );
+  const auto entries( h->Integral() );
   TH1* hInt( NewClone( name.Data(), title.Data(), h ) );
-
+  hInt->GetXaxis()->SetTitle( h->GetXaxis()->GetTitle() );
+  
   // retrieve number of bins in histograms
   Int_t n_bins( h->GetNbinsX() );
   for( Int_t bin=0; bin < n_bins; bin++ ) {
