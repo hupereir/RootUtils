@@ -3,9 +3,8 @@
 #include <TCanvas.h>
 
 //________________________________________________________
-PdfDocument::PdfDocument( TString filename ):
-  fFilename( filename ),
-  fFirst( kTRUE )
+PdfDocument::PdfDocument( const TString& filename ):
+  fFilename( filename )
 {}
 
 //________________________________________________________
@@ -25,7 +24,7 @@ void PdfDocument::Add( TVirtualPad* pad )
   {
 
     pad->SaveAs( Form( "%s(", fFilename.Data() ) );
-    fFirst = kFALSE;
+    fFirst = false;
 
   } else {
 

@@ -10,11 +10,18 @@ class PdfDocument
   public:
 
   //* constructor
-  PdfDocument( TString = TString() );
-
+  PdfDocument( const TString& = TString() );
+  
   //* destructor
   virtual ~PdfDocument( void );
 
+  //* set filename
+  void SetFilename( const TString& filename )
+  {
+    fFilename = filename; 
+    fFirst = true;
+  }
+  
   //* add pad
   void Add( TVirtualPad* );
 
@@ -24,7 +31,7 @@ class PdfDocument
   TString fFilename;
 
   //* true if first page
-  Bool_t fFirst;
+  bool fFirst = true;
 
   //* root dictionary
   ClassDef( PdfDocument, 0 );
