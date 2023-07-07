@@ -3,32 +3,32 @@
 #include <TCanvas.h>
 
 //________________________________________________________
-PdfDocument::PdfDocument( const TString& filename ):
-  fFilename( filename )
+PdfDocument::PdfDocument( TString filename ):
+  m_filename( filename )
 {}
 
 //________________________________________________________
 PdfDocument::~PdfDocument( void )
 {
-  if( fFirst ) return;
-  if( fFilename.IsNull() ) return;
-  TCanvas().SaveAs( Form( "%s)", fFilename.Data() ) );
+  if( m_first ) return;
+  if( m_filename.IsNull() ) return;
+  TCanvas().SaveAs( Form( "%s)", m_filename.Data() ) );
 }
 
 //________________________________________________________
 void PdfDocument::Add( TVirtualPad* pad )
 {
 
-  if( fFilename.IsNull() ) return;
-  if( fFirst )
+  if( m_filename.IsNull() ) return;
+  if( m_first )
   {
 
-    pad->SaveAs( Form( "%s(", fFilename.Data() ) );
-    fFirst = false;
+    pad->SaveAs( Form( "%s(", m_filename.Data() ) );
+    m_first = kFALSE;
 
   } else {
 
-    pad->SaveAs( Form( "%s", fFilename.Data() ) );
+    pad->SaveAs( Form( "%s", m_filename.Data() ) );
 
   }
 

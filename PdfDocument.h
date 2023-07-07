@@ -13,7 +13,7 @@ class PdfDocument
   PdfDocument( const TString& = TString() );
   
   //* destructor
-  virtual ~PdfDocument( void );
+  ~PdfDocument( void );
 
   //* set filename
   void SetFilename( const TString& filename )
@@ -25,13 +25,17 @@ class PdfDocument
   //* add pad
   void Add( TVirtualPad* );
 
+  //* get filename
+  const TString& Filename() const 
+  { return m_filename; }
+  
   private:
 
   //* filename
-  TString fFilename;
+  TString m_filename;
 
   //* true if first page
-  bool fFirst = true;
+  Bool_t m_first = true;
 
   //* root dictionary
   ClassDef( PdfDocument, 0 );
