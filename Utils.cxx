@@ -41,6 +41,8 @@
 //! root dictionary
 ClassImp( Utils );
 
+int64_t Utils::max_entries = TTree::kMaxEntries;
+
 //____________________________________________________________________________
 std::vector<double> Utils::LogAxis( int n, double x_min, double x_max )
 {
@@ -623,13 +625,13 @@ TH1* Utils::TreeToHisto(
   {
 
     // create/fill autoformated histogram if requested
-    tree->Draw( Form( "%s >> %s", var.Data(), name.Data() ), cut, "goff" );
+    tree->Draw( Form( "%s >> %s", var.Data(), name.Data() ), cut, "goff", max_entries );
     h = static_cast<TH1*>( gROOT->FindObject(name) );
 
   } else {
 
     // project in existing histogram otherwise
-    tree->Project( name, var, cut );
+    tree->Project( name, var, cut, "", max_entries );
 
   }
 

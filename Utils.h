@@ -1,12 +1,13 @@
 #ifndef Utils_h
 #define Utils_h
 
-#include <TROOT.h>
-#include <TObject.h>
-#include <TCut.h>
 #include <TCanvas.h>
-#include <TVirtualPad.h>
+#include <TCut.h>
+#include <TObject.h>
+#include <TROOT.h>
 #include <TString.h>
+#include <TTree.h>
+#include <TVirtualPad.h>
 
 #include <cstdarg>
 #include <iostream>
@@ -20,7 +21,6 @@
 
 //#include <algorithm>
 class TChain;
-class TTree;
 class TF1;
 class TH1;
 class TH2;
@@ -298,6 +298,9 @@ class Utils:public TObject
 
   #endif
 
+  // max entries
+  static int64_t max_entries;
+  
   ClassDef(Utils,0)
 
 };
