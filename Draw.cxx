@@ -120,7 +120,7 @@ void Draw::DivideCanvas( TCanvas* cv, Int_t n, Bool_t respect_ratio )
 //______________________________________________________
 TLatex* Draw::PutText( Double_t x_ndc, Double_t y_ndc, Int_t color, TString value, Double_t fontSize )
 {
-  TLatex* text = new TLatex();
+  auto text = new TLatex;
   text->SetNDC( true );
   text->SetTextColor(color);
   text->SetTextSize( fontSize );
@@ -757,9 +757,6 @@ TGraphErrors* Draw::DrawBand( Int_t n, Double_t* x, Double_t* yMin, Double_t* yM
 //__________________________________________________
 TLine* Draw::VerticalLine( TVirtualPad* pad, Double_t x )
 {
-
-  pad->Update();
-
   Double_t yMin = pad->GetUymin();
   Double_t yMax = pad->GetUymax();
 
@@ -780,9 +777,6 @@ TLine* Draw::VerticalLine( TVirtualPad* pad, Double_t x )
 //__________________________________________________
 TLine* Draw::HorizontalLine( TVirtualPad* pad, Double_t y )
 {
-
-  pad->Update();
-
   Double_t xMin = pad->GetUxmin();
   Double_t xMax = pad->GetUxmax();
 
