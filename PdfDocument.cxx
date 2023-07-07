@@ -3,7 +3,7 @@
 #include <TCanvas.h>
 
 //________________________________________________________
-PdfDocument::PdfDocument( TString filename ):
+PdfDocument::PdfDocument( const TString& filename ):
   m_filename( filename )
 {}
 

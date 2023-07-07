@@ -18,8 +18,8 @@ class PdfDocument
   //* set filename
   void SetFilename( const TString& filename )
   {
-    fFilename = filename; 
-    fFirst = true;
+    m_filename = filename; 
+    m_first = true;
   }
   
   //* add pad
