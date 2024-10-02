@@ -504,137 +504,137 @@ TH1* FileManager::TreeToHisto(
 
 }
 
-//_________________________________________________
-void FileManager::TreeToHisto( const TString& treename, ProjectionList& projection_list ) const
-{
-
-  // check files (do nothing so far)
-  if( Empty() ) return;
-
-
-  // check if histogram with requested name exists
-  for( ProjectionList::iterator iter = projection_list.begin(); iter != projection_list.end(); iter++ )
-    if( !iter->fH )
-  {
-    std::cout << "FileManager::TreeToHisto - fatal: cannot find predefined histogram \"" << iter->fHName << "\" ." << std::endl;
-    return;
-  }
-
-  // loop over TFiles
-  unsigned int count(0);
-  unsigned int total(fFiles.size());
-  for(const auto& filename:fFiles)
-  {
-
-    // open TFile
-    std::unique_ptr<TFile> f(TFile::Open(filename));
-    if( !( f && f->IsOpen() ) )
-    {
-      std::cout << "FileManager::TreeToHisto - troubles with TFile \"" << filename << "\"." << std::endl;
-      continue;
-    }
-
-    // try load tree
-    TTree * tree = (TTree*) f->Get( treename.Data() );
-    if( !tree )
-    {
-      std::cout << "FileManager::TreeToHisto - Unable to load chain \"" << treename << "\"." << std::endl;
-      continue;
-    }
-
-    // dump file
-    if( fVerbosity >= ROOT_MACRO::NONE )
-    { std::cout << "FileManager::TreeToHisto - loading \"" << filename << "\" (" << ++count << "/" << total << ")." << std::endl; }
-
-    // project tree to histogram
-    for( ProjectionList::iterator iter = projection_list.begin(); iter != projection_list.end(); iter++ )
-    {
-      TString tmpName( iter->fHName + "_tmp" );
-      TH1* hTmp( Utils::NewClone( tmpName.Data(), tmpName.Data(), iter->fH ) );
-      tree->Project( tmpName.Data(), iter->fVarName.Data(), iter->fCut );
-      iter->fH->Add( hTmp );
-    }
-  }
-
-  return;
-
-}
-
-//_________________________________________________
-TList* FileManager::GetList( TString key ) const
-{
-
-  // create output list
-  TList* outputList = new TList();
-  outputList->SetName( key );
-
-  for(const auto& filename:fFiles)
-  {
-
-    // open TFile
-    std::unique_ptr<TFile> f(TFile::Open(filename));
-    if(!(f&&f->IsOpen()))
-    {
-      std::cout << "FileManager::GetList - troubles with TFile \"" << filename << "\"." << std::endl;
-      continue;
-    }
-
-    auto inputList = dynamic_cast<TList*>(f->Get(key));
-    if( !inputList )
-    {
-      std::cout << "FileManager::GetList - load list from \"" << filename << "\" failed." << std::endl;
-      continue;
-    }
-
-    inputList->SetOwner();
-
-    // iterate
-    TIter inputIter( inputList );
-    TObject* inputObject = 0x0;
-    while(inputObject = inputIter.Next())
-    {
-
-      // try cast to histogram
-      auto inputHistogram = dynamic_cast<TH1*>( inputObject );
-      if( inputHistogram )
-      {
-        // check if already in output list
-        auto outputHistogram = static_cast<TH1*>(outputList->FindObject(inputHistogram->GetName()));
-        if( outputHistogram ) outputHistogram->Add( inputHistogram );
-        else {
-          std::cout << "FileManager::GetList - adding histogram " << inputHistogram->GetName() << " to list " << key << std::endl;
-          gROOT->cd();
-          outputList->Add( inputHistogram->Clone() );
-        }
-        continue;
-
-      }
-
-      // try cast to THnBase
-      THnBase* inputThn = dynamic_cast<THnBase*>( inputObject );
-      if( inputThn )
-      {
-        // check if already in output list
-        THnBase* outputThn = (THnBase*) outputList->FindObject( inputThn->GetName() );
-        if( outputThn ) outputThn->Add( inputThn );
-        else {
-
-          std::cout << "FileManager::GetList - adding THn " << inputThn->GetName() << " to list " << key << std::endl;
-          gROOT->cd();
-          outputList->Add( inputThn->Clone() );
-
-        }
-
-      }
-
-    }
-
-    // cleanup
-    delete inputList;
-  }
-
-  return outputList;
-}
+// //_________________________________________________
+// void FileManager::TreeToHisto( const TString& treename, ProjectionList& projection_list ) const
+// {
+//
+//   // check files (do nothing so far)
+//   if( Empty() ) return;
+//
+//
+//   // check if histogram with requested name exists
+//   for( ProjectionList::iterator iter = projection_list.begin(); iter != projection_list.end(); iter++ )
+//     if( !iter->fH )
+//   {
+//     std::cout << "FileManager::TreeToHisto - fatal: cannot find predefined histogram \"" << iter->fHName << "\" ." << std::endl;
+//     return;
+//   }
+//
+//   // loop over TFiles
+//   unsigned int count(0);
+//   unsigned int total(fFiles.size());
+//   for(const auto& filename:fFiles)
+//   {
+//
+//     // open TFile
+//     std::unique_ptr<TFile> f(TFile::Open(filename));
+//     if( !( f && f->IsOpen() ) )
+//     {
+//       std::cout << "FileManager::TreeToHisto - troubles with TFile \"" << filename << "\"." << std::endl;
+//       continue;
+//     }
+//
+//     // try load tree
+//     TTree * tree = (TTree*) f->Get( treename.Data() );
+//     if( !tree )
+//     {
+//       std::cout << "FileManager::TreeToHisto - Unable to load chain \"" << treename << "\"." << std::endl;
+//       continue;
+//     }
+//
+//     // dump file
+//     if( fVerbosity >= ROOT_MACRO::NONE )
+//     { std::cout << "FileManager::TreeToHisto - loading \"" << filename << "\" (" << ++count << "/" << total << ")." << std::endl; }
+//
+//     // project tree to histogram
+//     for( ProjectionList::iterator iter = projection_list.begin(); iter != projection_list.end(); iter++ )
+//     {
+//       TString tmpName( iter->fHName + "_tmp" );
+//       TH1* hTmp( Utils::NewClone( tmpName.Data(), tmpName.Data(), iter->fH ) );
+//       tree->Project( tmpName.Data(), iter->fVarName.Data(), iter->fCut );
+//       iter->fH->Add( hTmp );
+//     }
+//   }
+//
+//   return;
+//
+// }
+//
+// //_________________________________________________
+// TList* FileManager::GetList( TString key ) const
+// {
+//
+//   // create output list
+//   TList* outputList = new TList();
+//   outputList->SetName( key );
+//
+//   for(const auto& filename:fFiles)
+//   {
+//
+//     // open TFile
+//     std::unique_ptr<TFile> f(TFile::Open(filename));
+//     if(!(f&&f->IsOpen()))
+//     {
+//       std::cout << "FileManager::GetList - troubles with TFile \"" << filename << "\"." << std::endl;
+//       continue;
+//     }
+//
+//     auto inputList = dynamic_cast<TList*>(f->Get(key));
+//     if( !inputList )
+//     {
+//       std::cout << "FileManager::GetList - load list from \"" << filename << "\" failed." << std::endl;
+//       continue;
+//     }
+//
+//     inputList->SetOwner();
+//
+//     // iterate
+//     TIter inputIter( inputList );
+//     TObject* inputObject = 0x0;
+//     while(inputObject = inputIter.Next())
+//     {
+//
+//       // try cast to histogram
+//       auto inputHistogram = dynamic_cast<TH1*>( inputObject );
+//       if( inputHistogram )
+//       {
+//         // check if already in output list
+//         auto outputHistogram = static_cast<TH1*>(outputList->FindObject(inputHistogram->GetName()));
+//         if( outputHistogram ) outputHistogram->Add( inputHistogram );
+//         else {
+//           std::cout << "FileManager::GetList - adding histogram " << inputHistogram->GetName() << " to list " << key << std::endl;
+//           gROOT->cd();
+//           outputList->Add( inputHistogram->Clone() );
+//         }
+//         continue;
+//
+//       }
+//
+//       // try cast to THnBase
+//       THnBase* inputThn = dynamic_cast<THnBase*>( inputObject );
+//       if( inputThn )
+//       {
+//         // check if already in output list
+//         THnBase* outputThn = (THnBase*) outputList->FindObject( inputThn->GetName() );
+//         if( outputThn ) outputThn->Add( inputThn );
+//         else {
+//
+//           std::cout << "FileManager::GetList - adding THn " << inputThn->GetName() << " to list " << key << std::endl;
+//           gROOT->cd();
+//           outputList->Add( inputThn->Clone() );
+//
+//         }
+//
+//       }
+//
+//     }
+//
+//     // cleanup
+//     delete inputList;
+//   }
+//
+//   return outputList;
+// }
 
 //_________________________________________________
 TH1* FileManager::GetHistogram( TString key ) const

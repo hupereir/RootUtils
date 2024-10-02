@@ -786,7 +786,7 @@ TLine* Draw::HorizontalLine( TVirtualPad* pad, Double_t y )
     xMax = TMath::Power( 10, xMax );
   }
 
-  TLine *line = new TLine( xMin, y, xMax, y );
+  auto line = new TLine( xMin, y, xMax, y );
   line->SetLineStyle( 2 );
   line->SetLineWidth( fLineWidth );
   line->SetLineColor( fLineColor );

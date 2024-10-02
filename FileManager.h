@@ -11,9 +11,10 @@
 #include <TCut.h>
 #include <TObject.h>
 
-#ifndef __CINT__
-#include "Projection.h"
-#endif
+// #ifndef __CINT__
+// #include "Projection.h"
+// #endif
+
 /*!
 \file FileManager.h
 \brief handles list of files for merging
@@ -109,10 +110,10 @@ class FileManager: public TObject
         TString var,
         TCut cut ) const;
 
-    #ifndef __CINT__
-    //* project chain from files into histograms define by projections
-    void TreeToHisto( const TString& treename, ProjectionList& projection_list ) const;
-    #endif
+//     #ifndef __CINT__
+//     //* project chain from files into histograms define by projections
+//     void TreeToHisto( const TString& treename, ProjectionList& projection_list ) const;
+//     #endif
 
     //* Merge histogram from files
     TH1* GetHistogram( TString key ) const;

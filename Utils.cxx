@@ -221,7 +221,7 @@ Double_t Utils::GetEffError( Double_t ref, Double_t found )
   Double_t eff( GetEfficiency( ref, found ) );
   if( eff > 1 ) return 0;
 
-  return TMath::Sqrt( eff*(1.0-eff)/ref );
+  return std::sqrt( eff*(1.0-eff)/ref );
 }
 
 //________________________________________________________________________
